@@ -1,11 +1,11 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>2x2 App — v8.3</title>
-<link rel="stylesheet" href="core/theme.css?v=20250831223240">
-<link rel="icon" href="assets/favicon.svg">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>2x2 App — v8.4</title>
+<link rel="icon" href="assets/favicon.svg" />
+<link rel="stylesheet" href="core/theme.css?v=20250901185000">
 <style>
   :root{--bg:#fff;--fg:#0f172a;--muted:#475569;--gold:#C6A247;--ring:#e5e7eb;--panel:#f8fafc}
   body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
@@ -24,30 +24,29 @@
   iframe.module-frame{border:0;width:100%;height:calc(100vh - 62px);background:#fff}
   .version{color:var(--muted);font-size:12px}
 </style>
-  <link rel="stylesheet" href="./core/design/tokens.css?v=20250831223240">
+<link rel="stylesheet" href="./core/design/tokens.css?v=20250901185000">
 
-  <script>
-    (function(g){
-      g.PCFP = g.PCFP || {};
-                  g.PCFP.version = { app: window.APP_BUILD || 'v8.3', build: '20250831223240Z' };
-      function setPill(){
-        var pill = document.querySelector('[data-app-version]');
-        if(pill) pill.textContent = g.PCFP.version.app;
-        // Mega-visible banner for this build (temporary)
-        var b = document.createElement('div');
-                      b.textContent = 'RUNNING ' + (window.APP_BUILD || 'v8.3') + ' (cache-busted)';
-        b.style.position='fixed'; b.style.top='10px'; b.style.left='10px';
-        b.style.background='#b08d2f'; b.style.color='#000'; b.style.padding='6px 10px';
-        b.style.zIndex='100000'; b.style.borderRadius='6px';
-        document.addEventListener('click', function(){ try{ b.remove(); }catch(e){} }, {once:true});
-        document.body.appendChild(b);
-        setTimeout(function(){ try{ b.remove(); }catch(e){} }, 4000);
-      }
-      if(document.readyState!=='loading') setPill();
-      else document.addEventListener('DOMContentLoaded', setPill);
-    })(window);
-  </script>
-
+<script>
+  (function(g){
+    g.PCFP = g.PCFP || {};
+    g.PCFP.version = { app: window.APP_BUILD || 'v8.4', build: '20250901185000Z' };
+    function setPill(){
+      var pill = document.querySelector('[data-app-version]');
+      if(pill) pill.textContent = g.PCFP.version.app;
+      // Mega-visible banner for this build (temporary)
+      var b = document.createElement('div');
+      b.textContent = 'RUNNING ' + (window.APP_BUILD || 'v8.4') + ' (cache-busted)';
+      b.style.position='fixed'; b.style.top='10px'; b.style.left='10px';
+      b.style.background='#b08d2f'; b.style.color='#000'; b.style.padding='6px 10px';
+      b.style.zIndex='100000'; b.style.borderRadius='6px';
+      document.addEventListener('click', function(){ try{ b.remove(); }catch(e){} }, {once:true});
+      document.body.appendChild(b);
+      setTimeout(function(){ try{ b.remove(); }catch(e){} }, 4000);
+    }
+    if(document.readyState!=='loading') setPill();
+    else document.addEventListener('DOMContentLoaded', setPill);
+  })(window);
+</script>
 </head>
 <body>
 <div class="app">
@@ -79,39 +78,43 @@
     </div>
   </main>
 </div>
-  <script src="core/kernel.standalone.js?v=20250831223240"></script>
-  <script type="module" src="./core/shim.js?v=20250831223240"></script>
 
-  <script src="core/config.js?v=20250831223240"></script>
-  <script src="core/version_shim.js?v=20250831223240"></script>
-  <script src="core/events/emit.js?v=20250831223240"></script>
-  <script src="core/events/on.js?v=20250831223240"></script>
-  <script src="core/adapters/http.js?v=20250831223240"></script>
-  <script src="repos/projects.js?v=20250831223240"></script>
-  <script src="repos/profiles.js?v=20250831223240"></script>
-  <script src="repos/events.js?v=20250831223240"></script>
-  <script src="core/compute/money.js?v=20250831223240"></script>
-  <script src="core/compute/schedule.js?v=20250831223240"></script>
-  <script src="components/index.js?v=20250831223240"></script>
-  <link rel="stylesheet" href="components/export_bar.css?v=20250831223240">
-  <script src="core/contracts/validator.js?v=20250831223240"?v=20250831223240></script>
-  <script src="components/export_bar.js?v=20250831223240"?v=20250831223240></script>
-  <script src="components/gantt/index.js?v=20250831223240"?v=20250831223240></script>
-  <script src="components/kebab/index.js?v=20250831223240"?v=20250831223240"></script>
+<script src="core/kernel.standalone.js?v=20250901185000"></script>
+<script type="module" src="./core/shim.js?v=20250901185000"></script>
+<script type="module" src="core/services/module-manager.js?v=20250901185000"></script>
+<script type="module" src="core/version-manager.js?v=20250901185000"></script>
 
-<div class="pcfp-version-pill">Build <b><span data-app-version>v8.3</span></b></div>
-  <script src="core/verify/v73_integrity.js?v=20250831223240"?v=20250831223240></script>
-  <script src="core/boot_check.js?v=20250831223240"?v=20250831223240></script>
+<script src="core/config.js?v=20250901185000"></script>
+<script src="core/version_shim.js?v=20250901185000"></script>
+<script src="core/events/emit.js?v=20250901185000"></script>
+<script src="core/events/on.js?v=20250901185000"></script>
+<script src="core/adapters/http.js?v=20250901185000"></script>
+<script src="repos/projects.js?v=20250901185000"></script>
+<script src="repos/profiles.js?v=20250901185000"></script>
+<script src="repos/events.js?v=20250901185000"></script>
+<script src="core/compute/money.js?v=20250901185000"></script>
+<script src="core/compute/schedule.js?v=20250901185000"></script>
+<script src="components/index.js?v=20250901185000"></script>
+<script type="module" src="core/components/index.js?v=20250901185000"></script>
+<link rel="stylesheet" href="components/export_bar.css?v=20250901185000">
+<script src="core/contracts/validator.js?v=20250901185000"></script>
+<script src="components/export_bar.js?v=20250901185000"></script>
+<script src="components/gantt/index.js?v=20250901185000"></script>
+<script src="components/kebab/index.js?v=20250901185000"></script>
 
-  <script src="core/router.js?v=20250831223240"?v=20250831223240></script>
-  <script src="core/contracts/migrations.js?v=20250831223240"?v=20250831223240></script>
-  <script src="core/projects.js?v=20250831223240"?v=20250831223240></script>
+<div class="pcfp-version-pill">Build <b><span data-app-version>v8.4</span></b></div>
+<script src="core/verify/v73_integrity.js?v=20250901185000"></script>
+<script src="core/boot_check.js?v=20250901185000"></script>
 
-  <script src="core/log.js?v=20250831223240"?v=20250831223240></script>
-  <script src="core/lifecycle.js?v=20250831223240"?v=20250831223240></script>
-  <script src="core/integrity_banner.js?v=20250831223240"?v=20250831223240></script>
-<script src="core/header_version.js?v=20250831223240"></script>
+<script src="core/router.js?v=20250901185000"></script>
+<script src="core/contracts/migrations.js?v=20250901185000"></script>
+<script src="core/projects.js?v=20250901185000"></script>
 
-<script src="core/module_header_version.js?v=20250831223240"></script>
+<script src="core/log.js?v=20250901185000"></script>
+<script src="core/lifecycle.js?v=20250901185000"></script>
+<script src="core/integrity_banner.js?v=20250901185000"></script>
+<script src="core/header_version.js?v=20250901185000"></script>
+
+<script src="core/module_header_version.js?v=20250901185000"></script>
 </body>
 </html>

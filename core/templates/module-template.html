@@ -4,11 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>{{MODULE_NAME}} - PCFP v{{MODULE_VERSION}}</title>
-
 <!-- Standard module styling -->
 <link rel="stylesheet" href="../../core/theme.css?v={{CACHE_BUST}}">
 <link rel="stylesheet" href="module.css?v={{CACHE_BUST}}">
-
 <!-- Module metadata -->
 <script>
   window.MODULE_META = {
@@ -32,7 +30,6 @@
     <button class="btn" id="btnShare" title="Share module state">Share</button>
   </div>
 </header>
-
 <div class="module-container">
   <!-- Module content goes here -->
   <div class="module-content">
@@ -52,24 +49,44 @@
     </div>
   </div>
 </div>
-
 <!-- Standard module scripts -->
 <script src="../../core/services/errors.js?v={{CACHE_BUST}}"></script>
 <script src="module.js?v={{CACHE_BUST}}"></script>
-
 <!-- Module initialization -->
 <script>
-  // Standard module initialization
+  // Standard module initialization with v8.4 enhancements
   (function() {
-    const { safe, createErrorBoundary } = window.__pcfpCore || {};
+    const { 
+      safe, 
+      createErrorBoundary, 
+      sanitizeHTML, 
+      safeSetInnerHTML, 
+      domCache, 
+      memoryManager, 
+      stateManager 
+    } = window.__pcfpCore || {};
     
     // Create error boundary for this module
     const errorBoundary = createErrorBoundary ? createErrorBoundary('{{MODULE_KEY}}') : null;
+    
+    // Create module-specific services
+    const moduleLifecycle = memoryManager ? memoryManager.createModuleLifecycle('{{MODULE_KEY}}') : null;
+    const moduleState = stateManager ? stateManager.createModuleState('{{MODULE_KEY}}') : null;
     
     // Initialize module when DOM is ready
     function initModule() {
       safe(() => {
         console.log(`[PCFP] Initializing {{MODULE_NAME}} module v{{MODULE_VERSION}}`);
+        
+        // Register module with module manager
+        if (window.PCFP && window.PCFP.moduleManager) {
+          window.PCFP.moduleManager.register('{{MODULE_KEY}}', {
+            name: '{{MODULE_NAME}}',
+            version: '{{MODULE_VERSION}}',
+            description: '{{MODULE_DESCRIPTION}}',
+            icon: '{{MODULE_ICON}}'
+          });
+        }
         
         // Emit module ready event
         if (window.PCFP && window.PCFP.events) {
@@ -82,8 +99,15 @@
         
         // Initialize module-specific functionality
         if (window.init{{MODULE_KEY}}Module) {
-          window.init{{MODULE_KEY}}Module();
+          window.init{{MODULE_KEY}}Module({
+            moduleLifecycle,
+            moduleState,
+            domCache,
+            sanitizeHTML,
+            safeSetInnerHTML
+          });
         }
+        
       }, 'module:init');
     }
     
@@ -92,6 +116,14 @@
     } else {
       initModule();
     }
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (moduleLifecycle) {
+        moduleLifecycle.cleanup();
+      }
+    });
+    
   })();
 </script>
 </body>
