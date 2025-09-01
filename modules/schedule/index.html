@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Schedule - PCFP v1.2</title>
-<link rel="stylesheet" href="../../core/theme.css?v=20250901195000">
-<link rel="stylesheet" href="module.css?v=20250901195000">
+<link rel="stylesheet" href="../../core/theme.css?v=20250901221000">
+<link rel="stylesheet" href="module.css?v=20250901221000">
 </head>
 <body>
 <header class="module-header">
@@ -39,48 +39,42 @@
         
         <div class="schedule-content">
           <div id="listView" class="view-content active">
-            <div class="task-grid">
-              <div class="task-grid-header">
-                <div class="task-col" data-col="title">
+            <div class="grid-container">
+              <div class="data-grid">
+              <div class="grid-header">
+                <div class="grid-cell" data-col="title" data-col-index="0">
                   <span class="col-title">Task</span>
-                  <div class="col-resizer"></div>
                 </div>
-                <div class="task-col" data-col="assignee">
+                <div class="grid-cell" data-col="assignee" data-col-index="1">
                   <span class="col-title">Assignee</span>
-                  <div class="col-resizer"></div>
                 </div>
-                <div class="task-col" data-col="startDate">
+                <div class="grid-cell" data-col="startDate" data-col-index="2">
                   <span class="col-title">Start Date</span>
-                  <div class="col-resizer"></div>
                 </div>
-                <div class="task-col" data-col="endDate">
+                <div class="grid-cell" data-col="endDate" data-col-index="3">
                   <span class="col-title">End Date</span>
-                  <div class="col-resizer"></div>
                 </div>
-                <div class="task-col" data-col="status">
+                <div class="grid-cell" data-col="status" data-col-index="4">
                   <span class="col-title">Status</span>
-                  <div class="col-resizer"></div>
                 </div>
-                <div class="task-col" data-col="progress">
+                <div class="grid-cell" data-col="progress" data-col-index="5">
                   <span class="col-title">Progress</span>
-                  <div class="col-resizer"></div>
                 </div>
-                <div class="task-col" data-col="priority">
+                <div class="grid-cell" data-col="priority" data-col-index="6">
                   <span class="col-title">Priority</span>
-                  <div class="col-resizer"></div>
                 </div>
-                <div class="task-col" data-col="phase">
+                <div class="grid-cell" data-col="phase" data-col-index="7">
                   <span class="col-title">Phase</span>
-                  <div class="col-resizer"></div>
                 </div>
-                <div class="task-col" data-col="actions">
+                <div class="grid-cell" data-col="actions" data-col-index="8">
                   <span class="col-title">Actions</span>
                 </div>
               </div>
-              <div class="task-grid-body" id="taskGridBody">
+              <div class="grid-body" id="taskGridBody">
                 <!-- Tasks will be populated here -->
               </div>
             </div>
+          </div>
           </div>
           
           <div id="calendarView" class="view-content">
@@ -203,6 +197,6 @@
   </div>
 </div>
 
-<script src="module.js?v=20250901185020"></script>
+<script src="module.js?v=20250901221000"></script>
 </body>
 </html>

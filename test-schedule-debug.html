@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Debug Test</title>
+    <style>
+        /* PCFP Design Tokens */
+        :root {
+            --pcfp-white: #ffffff;
+            --pcfp-text: #0f172a;
+            --pcfp-text-muted: #64748b;
+            --pcfp-border: #e5e7eb;
+            --pcfp-panel: #f8fafc;
+            --pcfp-gold: #C6A247;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: var(--pcfp-white);
+            color: var(--pcfp-text);
+        }
+
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--pcfp-white);
+            border: 1px solid var(--pcfp-border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .test-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--pcfp-border);
+        }
+
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid var(--pcfp-border);
+            border-radius: 6px;
+            background: var(--pcfp-panel);
+        }
+
+        .test-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: var(--pcfp-gold);
+        }
+
+        /* Three-Dot Button Styles */
+        .action-menu-btn {
+            background: var(--pcfp-white);
+            border: 1px solid var(--pcfp-border);
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 28px;
+            height: 28px;
+        }
+
+        .action-menu-btn:hover {
+            background: var(--pcfp-panel);
+        }
+
+        .three-dots {
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--pcfp-text-muted);
+            line-height: 1;
+        }
+
+        /* Action Menu Styles */
+        .action-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--pcfp-white);
+            border: 1px solid var(--pcfp-border);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+            min-width: 140px;
+            display: none;
+            margin-top: 4px;
+            padding: 4px 0;
+        }
+
+        .action-menu.menu-visible {
+            display: block;
+        }
+
+        .menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--pcfp-border);
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--pcfp-text);
+        }
+
+        .menu-item:hover {
+            background: var(--pcfp-panel);
+        }
+
+        .menu-item:last-child {
+            border-bottom: none;
+        }
+
+        .menu-icon {
+            font-size: 14px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .menu-text {
+            flex: 1;
+        }
+
+        .menu-separator {
+            height: 1px;
+            background: var(--pcfp-border);
+            margin: 4px 0;
+        }
+
+        /* Test Button Container */
+        .button-container {
+            position: relative;
+            display: inline-block;
+            margin: 10px;
+        }
+
+        /* Debug Info */
+        .debug-info {
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+
+        .success {
+            color: #10b981;
+            font-weight: bold;
+        }
+
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        .warning {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>Schedule Three-Dot Menu Debug Test</h1>
+            <p>Isolated test to diagnose the three-dot menu issue</p>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">Test 1: Basic Three-Dot Button</div>
+            <div class="button-container">
+                <button class="action-menu-btn" onclick="testBasicMenu()">
+                    <span class="three-dots">⋯</span>
+                </button>
+                <div class="action-menu" id="test-menu-1">
+                    <div class="menu-item" onclick="alert('Edit clicked')">
+                        <span class="menu-icon">✏️</span>
+                        <span class="menu-text">Edit</span>
+                    </div>
+                    <div class="menu-item" onclick="alert('Delete clicked')">
+                        <span class="menu-icon">🗑️</span>
+                        <span class="menu-text">Delete</span>
+                    </div>
+                </div>
+            </div>
+            <div class="debug-info" id="debug-1"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">Test 2: Schedule-Style Button</div>
+            <div class="button-container">
+                <button class="action-menu-btn" onclick="testScheduleMenu()">
+                    <span class="three-dots">⋯</span>
+                </button>
+                <div class="action-menu" id="test-menu-2">
+                    <div class="menu-item" onclick="alert('Edit clicked')">
+                        <span class="menu-icon">✏️</span>
+                        <span class="menu-text">Edit</span>
+                    </div>
+                    <div class="menu-item" onclick="alert('Delete clicked')">
+                        <span class="menu-icon">🗑️</span>
+                        <span class="menu-text">Delete</span>
+                    </div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-item" onclick="alert('Insert Above clicked')">
+                        <span class="menu-icon">⬆️</span>
+                        <span class="menu-text">Insert Above</span>
+                    </div>
+                    <div class="menu-item" onclick="alert('Insert Below clicked')">
+                        <span class="menu-icon">⬇️</span>
+                        <span class="menu-text">Insert Below</span>
+                    </div>
+                    <div class="menu-separator"></div>
+                    <div class="menu-item" onclick="alert('Duplicate clicked')">
+                        <span class="menu-icon">📋</span>
+                        <span class="menu-text">Duplicate</span>
+                    </div>
+                </div>
+            </div>
+            <div class="debug-info" id="debug-2"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">Test 3: Direct DOM Manipulation</div>
+            <div class="button-container">
+                <button class="action-menu-btn" onclick="testDirectDOM()">
+                    <span class="three-dots">⋯</span>
+                </button>
+                <div class="action-menu" id="test-menu-3">
+                    <div class="menu-item" onclick="alert('Direct DOM test clicked')">
+                        <span class="menu-icon">🔧</span>
+                        <span class="menu-text">Direct DOM Test</span>
+                    </div>
+                </div>
+            </div>
+            <div class="debug-info" id="debug-3"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-title">System Diagnostics</div>
+            <div class="debug-info" id="system-diagnostics"></div>
+        </div>
+    </div>
+
+    <script>
+        // System Diagnostics
+        function runSystemDiagnostics() {
+            const diagnostics = document.getElementById('system-diagnostics');
+            let html = '<strong>System Diagnostics:</strong><br><br>';
+            
+            // Check for global conflicts
+            html += '<strong>Global Variables:</strong><br>';
+            html += `window.$: ${typeof window.$}<br>`;
+            html += `window.jQuery: ${typeof window.jQuery}<br>`;
+            html += `window.PCFP: ${typeof window.PCFP}<br><br>`;
+            
+            // Check for CSS support
+            html += '<strong>CSS Support:</strong><br>';
+            html += `classList support: ${typeof document.body.classList !== 'undefined'}<br>`;
+            html += `getComputedStyle support: ${typeof window.getComputedStyle !== 'undefined'}<br><br>`;
+            
+            // Check for event handling
+            html += '<strong>Event Handling:</strong><br>';
+            html += `addEventListener support: ${typeof document.addEventListener !== 'undefined'}<br>';
+            html += `onclick support: ${typeof document.body.onclick !== 'undefined'}<br><br>`;
+            
+            // Check for DOM manipulation
+            html += '<strong>DOM Manipulation:</strong><br>';
+            html += `getElementById support: ${typeof document.getElementById !== 'undefined'}<br>';
+            html += `querySelector support: ${typeof document.querySelector !== 'undefined'}<br>';
+            
+            diagnostics.innerHTML = html;
+        }
+
+        // Test 1: Basic Menu
+        function testBasicMenu() {
+            const debug = document.getElementById('debug-1');
+            const menu = document.getElementById('test-menu-1');
+            
+            debug.innerHTML = '<span class="success">✓ Function called</span><br>';
+            
+            if (menu) {
+                debug.innerHTML += '<span class="success">✓ Menu element found</span><br>';
+                
+                const isVisible = menu.classList.contains('menu-visible');
+                debug.innerHTML += `Current visibility: ${isVisible}<br>`;
+                
+                if (!isVisible) {
+                    menu.classList.add('menu-visible');
+                    debug.innerHTML += '<span class="success">✓ Menu should now be visible</span><br>';
+                    
+                    // Force repaint
+                    menu.offsetHeight;
+                    debug.innerHTML += '<span class="success">✓ Repaint forced</span><br>';
+                } else {
+                    menu.classList.remove('menu-visible');
+                    debug.innerHTML += '<span class="success">✓ Menu should now be hidden</span><br>';
+                }
+            } else {
+                debug.innerHTML += '<span class="error">✗ Menu element not found</span><br>';
+            }
+        }
+
+        // Test 2: Schedule-Style Menu
+        function testScheduleMenu() {
+            const debug = document.getElementById('debug-2');
+            const menu = document.getElementById('test-menu-2');
+            
+            debug.innerHTML = '<span class="success">✓ Function called</span><br>';
+            
+            if (menu) {
+                debug.innerHTML += '<span class="success">✓ Menu element found</span><br>';
+                
+                const isVisible = menu.classList.contains('menu-visible');
+                debug.innerHTML += `Current visibility: ${isVisible}<br>`;
+                
+                if (!isVisible) {
+                    menu.classList.add('menu-visible');
+                    debug.innerHTML += '<span class="success">✓ Menu should now be visible</span><br>';
+                    
+                    // Force repaint
+                    menu.offsetHeight;
+                    debug.innerHTML += '<span class="success">✓ Repaint forced</span><br>';
+                    
+                    // Add click outside listener
+                    setTimeout(() => {
+                        const closeMenuOnClickOutside = function(e) {
+                            if (!menu.contains(e.target) && !e.target.closest('.action-menu-btn')) {
+                                menu.classList.remove('menu-visible');
+                                document.removeEventListener('click', closeMenuOnClickOutside);
+                            }
+                        };
+                        document.addEventListener('click', closeMenuOnClickOutside);
+                        debug.innerHTML += '<span class="success">✓ Click outside listener added</span><br>';
+                    }, 0);
+                } else {
+                    menu.classList.remove('menu-visible');
+                    debug.innerHTML += '<span class="success">✓ Menu should now be hidden</span><br>';
+                }
+            } else {
+                debug.innerHTML += '<span class="error">✗ Menu element not found</span><br>';
+            }
+        }
+
+        // Test 3: Direct DOM Manipulation
+        function testDirectDOM() {
+            const debug = document.getElementById('debug-3');
+            const menu = document.getElementById('test-menu-3');
+            
+            debug.innerHTML = '<span class="success">✓ Function called</span><br>';
+            
+            if (menu) {
+                debug.innerHTML += '<span class="success">✓ Menu element found</span><br>';
+                
+                // Try multiple methods
+                try {
+                    // Method 1: classList
+                    menu.classList.add('menu-visible');
+                    debug.innerHTML += '<span class="success">✓ Method 1: classList.add()</span><br>';
+                    
+                    // Method 2: style.display
+                    menu.style.display = 'block';
+                    debug.innerHTML += '<span class="success">✓ Method 2: style.display = "block"</span><br>';
+                    
+                    // Method 3: setAttribute
+                    menu.setAttribute('style', 'display: block !important');
+                    debug.innerHTML += '<span class="success">✓ Method 3: setAttribute with !important</span><br>';
+                    
+                    // Force repaint
+                    menu.offsetHeight;
+                    debug.innerHTML += '<span class="success">✓ Repaint forced</span><br>';
+                    
+                } catch (error) {
+                    debug.innerHTML += `<span class="error">✗ Error: ${error.message}</span><br>`;
+                }
+            } else {
+                debug.innerHTML += '<span class="error">✗ Menu element not found</span><br>';
+            }
+        }
+
+        // Initialize diagnostics
+        document.addEventListener('DOMContentLoaded', function() {
+            runSystemDiagnostics();
+        });
+    </script>
+</body>
+</html>

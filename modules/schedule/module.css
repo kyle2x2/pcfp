@@ -135,59 +135,103 @@
   display: block;
 }
 
-/* Grid View Styles */
-.task-grid {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  overflow-x: auto;
+/* CSS Grid System - Professional Data Grid */
+.data-grid {
+  display: grid;
+  grid-template-columns: 
+    300px  /* Task - resizable */
+    150px  /* Assignee - auto-sized */
+    120px  /* Start Date - fixed */
+    120px  /* End Date - fixed */
+    100px  /* Status - auto-sized */
+    100px  /* Progress - fixed */
+    120px  /* Priority - fixed (wider for full text) */
+    100px  /* Phase - auto-sized */
+    140px; /* Actions - fixed (wider for buttons) */
+  gap: 0;
+  border: 1px solid var(--pcfp-border);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--pcfp-white);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  min-width: max-content; /* Ensure grid doesn't shrink below content */
+  max-width: none; /* Allow grid to expand as needed */
 }
 
-.task-grid-header {
-  display: flex;
+/* Grid Container with Horizontal Scroll */
+.grid-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-radius: 8px;
+  position: relative;
+}
+
+/* Ensure grid cells don't overflow their allocated space */
+.data-grid .grid-cell {
+  overflow: hidden !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+.grid-header {
+  display: contents;
+}
+
+.grid-header .grid-cell {
   background: var(--pcfp-panel);
-  border-bottom: 1px solid var(--pcfp-border);
+  padding: 15px 10px;
+  border-right: 1px solid var(--pcfp-border);
   font-weight: 600;
   font-size: 12px;
   text-transform: uppercase;
   color: var(--pcfp-text-muted);
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  min-width: max-content;
-  width: 100%;
-}
-
-.task-grid-header .task-col {
-  padding: 15px 10px;
-  border-right: 1px solid var(--pcfp-border);
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  min-width: 120px;
-  flex: 1;
-  box-sizing: border-box;
-  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  min-width: max-content; /* Ensure header cells don't shrink */
+  position: relative; /* For absolute positioning of resizer */
 }
 
-.task-grid-header .task-col:last-child {
+.grid-header .grid-cell:last-child {
   border-right: none;
 }
 
-.task-grid-header .task-col[data-col="title"] {
-  flex: 2 0 200px;
-  min-width: 200px;
-  max-width: none;
+.grid-body {
+  display: contents;
 }
 
-.task-grid-header .task-col[data-col="actions"] {
-  flex: 0.5 0 100px;
-  min-width: 100px;
-  max-width: none;
+.grid-row {
+  display: contents;
 }
 
+.grid-row .grid-cell {
+  padding: 15px 10px;
+  border-right: 1px solid var(--pcfp-border);
+  border-bottom: 1px solid var(--pcfp-border);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  word-wrap: break-word;
+  word-break: break-word;
+  box-sizing: border-box;
+  min-width: max-content; /* Ensure cells don't shrink below content */
+  max-width: 100%; /* Prevent overflow beyond allocated space */
+  position: relative; /* For absolute positioning of content */
+}
+
+.grid-row .grid-cell:last-child {
+  border-right: none;
+}
+
+.grid-row:hover .grid-cell {
+  background: var(--pcfp-panel);
+}
+
+/* Column Title */
 .col-title {
   flex: 1;
   overflow: hidden;
@@ -195,110 +239,243 @@
   white-space: nowrap;
 }
 
-.col-resizer {
-  width: 6px;
-  height: 20px;
-  background: var(--pcfp-border);
-  cursor: col-resize;
-  margin-left: 8px;
-  border-radius: 3px;
-  transition: background 0.2s;
-  position: relative;
-}
-
-.col-resizer:hover {
-  background: var(--pcfp-gold);
-}
-
-.col-resizer:active {
-  background: var(--pcfp-gold-medium);
-}
-
-.col-resizer::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 2px;
-  height: 12px;
-  background: var(--pcfp-text-muted);
-  border-radius: 1px;
-}
-
-.task-grid-body {
-  flex: 1;
-  overflow-y: auto;
-  min-width: max-content;
-  width: 100%;
-}
-
-.task-grid-row {
-  display: flex;
-  border-bottom: 1px solid var(--pcfp-border);
-  transition: background 0.2s;
-}
-
-.task-grid-row:hover {
-  background: var(--pcfp-panel);
-}
-
-.task-grid-row .task-col {
-  padding: 15px 10px;
-  border-right: 1px solid var(--pcfp-border);
-  display: flex;
-  align-items: center;
-  min-width: 120px;
-  flex: 1;
-  overflow: hidden;
-  word-wrap: break-word;
-  word-break: break-word;
-  box-sizing: border-box;
-  flex-shrink: 0;
-}
-
-.task-grid-row .task-col:last-child {
-  border-right: none;
-}
-
-.task-grid-row .task-col[data-col="title"] {
-  flex: 2 0 200px;
-  min-width: 200px;
-  max-width: none;
-  overflow: hidden;
-}
-
-.task-grid-row .task-col[data-col="title"] > div {
-  width: 100%;
-  overflow: hidden;
-}
-
-.task-grid-row .task-col[data-col="title"] .task-title {
+/* Task Title and Description */
+.grid-cell[data-col="title"] .task-title {
   font-weight: 600;
   margin-bottom: 4px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  min-width: 0 !important;
+  flex-shrink: 1 !important;
 }
 
-.task-grid-row .task-col[data-col="title"] .task-description {
+.grid-cell[data-col="title"] .task-description {
   font-size: 12px;
   color: var(--pcfp-text-muted);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  display: block !important;
+  min-width: 0 !important;
+  flex-shrink: 1 !important;
 }
 
-.task-grid-row .task-col[data-col="actions"] {
-  flex: 0.5 0 100px;
-  min-width: 100px;
-  max-width: none;
+/* All Columns - Fixed Widths */
+.grid-cell[data-col="assignee"],
+.grid-cell[data-col="startDate"],
+.grid-cell[data-col="endDate"],
+.grid-cell[data-col="status"],
+.grid-cell[data-col="progress"],
+.grid-cell[data-col="priority"],
+.grid-cell[data-col="phase"],
+.grid-cell[data-col="actions"] {
+  cursor: default;
+}
+
+/* Task Column - Fixed Width with Hover Tooltip */
+.grid-cell[data-col="title"] {
+  cursor: default;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  max-width: 100% !important;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+}
+
+/* Hover Tooltip for Task Column */
+.grid-cell[data-col="title"] .task-title,
+.grid-cell[data-col="title"] .task-description {
+  position: relative;
+  cursor: help;
+}
+
+/* Custom tooltip that appears on hover */
+.grid-cell[data-col="title"] .task-title:hover::after,
+.grid-cell[data-col="title"] .task-description:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  background: var(--pcfp-text);
+  color: var(--pcfp-white);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: normal;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  max-width: 300px;
+  word-wrap: break-word;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.grid-cell[data-col="title"] .task-title:hover::before,
+.grid-cell[data-col="title"] .task-description:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 10px;
+  border: 5px solid transparent;
+  border-top-color: var(--pcfp-text);
+  z-index: 1001;
+  margin-bottom: -5px;
+  pointer-events: none;
+}
+
+/* Actions Column Styling */
+.grid-cell[data-col="actions"] {
   justify-content: center;
   gap: 5px;
   flex-wrap: nowrap;
+  position: relative;
 }
 
-.task-grid-row .task-col[data-col="actions"] .btn-small {
+/* Three-Dot Action Menu Button */
+.action-menu-btn {
+  background: var(--pcfp-white);
+  border: 1px solid var(--pcfp-border);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 28px;
+}
+
+.action-menu-btn:hover {
+  background: var(--pcfp-panel);
+}
+
+.three-dots {
+  font-size: 16px;
+  font-weight: bold;
+  color: var(--pcfp-text-muted);
+  line-height: 1;
+}
+
+/* Payment Planner Menu Styles (Replicated) */
+.pcfp-menu {
+  position: absolute;
+  z-index: 1000;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  min-width: 170px;
+  padding: 6px;
+}
+
+.pcfp-menu button {
+  width: 100%;
+  display: block;
+  background: #fff;
+  border: 0;
+  color: #0f172a;
+  padding: 8px 10px;
+  text-align: left;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pcfp-menu button:hover {
+  background: #f8fafc;
+}
+
+.pcfp-menu-btn {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Menu Items */
+.menu-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--pcfp-border);
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--pcfp-text);
+}
+
+.menu-item:hover {
+  background: var(--pcfp-panel);
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-icon {
+  font-size: 14px;
+  width: 16px;
+  text-align: center;
+}
+
+.menu-text {
+  flex: 1;
+}
+
+/* Menu Separator */
+.menu-separator {
+  height: 1px;
+  background: var(--pcfp-border);
+  margin: 4px 0;
+}
+
+/* Menu Positioning - Above if no space below */
+.action-menu.menu-above {
+  top: auto;
+  bottom: 100%;
+  margin-top: 0;
+  margin-bottom: 4px;
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.grid-cell[data-col="actions"] .btn-small {
   flex-shrink: 0;
   white-space: nowrap;
 }

@@ -41,9 +41,6 @@
     // Set up event listeners
     setupEventListeners();
     
-    // Set up column resizing
-    setupColumnResizing();
-    
     console.log('[PCFP] Schedule module v1.2 ready');
   }
   
@@ -116,20 +113,20 @@
     if (!taskGridBody) return;
     
     taskGridBody.innerHTML = tasks.map(task => `
-      <div class="task-grid-row" data-task-id="${task.id}">
-        <div class="task-col" data-col="title">
+      <div class="grid-row" data-task-id="${task.id}">
+        <div class="grid-cell" data-col="title">
           <div style="display: flex; flex-direction: column; width: 100%;">
-            <div class="task-title">${task.title}</div>
-            <div class="task-description">${task.description}</div>
+            <div class="task-title" data-full-text="${task.title}" title="${task.title}">${task.title}</div>
+            <div class="task-description" data-full-text="${task.description}" title="${task.description}">${task.description}</div>
           </div>
         </div>
-        <div class="task-col" data-col="assignee">${task.assignee}</div>
-        <div class="task-col" data-col="startDate">${formatDate(task.startDate)}</div>
-        <div class="task-col" data-col="endDate">${formatDate(task.endDate)}</div>
-        <div class="task-col" data-col="status">
+        <div class="grid-cell" data-col="assignee">${task.assignee}</div>
+        <div class="grid-cell" data-col="startDate">${formatDate(task.startDate)}</div>
+        <div class="grid-cell" data-col="endDate">${formatDate(task.endDate)}</div>
+        <div class="grid-cell" data-col="status">
           <span class="status-badge status-${task.status}">${task.status}</span>
         </div>
-        <div class="task-col" data-col="progress">
+        <div class="grid-cell" data-col="progress">
           <div style="display: flex; flex-direction: column; width: 100%;">
             <div class="progress-bar">
               <div class="progress-fill" style="width: ${task.progress}%"></div>
@@ -137,20 +134,21 @@
             <span class="progress-text">${task.progress}%</span>
           </div>
         </div>
-        <div class="task-col" data-col="priority">
+        <div class="grid-cell" data-col="priority">
           <span style="color: ${getPriorityColor(task.priority)}; font-weight: 600;">${task.priority}</span>
         </div>
-        <div class="task-col" data-col="phase">${task.phase}</div>
-        <div class="task-col" data-col="actions">
-          <button class="btn btn-small" onclick="editTask('${task.id}')">Edit</button>
-          <button class="btn btn-small" onclick="deleteTask('${task.id}')">Delete</button>
+        <div class="grid-cell" data-col="phase">${task.phase}</div>
+        <div class="grid-cell" data-col="actions">
+          <button class="action-menu-btn" onclick="toggleActionMenu('${task.id}')">
+            <span class="three-dots">⋯</span>
+          </button>
         </div>
       </div>
     `).join('');
     
-    // Force alignment after rendering
+    // Auto-size columns based on content
     setTimeout(() => {
-      alignColumns();
+      autoSizeColumns();
     }, 0);
   }
   
@@ -249,6 +247,20 @@
         closeModal();
       }
     });
+    
+    // Close action menus when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.action-menu-btn') && !e.target.closest('.action-menu')) {
+        closeAllActionMenus();
+      }
+    });
+    
+    // Close action menus on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeAllActionMenus();
+      }
+    });
   }
   
   function switchView(view) {
@@ -275,55 +287,25 @@
   }
   
   function showAddTaskModal(startDate = '', endDate = '') {
-    editingTaskId = null;
-    const modal = document.getElementById('taskModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const form = document.getElementById('taskForm');
+    const newTask = {
+      ...defaultTask,
+      startDate: startDate || new Date().toISOString().split('T')[0],
+      endDate: endDate || (() => {
+        const defaultEndDate = new Date();
+        defaultEndDate.setDate(defaultEndDate.getDate() + 7);
+        return defaultEndDate.toISOString().split('T')[0];
+      })()
+    };
     
-    modalTitle.textContent = 'Add New Task';
-    form.reset();
-    
-    // Set default dates if provided
-    if (startDate) {
-      document.getElementById('taskStartDate').value = startDate;
-    } else {
-      document.getElementById('taskStartDate').value = new Date().toISOString().split('T')[0];
-    }
-    
-    if (endDate) {
-      document.getElementById('taskEndDate').value = endDate;
-    } else {
-      const defaultEndDate = new Date();
-      defaultEndDate.setDate(defaultEndDate.getDate() + 7);
-      document.getElementById('taskEndDate').value = defaultEndDate.toISOString().split('T')[0];
-    }
-    
-    modal.style.display = 'block';
+    openTaskModal(newTask, 'add', null);
   }
   
   function editTask(taskId) {
     const task = tasks.find(t => t.id === taskId);
     if (!task) return;
     
-    editingTaskId = taskId;
-    const modal = document.getElementById('taskModal');
-    const modalTitle = document.getElementById('modalTitle');
-    const form = document.getElementById('taskForm');
-    
-    modalTitle.textContent = 'Edit Task';
-    
-    // Populate form with task data
-    document.getElementById('taskTitle').value = task.title;
-    document.getElementById('taskDescription').value = task.description;
-    document.getElementById('taskAssignee').value = task.assignee;
-    document.getElementById('taskStartDate').value = task.startDate;
-    document.getElementById('taskEndDate').value = task.endDate;
-    document.getElementById('taskStatus').value = task.status;
-    document.getElementById('taskPriority').value = task.priority;
-    document.getElementById('taskProgress').value = task.progress;
-    document.getElementById('taskPhase').value = task.phase;
-    
-    modal.style.display = 'block';
+    // Open modal with task data for editing
+    openTaskModal(task, 'edit', null);
   }
   
   function saveTaskFromModal() {
@@ -376,6 +358,7 @@
     const modal = document.getElementById('taskModal');
     modal.style.display = 'none';
     editingTaskId = null;
+    window.currentModalAction = null;
   }
   
   function deleteTask(taskId) {
@@ -429,73 +412,319 @@
     setTimeout(() => notification.remove(), 3000);
   }
   
-  function alignColumns() {
-    // Get all header columns
-    const headerColumns = document.querySelectorAll('.task-grid-header .task-col');
+  function autoSizeColumns() {
+    // Calculate optimal widths for content-based columns
+    const columnWidths = calculateColumnWidths();
     
-    headerColumns.forEach(headerCol => {
-      const columnType = headerCol.getAttribute('data-col');
-      const headerWidth = headerCol.offsetWidth;
-      
-      // Update all corresponding data columns to match header width
-      const dataColumns = document.querySelectorAll(`.task-grid-row .task-col[data-col="${columnType}"]`);
-      dataColumns.forEach(col => {
-        col.style.flex = `0 0 ${headerWidth}px`;
-        col.style.minWidth = `${headerWidth}px`;
-      });
-    });
+    // Update grid template with calculated widths
+    const grid = document.querySelector('.data-grid');
+    const columns = [
+      300, // Task (resizable, keep default)
+      columnWidths.assignee,
+      120, // Start Date (fixed)
+      120, // End Date (fixed)
+      columnWidths.status,
+      100, // Progress (fixed)
+      120, // Priority (fixed - wider for full text)
+      columnWidths.phase,
+      140  // Actions (fixed - wider for buttons)
+    ];
+    
+    grid.style.gridTemplateColumns = columns.map(w => `${w}px`).join(' ');
   }
   
-  function setupColumnResizing() {
-    const resizers = document.querySelectorAll('.col-resizer');
+  function calculateColumnWidths() {
+    // Calculate widths based on content
+    const assigneeWidth = Math.max(120, getLongestStringWidth(tasks.map(t => t.assignee)));
+    const statusWidth = Math.max(80, getLongestStatusWidth());
+    const priorityWidth = Math.max(80, getLongestPriorityWidth());
+    const phaseWidth = Math.max(80, getLongestPhaseWidth());
     
-    resizers.forEach(resizer => {
-      resizer.addEventListener('mousedown', function(e) {
-        e.preventDefault();
-        
-        const headerColumn = this.parentElement;
-        const columnType = headerColumn.getAttribute('data-col');
-        const startX = e.clientX;
-        const startWidth = headerColumn.offsetWidth;
-        
-        function onMouseMove(e) {
-          const newWidth = startWidth + (e.clientX - startX);
-          if (newWidth > 80) { // Minimum width
-            // Update header column
-            headerColumn.style.flex = `0 0 ${newWidth}px`;
-            headerColumn.style.minWidth = `${newWidth}px`;
-            
-            // Update all corresponding data columns
-            const dataColumns = document.querySelectorAll(`.task-grid-row .task-col[data-col="${columnType}"]`);
-            dataColumns.forEach(col => {
-              col.style.flex = `0 0 ${newWidth}px`;
-              col.style.minWidth = `${newWidth}px`;
-            });
-            
-            // Add visual feedback
-            document.body.style.cursor = 'col-resize';
-            headerColumn.style.backgroundColor = 'var(--pcfp-gold-light)';
-          }
-        }
-        
-        function onMouseUp() {
-          document.removeEventListener('mousemove', onMouseMove);
-          document.removeEventListener('mouseup', onMouseUp);
-          
-          // Remove visual feedback
-          document.body.style.cursor = '';
-          headerColumn.style.backgroundColor = '';
-        }
-        
-        document.addEventListener('mousemove', onMouseMove);
-        document.addEventListener('mouseup', onMouseUp);
-      });
+    return {
+      assignee: assigneeWidth,
+      status: statusWidth,
+      priority: priorityWidth,
+      phase: phaseWidth
+    };
+  }
+  
+  function getLongestStringWidth(strings) {
+    // Create temporary element to measure text width
+    const temp = document.createElement('span');
+    temp.style.visibility = 'hidden';
+    temp.style.position = 'absolute';
+    temp.style.whiteSpace = 'nowrap';
+    temp.style.fontSize = '14px';
+    temp.style.fontFamily = 'Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial';
+    document.body.appendChild(temp);
+    
+    let maxWidth = 0;
+    strings.forEach(str => {
+      temp.textContent = str;
+      maxWidth = Math.max(maxWidth, temp.offsetWidth);
     });
+    
+    document.body.removeChild(temp);
+    return maxWidth + 20; // Add padding
+  }
+  
+  function getLongestStatusWidth() {
+    const statuses = ['not-started', 'in-progress', 'completed'];
+    return getLongestStringWidth(statuses) + 20; // Add badge padding
+  }
+  
+  function getLongestPriorityWidth() {
+    const priorities = ['low', 'medium', 'high', 'critical'];
+    return getLongestStringWidth(priorities);
+  }
+  
+  function getLongestPhaseWidth() {
+    const phases = ['Pre-Construction', 'Foundation', 'Framing', 'Mechanical', 'Electrical', 'Plumbing', 'Interior', 'Exterior', 'Finishing', 'Punch List'];
+    return getLongestStringWidth(phases);
   }
   
   // Global functions for task actions
   window.editTask = editTask;
   window.deleteTask = deleteTask;
+  window.toggleActionMenu = toggleActionMenu;
+  window.insertTaskAbove = insertTaskAbove;
+  window.insertTaskBelow = insertTaskBelow;
+  window.duplicateTask = duplicateTask;
+  
+  // Action Menu Functions - Replicated from working payment planner approach
+  let menuEl = null;
+  
+  function closeMenu() { 
+    if (menuEl) { 
+      menuEl.remove(); 
+      menuEl = null; 
+      document.removeEventListener('click', onDoc); 
+    } 
+  }
+  
+  function onDoc(e) { 
+    if (menuEl && !menuEl.contains(e.target)) closeMenu(); 
+  }
+  
+  function toggleActionMenu(taskId) {
+    console.log('toggleActionMenu called with taskId:', taskId);
+    
+    // Close any existing menu
+    closeMenu();
+    
+    // Find the button that was clicked
+    const button = document.querySelector(`button[onclick*="toggleActionMenu('${taskId}')"]`);
+    if (!button) {
+      console.error('Button not found for taskId:', taskId);
+      return;
+    }
+    
+    // Get button position
+    const rect = button.getBoundingClientRect();
+    
+    // Create menu dynamically (like payment planner)
+    const menu = document.createElement('div');
+    menu.className = 'pcfp-menu';
+    menu.innerHTML = [
+      `<button type="button" onclick="editTask('${taskId}');">✏️ Edit</button>`,
+      `<button type="button" onclick="deleteTask('${taskId}');">🗑️ Delete</button>`,
+      `<button type="button" onclick="insertTaskAbove('${taskId}');">⬆️ Insert Above</button>`,
+      `<button type="button" onclick="insertTaskBelow('${taskId}');">⬇️ Insert Below</button>`,
+      `<button type="button" onclick="duplicateTask('${taskId}');">📋 Duplicate</button>`
+    ].join('');
+    
+    // Append to document body (like payment planner)
+    document.body.appendChild(menu);
+    menuEl = menu;
+    
+    // Position menu (like payment planner)
+    menu.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+    menu.style.left = Math.max(12, rect.right + window.scrollX - 180) + 'px';
+    
+    console.log('Menu should now be visible');
+    
+    // Add click outside listener (like payment planner)
+    setTimeout(() => document.addEventListener('click', onDoc));
+  }
+  
+  function closeAllActionMenus() {
+    closeMenu();
+  }
+  
+  function positionMenu(menu, taskId) {
+    // Find the button that triggered this menu
+    const button = menu.previousElementSibling;
+    if (!button) {
+      console.error('Button not found for menu positioning');
+      return;
+    }
+    
+    const buttonRect = button.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    
+    // Check if there's enough space below
+    const spaceBelow = viewportHeight - buttonRect.bottom;
+    const menuHeight = 200; // Approximate menu height
+    
+    if (spaceBelow < menuHeight && buttonRect.top > menuHeight) {
+      // Position above
+      menu.classList.add('menu-above');
+    } else {
+      // Position below (default)
+      menu.classList.remove('menu-above');
+    }
+  }
+  
+  // New Action Functions
+  function insertTaskAbove(taskId) {
+    const taskIndex = tasks.findIndex(t => t.id === taskId);
+    
+    if (taskIndex === 0) {
+      showInsertError('Cannot insert above the first task');
+      return;
+    }
+    
+    const currentTask = tasks[taskIndex];
+    const newTask = createTaskFromTemplate(currentTask, 'above');
+    
+    // Open modal with new task data
+    openTaskModal(newTask, 'insert-above', taskIndex);
+  }
+  
+  function insertTaskBelow(taskId) {
+    const taskIndex = tasks.findIndex(t => t.id === taskId);
+    
+    if (taskIndex === tasks.length - 1) {
+      showInsertError('Cannot insert below the last task');
+      return;
+    }
+    
+    const currentTask = tasks[taskIndex];
+    const newTask = createTaskFromTemplate(currentTask, 'below');
+    
+    // Open modal with new task data
+    openTaskModal(newTask, 'insert-below', taskIndex);
+  }
+  
+  function duplicateTask(taskId) {
+    const currentTask = tasks.find(t => t.id === taskId);
+    if (!currentTask) return;
+    
+    const newTask = createTaskFromTemplate(currentTask, 'duplicate');
+    
+    // Open modal with duplicated task data
+    openTaskModal(newTask, 'duplicate', null);
+  }
+  
+  function createTaskFromTemplate(sourceTask, type) {
+    const newTask = {
+      ...sourceTask,
+      id: generateTaskId(),
+      title: type === 'duplicate' ? `${sourceTask.title} (Copy)` : sourceTask.title,
+      status: 'not-started',
+      progress: 0
+    };
+    
+    return newTask;
+  }
+  
+  function openTaskModal(taskData, action, taskIndex) {
+    // Store action context for when modal is saved
+    window.currentModalAction = { action, taskIndex, taskData };
+    
+    // Populate modal with task data
+    document.getElementById('taskTitle').value = taskData.title;
+    document.getElementById('taskDescription').value = taskData.description;
+    document.getElementById('taskAssignee').value = taskData.assignee;
+    document.getElementById('taskStartDate').value = taskData.startDate;
+    document.getElementById('taskEndDate').value = taskData.endDate;
+    document.getElementById('taskStatus').value = taskData.status;
+    document.getElementById('taskPriority').value = taskData.priority;
+    
+    // Update modal title
+    const modalTitle = document.getElementById('modalTitle');
+    if (action === 'insert-above') {
+      modalTitle.textContent = 'Insert Task Above';
+    } else if (action === 'insert-below') {
+      modalTitle.textContent = 'Insert Task Below';
+    } else if (action === 'duplicate') {
+      modalTitle.textContent = 'Duplicate Task';
+    } else {
+      modalTitle.textContent = 'Add New Task';
+    }
+    
+    // Show modal
+    document.getElementById('taskModal').style.display = 'block';
+    
+    // Close action menu
+    closeAllActionMenus();
+  }
+  
+  function showInsertError(message) {
+    alert(message);
+    closeAllActionMenus();
+  }
+  
+  function generateTaskId() {
+    return 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  }
+  
+  // Override saveTaskFromModal to handle new actions
+  function saveTaskFromModal() {
+    const taskData = {
+      id: window.currentModalAction?.taskData?.id || generateTaskId(),
+      title: document.getElementById('taskTitle').value,
+      description: document.getElementById('taskDescription').value,
+      assignee: document.getElementById('taskAssignee').value,
+      startDate: document.getElementById('taskStartDate').value,
+      endDate: document.getElementById('taskEndDate').value,
+      status: document.getElementById('taskStatus').value,
+      priority: document.getElementById('taskPriority').value,
+      progress: window.currentModalAction?.taskData?.progress || 0,
+      phase: window.currentModalAction?.taskData?.phase || 'Pre-Construction',
+      color: window.currentModalAction?.taskData?.color || '#C6A247',
+      reminder: window.currentModalAction?.taskData?.reminder || 'none',
+      predecessors: window.currentModalAction?.taskData?.predecessors || [],
+      tags: window.currentModalAction?.taskData?.tags || [],
+      notes: window.currentModalAction?.taskData?.notes || '',
+      files: window.currentModalAction?.taskData?.files || []
+    };
+    
+    const action = window.currentModalAction?.action;
+    const taskIndex = window.currentModalAction?.taskIndex;
+    
+    if (action === 'insert-above' && taskIndex !== null) {
+      // Insert above current task
+      tasks.splice(taskIndex, 0, taskData);
+    } else if (action === 'insert-below' && taskIndex !== null) {
+      // Insert below current task
+      tasks.splice(taskIndex + 1, 0, taskData);
+    } else if (action === 'duplicate') {
+      // Add to end of list
+      tasks.push(taskData);
+    } else {
+      // Regular add/edit
+      const existingIndex = tasks.findIndex(t => t.id === taskData.id);
+      if (existingIndex >= 0) {
+        tasks[existingIndex] = taskData;
+      } else {
+        tasks.push(taskData);
+      }
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('pcfp_schedule_tasks', JSON.stringify(tasks));
+    
+    // Close modal
+    document.getElementById('taskModal').style.display = 'none';
+    
+    // Clear action context
+    window.currentModalAction = null;
+    
+    // Refresh the display
+    populateTaskList();
+    updateTaskSummary();
+  }
   
   // Initialize when DOM is ready
   if (document.readyState === 'loading') {
@@ -503,6 +732,14 @@
   } else {
     init();
   }
+  
+  // Global functions for task actions - Expose after all functions are defined
+  window.editTask = editTask;
+  window.deleteTask = deleteTask;
+  window.toggleActionMenu = toggleActionMenu;
+  window.insertTaskAbove = insertTaskAbove;
+  window.insertTaskBelow = insertTaskBelow;
+  window.duplicateTask = duplicateTask;
   
   console.log('[PCFP] Schedule module.js v1.2 loaded successfully');
 })();

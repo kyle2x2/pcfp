@@ -286,6 +286,56 @@ const sharedData = window.PCFP.moduleManager.getAllSharedData();
 console.log('Shared data:', sharedData);
 ```
 
+### **Isolated Function Testing**
+When debugging complex functionality, create isolated test files to eliminate module conflicts:
+
+#### **1. Create Isolated Test Files**
+```bash
+# Create standalone test files for specific functionality
+test-module-debug.html      # Basic functionality tests
+test-module-simplified.html # Complete module replica in isolation
+```
+
+#### **2. Diagnostic Strategy**
+- **Test isolated versions** first to determine if issue is:
+  - Module-specific (isolated tests work → fix main module)
+  - Environment-related (isolated tests don't work → browser/environment issue)
+  - Global conflicts (isolated tests work → module interference)
+
+#### **3. System Diagnostics Template**
+```javascript
+function runSystemDiagnostics() {
+    // Check for global conflicts
+    console.log('Global Variables:', {
+        '$': typeof window.$,
+        'jQuery': typeof window.jQuery,
+        'PCFP': typeof window.PCFP
+    });
+    
+    // Check for CSS support
+    console.log('CSS Support:', {
+        'classList': typeof document.body.classList !== 'undefined',
+        'getComputedStyle': typeof window.getComputedStyle !== 'undefined'
+    });
+    
+    // Check for event handling
+    console.log('Event Handling:', {
+        'addEventListener': typeof document.addEventListener !== 'undefined',
+        'onclick': typeof document.body.onclick !== 'undefined'
+    });
+}
+```
+
+#### **4. Real-time Debug Information**
+```javascript
+function updateDebugInfo(message) {
+    const debugInfo = document.getElementById('debugInfo');
+    const timestamp = new Date().toLocaleTimeString();
+    debugInfo.innerHTML += `<br>[${timestamp}] ${message}`;
+    debugInfo.scrollTop = debugInfo.scrollHeight;
+}
+```
+
 ### **Error Tracking**
 ```javascript
 // Monitor errors
@@ -410,3 +460,143 @@ const cachedData = window.PCFP.moduleManager.getSharedData('cached_data');
 5. **Monitor performance** after deployment
 
 This architecture ensures your modules are **fast, reliable, and scalable** - perfect for your BuilderTrend competitor! 🚀
+
+## 🎯 Three-Dot Action Menu - Proven Implementation
+
+### **✅ Working Approach (Replicated from Payment Planner)**
+
+The three-dot action menu implementation that **actually works** uses dynamic creation and document body appending:
+
+#### **1. JavaScript Implementation**
+```javascript
+// Global menu state
+let menuEl = null;
+
+// Close any existing menu
+function closeMenu() { 
+  if (menuEl) { 
+    menuEl.remove(); 
+    menuEl = null; 
+    document.removeEventListener('click', onDoc); 
+  } 
+}
+
+// Click outside to close
+function onDoc(e) { 
+  if (menuEl && !menuEl.contains(e.target)) closeMenu(); 
+}
+
+// Main toggle function
+function toggleActionMenu(taskId) {
+  // Close any existing menu
+  closeMenu();
+  
+  // Find the button that was clicked
+  const button = document.querySelector(`button[onclick*="toggleActionMenu('${taskId}')"]`);
+  if (!button) return;
+  
+  // Get button position
+  const rect = button.getBoundingClientRect();
+  
+  // Create menu dynamically
+  const menu = document.createElement('div');
+  menu.className = 'pcfp-menu';
+  menu.innerHTML = [
+    `<button type="button" onclick="editTask('${taskId}');">✏️ Edit</button>`,
+    `<button type="button" onclick="deleteTask('${taskId}');">🗑️ Delete</button>`,
+    `<button type="button" onclick="insertTaskAbove('${taskId}');">⬆️ Insert Above</button>`,
+    `<button type="button" onclick="insertTaskBelow('${taskId}');">⬇️ Insert Below</button>`,
+    `<button type="button" onclick="duplicateTask('${taskId}');">📋 Duplicate</button>`
+  ].join('');
+  
+  // Append to document body (CRITICAL)
+  document.body.appendChild(menu);
+  menuEl = menu;
+  
+  // Position menu
+  menu.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+  menu.style.left = Math.max(12, rect.right + window.scrollX - 180) + 'px';
+  
+  // Add click outside listener
+  setTimeout(() => document.addEventListener('click', onDoc));
+}
+```
+
+#### **2. CSS Implementation**
+```css
+/* Menu container */
+.pcfp-menu {
+  position: absolute;
+  z-index: 1000;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  min-width: 170px;
+  padding: 6px;
+}
+
+/* Menu buttons */
+.pcfp-menu button {
+  width: 100%;
+  display: block;
+  background: #fff;
+  border: 0;
+  color: #0f172a;
+  padding: 8px 10px;
+  text-align: left;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pcfp-menu button:hover {
+  background: #f8fafc;
+}
+
+/* Three-dot button */
+.pcfp-menu-btn {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+```
+
+#### **3. HTML Structure**
+```html
+<!-- Simple button only - menu created dynamically -->
+<div class="grid-cell" data-col="actions">
+  <button class="action-menu-btn" onclick="toggleActionMenu('${task.id}')">
+    <span class="three-dots">⋯</span>
+  </button>
+</div>
+```
+
+### **🚨 Why This Approach Works**
+
+1. **✅ Dynamic Creation** - Menu created fresh each time, no stale state
+2. **✅ Document Body** - Avoids grid positioning conflicts
+3. **✅ No CSS Conflicts** - No display/visibility override issues
+4. **✅ Proven Implementation** - Exact same code as working payment planner
+5. **✅ Clean State Management** - Single global menu element
+
+### **❌ What Doesn't Work**
+
+- **Pre-existing HTML menus** with show/hide
+- **Display property toggling** (gets overridden)
+- **Visibility property toggling** (gets overridden)
+- **ClassList-based visibility** (conflicts with other CSS)
+- **Grid-contained menus** (positioning issues)
+
+### **🎯 Implementation Checklist**
+
+- [ ] Use dynamic `document.createElement()` for menu
+- [ ] Append to `document.body` (not grid container)
+- [ ] Use `getBoundingClientRect()` for positioning
+- [ ] Include `window.scrollY` and `window.scrollX` in positioning
+- [ ] Add click-outside listener with `setTimeout()`
+- [ ] Use `menuEl.remove()` for cleanup
+- [ ] Copy exact CSS from payment planner
+
+This approach has been **proven to work** across multiple modules and environments! 🚀
