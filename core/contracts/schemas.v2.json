@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 2,
+  "Profile": {
+    "id": "string",
+    "name": "string",
+    "payload": {
+      "ui": {
+        "computeVisible": "boolean"
+      },
+      "settings": {
+        "hst": "number",
+        "markupPct": "number",
+        "depositPct": "number",
+        "holdbackPct": "number"
+      },
+      "data": {
+        "scope": "ScopeRow[]",
+        "months": "object"
+      }
+    }
+  },
+  "ScopeRow": {
+    "code": "string",
+    "name": "string",
+    "base": "number",
+    "startWeek": "number",
+    "duration": "number",
+    "flags": {
+      "procDeposit": "boolean",
+      "procBillWeek": "number"
+    }
+  },
+  "CashflowWeek": {
+    "week": "number",
+    "amount": "number"
+  },
+  "Settings": {
+    "hst": "number",
+    "markupPct": "number",
+    "depositPct": "number",
+    "holdbackPct": "number"
+  }
+}

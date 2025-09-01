@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PaymentPlannerProfile",
+  "type": "object",
+  "required": [
+    "project_id",
+    "module",
+    "name",
+    "payload"
+  ],
+  "properties": {
+    "id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "project_id": {
+      "type": "string"
+    },
+    "module": {
+      "const": "payment-planner"
+    },
+    "name": {
+      "type": "string"
+    },
+    "payload": {
+      "type": "object",
+      "required": [
+        "settings",
+        "scope",
+        "months",
+        "timeline"
+      ],
+      "properties": {
+        "settings": {
+          "type": "object",
+          "required": [
+            "markup_pct",
+            "hst_pct",
+            "holdback_pct",
+            "deposit_pct"
+          ],
+          "properties": {
+            "markup_pct": {
+              "type": "number"
+            },
+            "hst_pct": {
+              "type": "number"
+            },
+            "holdback_pct": {
+              "type": "number"
+            },
+            "deposit_pct": {
+              "type": "number"
+            }
+          }
+        },
+        "scope": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "name",
+              "base_amount",
+              "start_week",
+              "duration_weeks"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "base_amount": {
+                "type": "number"
+              },
+              "start_week": {
+                "type": "integer"
+              },
+              "duration_weeks": {
+                "type": "integer"
+              },
+              "proc_deposit_pct": {
+                "type": [
+                  "number",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "months": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "weeks": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "timeline": {
+          "type": "object",
+          "properties": {
+            "weeks": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  }
+}

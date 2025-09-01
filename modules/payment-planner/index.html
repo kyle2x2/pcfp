@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Payment Cash Flow Planner <span class=\"app-version\" style=\"display:none\"></span> v5</title>
+
+  <link rel="stylesheet" href="app.css?v=20250831223240">
+</head>
+<body>
+<header class="no-print">
+  <div class="brand">
+    <div class="badge">Payment Cash Flow Planner</div>
+    <h1>Weekly Gantt • Profiles • Exports</h1>
+  </div>
+  <div class="toolbar">
+    <button class="ghost" id="btnOwnerView" title="Owner presentation view">Owner View</button>
+    <button class="ghost" id="btnOwnerPDF" title="Export Owner PDF (Cash Flow + Timeline)">Owner PDF</button>
+    <button class="ghost" id="btnMobileToggle" title="Force mobile layout on/off">Mobile</button>
+    <button class="ghost" id="btnShare" title="Copy page link">Share</button>
+    <button class="ghost" id="btnShareState" title="Copy scenario link">Scenario</button>
+    <button class="ghost" id="btnExportProfiles" title="Export all profiles">Export</button>
+    <button class="ghost" id="btnImportProfiles" title="Import profiles JSON">Import</button>
+    <button class="ghost" id="btnDensity" title="Toggle compact rows">Density</button>
+    <button class="ghost" id="btnLoadSample" title="Load preloaded sample profile">Load Sample</button>
+  </div>
+  <div class="controls" style="display:flex; gap:12px; align-items:center; padding:8px 0;">
+      <button id="computeToggleBtn" class="btn" title="Show/Hide formula breakdown">Show/Hide Formulas</button>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="card owner-hide">
+    <h2>
+      <span>Settings & Calendar
+        <span class="help" title="Project-level settings (markup, taxes, deposit rules). Months define how many weeks roll into each monthly bill.">
+          ⓘ
+        </span>
+      </span>
+      <span class="badges">
+        <span id="badgeWeeks" class="badge-note">Weeks: —</span>
+        <label class="badge-note"><input type="checkbox" id="toggleMonthShade" checked> Month Boundary Shading</label>
+      </span>
+    </h2>
+    <div class="section grid cols-4">
+      <div><label>Project Start Date (optional)</label><input id="projectStart" type="date" /></div>
+      <div><label>Project Weeks</label><input id="projectWeeks" type="number" value="18" min="1" /></div>
+      <div><label>Markup %</label><input id="markupPct" type="number" step="0.01" value="0.20" /></div>
+      <div><label>HST %</label><input id="hstPct" type="number" step="0.01" value="0.13" /></div>
+      <div><label>Holdback %</label><input id="holdbackPct" type="number" step="0.01" value="0.10" /></div>
+      <div><label>Deposit % (pre-HST)</label><input id="depositPct" type="number" step="0.01" value="0.30" /></div>
+      <div><label>Deposit Credit % (pre-tax)</label><input id="depositCreditPct" type="number" step="0.01" value="0.20" /></div>
+      <div class="controls">
+        <button class="ghost" onclick="addMonth()">+ Add Month</button>
+        <button class="ghost" onclick="resetMonths()">Reset Months</button>
+        <button class="ghost" onclick="autoMonths()">Auto Months</button>
+        <button onclick="compute()">Compute</button>
+      </div>
+    </div>
+    <div class="section">
+      <table id="monthsTable" class="table">
+        <colgroup><col style="width:8%"><col><col style="width:14%"><col style="width:14%"><col style="width:14%"><col style="width:12%"></colgroup>
+        <thead><tr><th>#</th><th>Label</th><th class="num">Weeks in Month</th><th class="num">Start Week</th><th class="num">End Week</th><th></th></tr></thead>
+        <tbody></tbody>
+        <tfoot><tr><td colspan="2" class="num">Total Weeks:</td><td id="totalWeeks" class="num">0</td><td colspan="3"><span id="weeksCheck" class="badge-note">Check</span></td></tr></tfoot>
+      </table>
+    </div>
+  </div>
+
+  <div class="card owner-hide">
+    <h2>
+      <span>Scope / Cost Codes
+        <span class="help" title="Enter base (pre-markup) per code and set timing in weeks. Use Spread to allocate evenly across the whole project. Procurement deposit (% of total) bills in the chosen week.">ⓘ</span>
+      </span>
+      <span class="badges">
+        <span id="badgeOverrun" class="badge-note">Overruns: 0</span>
+        <span id="badgeInvalidBase" class="badge-note">Missing base: 0</span>
+        <label class="badge-note"><input type="checkbox" id="toggleNotes"> Show Notes</label>
+      </span>
+    </h2>
+    <div class="section">
+      <div class="controls" style="margin-bottom:10px">
+        <input id="scopeSearch" type="text" placeholder="Search code or name…" style="max-width:260px">
+        <button class="ghost" onclick="addScopeRow()">+ Add Row</button>
+        <button class="ghost" onclick="addNRows()">+ Add N Rows</button>
+        <button class="ghost" onclick="deleteSelected()">Delete Selected</button>
+        <button class="ghost" onclick="exportScope()">Export Scope CSV</button>
+      </div>
+      <table id="scopeTable" class="table">
+        <colgroup class="cols-scope">
+          <col class="c0"><col class="c1"><col class="c2"><col class="c3"><col class="c4"><col class="c5"><col class="c6"><col class="c7"><col class="c8"><col class="c9"><col style="width:140px">
+        </colgroup>
+        <thead><tr>
+          <th><input type="checkbox" id="selAll" /></th>
+          <th>Code</th><th>Name</th><th class="num">Base</th><th class="num">Start Wk</th><th class="num">Duration</th><th>Spread?</th><th class="num">Proc. %</th><th class="num">Proc. Wk</th><th>Notes</th><th style="text-align:right">Actions</th>
+        </tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="controls" style="margin-top:10px">
+        <button class="ghost" onclick="clearScope()">Clear</button>
+        <button class="ghost" onclick="saveJSON()">Save JSON</button>
+        <button class="ghost" onclick="loadJSON()">Load JSON</button>
+        <button class="ghost" onclick="saveProfile()">Save Profile</button>
+        <button class="ghost" onclick="loadProfile()">Load Profile</button>
+        <button class="ghost" onclick="renameProfile()">Rename Profile</button>
+        <button class="ghost" onclick="duplicateProfile()">Duplicate Profile</button>
+        <button class="ghost" onclick="deleteProfile()">Delete Profile</button>
+        <select id="profiles" style="min-width:180px" title="Project profiles in this browser"></select>
+      </div>
+      <div id="capNote" class="badge-note" style="display:none;margin-top:8px;background:#fffbeb;border-color:#f59e0b;color:#92400e"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Summary & Exports <span class="help" title="Totals reflect base + markup rolled into weeks and months, with credits and holdbacks applied.">ⓘ</span></h2>
+    <div class="section">
+      <div class="kpis owner-hide">
+        <div class="kpi"><div class="label">Base Construction Total</div><div id="sumBase" class="val">0.00</div></div>
+        <div class="kpi"><div class="label">Markup Amount</div><div id="sumMarkup" class="val">0.00</div></div>
+        <div class="kpi"><div class="label">Contract Total (pre-HST)</div><div id="sumContract" class="val">0.00</div></div>
+      </div>
+      <div class="owner-hide" style="margin:12px 0">
+        <div style="margin-bottom:6px;font-size:12px;color:#334155">Deposit Tracker (remaining vs. floor)</div>
+        <div class="track"><div id="depTrack" style="width:0%"></div></div>
+      </div>
+      <div class="controls" style="margin-top:8px">
+        <label class="owner-hide"><input type="checkbox" id="toggleHst" checked> Show HST</label>
+        <label class="owner-hide"><input type="checkbox" id="toggleDep" checked> Show Deposit Credit</label>
+        <label class="owner-hide"><input type="checkbox" id="toggleHold" checked> Show Holdback</label>
+        <button class="ghost owner-hide" onclick="exportExcel()">Export Excel</button>
+        <button class="ghost owner-hide" onclick="window.print()">Export PDF (Full)</button>
+        <button class="ghost owner-hide" onclick="downloadCSV()">Export CSV</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Monthly Cash-Flow</h2>
+    <div class="section">
+      <table id="cashTable" class="table">
+<colgroup>
+  <col style="width: 180px"><!-- Month -->
+  <col style="width: 150px">
+  <col style="width: 150px">
+  <col style="width: 150px">
+  <col style="width: 170px">
+  <col style="width: 130px">
+  <col style="width: 180px">
+  <col style="width: 190px"><!-- Deposit Remaining or blank in Owner -->
+</colgroup>
+        <colgroup class="cols-cash"><col class="c1"><col class="c2"><col class="c3"><col class="c4"><col class="c5"><col class="c6"><col class="c7"></colgroup>
+        <thead><tr>
+          <th>Month</th><th class="num">Pre-Tax Work</th><th class="num col-dep owner-hide">Deposit Credit</th><th class="num col-hold owner-hide">Holdback (10%)</th><th class="num">Subtotal After Credits</th><th class="num col-hst owner-hide">HST (13%)</th><th class="num">Amount Due Now</th><th class="num owner-hide">Running Deposit Remaining</th>
+        </tr></thead>
+        <tbody></tbody>
+        <tfoot><tr>
+          <td><strong>Totals</strong></td><td id="tPre" class="num">0.00</td><td id="tCred" class="num col-dep owner-hide">0.00</td><td id="tHold" class="num col-hold owner-hide">0.00</td><td id="tSub" class="num">0.00</td><td id="tHst" class="num col-hst owner-hide">0.00</td><td id="tDue" class="num">0.00</td><td class="owner-hide"></td>
+        </tr></tfoot>
+      </table>
+      <small id="depositWarn" class="badge-note owner-hide" style="display:none;margin-top:8px;background:#fffbeb;border-color:#f59e0b;color:#92400e">Heads up: deposit credit will reach the floor soon.</small>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Timeline (Weekly Gantt)</h2>
+    <div class="section">
+      <div class="gantt">
+        <div class="gantt-grid">
+          <div class="gantt-left"><strong>Header</strong></div>
+          <div class="gantt-bars">
+            <div id="yearRow"   class="time-row year-row"></div>
+            <div id="monthRow"  class="time-row month-row"></div>
+            <div id="weekRow"   class="time-row week-row"></div>
+          </div>
+        </div>
+        <div id="ganttTasks"></div>
+      </div>
+      <small class="muted" id="ganttLegend"></small>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal" style="position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;padding:10px">
+  <div class="panel" style="background:#fff;border-radius:12px;border:1px solid var(--border);max-width:720px;width:100%;max-height:80vh;overflow:auto">
+    <header class="no-print" style="border-bottom:1px solid var(--border);padding:10px 12px"><strong id="modalTitle">Breakdown</strong>  <div class="controls" style="display:flex; gap:12px; align-items:center; padding:8px 0;">
+      <button id="computeToggleBtn" class="btn" title="Show/Hide formula breakdown">Show/Hide Formulas</button>
+  </div>
+</header>
+    <div class="content" id="modalContent" style="padding:10px 12px"></div>
+    <div class="actions no-print" style="display:flex;justify-content:flex-end;gap:8px;padding:10px 12px;border-top:1px solid var(--border)">
+      <button class="ghost" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+
+  <script src="app.js?v=20250831223240"></script>
+<script>
+  window.addEventListener('load', ()=>{
+    window.parent.postMessage({ type:'module:requestCtx' }, '*');
+    window.addEventListener('message', (ev)=>{
+      if(ev.data && ev.data.type==='kernel:ctx'){ window.__KERNEL_CTX__ = ev.data.ctx; }
+    });
+  });
+</script>
+
+  <script src="../../core/components/menu/menu.global.js?v=20250831223240"></script>
+  <script src="../../core/components/gantt/gantt.global.js?v=20250831223240"></script>
+  <script src="app.js?v=20250831223240"></script>
+  <script src="compute_toggle.js?v=20250831223240"></script>
+  <script src="v72_patch.js?v=20250831223240"></script>
+  <script>window.pp_contract_json = window.pp_contract_json || {};</script>
+  <script src="core/version.js?v=20250831223240"></script>
+  <script src="core/verify/v73_integrity.js?v=20250831223240"></script>
+  <script src="core/boot_check.js?v=20250831223240"></script>
+</body>
+</html>

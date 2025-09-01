@@ -1,0 +1,46 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PCFP Schedule",
+  "type": "object",
+  "required": [
+    "totalWeeks"
+  ],
+  "properties": {
+    "startDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "totalWeeks": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "monthBoundaries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "month",
+          "year",
+          "startWeek",
+          "weeks"
+        ],
+        "properties": {
+          "month": {
+            "type": "string"
+          },
+          "year": {
+            "type": "integer"
+          },
+          "startWeek": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "weeks": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "name": "menu",
+  "version": "0.1.0",
+  "description": "Three-dot action menu component (2x2 shared)",
+  "exports": [
+    "open",
+    "close"
+  ]
+}

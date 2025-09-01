@@ -1,0 +1,20 @@
+
+
+/* v7.3 grid fixes */
+.grid-scroll-wrap{ overflow-x:auto; overflow-y:hidden; }
+/* Summary inline row */
+.summary-inline{ display:grid; grid-template-columns: repeat(4, minmax(160px, 1fr)); gap:8px; align-items:center; }
+.summary-inline .pill{ display:flex; align-items:center; justify-content:center; padding:8px; border:1px solid #E6E6E6; border-radius:8px; background:#fff; }
+.summary-inline-row2{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+body.compute-visible .compute-col{ display:table-cell; } 
+body:not(.compute-visible) .compute-col{ display:none; }
+:root{ --cf-col-count: 0; }
+/* ensure header/body use same font metrics */
+#cashflowHeader, #cashflowGrid{ font-variant-numeric: tabular-nums; }
+
+
+/* v7.3 version pill */
+.pcfp-version-pill{position:fixed; right:12px; bottom:12px; z-index:1000; background:#1c1c1c; color:#fff; padding:6px 10px; border-radius:999px; font:12px system-ui; opacity:.9}
+.pcfp-version-pill b{color:#ffd166}
+
+.version-pill{position:fixed;right:12px;bottom:12px;background:#111;color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;opacity:.9;z-index:9999}

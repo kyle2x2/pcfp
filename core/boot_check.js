@@ -1,0 +1,1 @@
+(function(){console.log("PCFP boot check: version=7.3.1a, build=2025-08-31T21:28:22.470970");})();

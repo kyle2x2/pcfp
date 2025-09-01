@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PCFP Settings",
+  "type": "object",
+  "required": [
+    "hst",
+    "holdback",
+    "markup",
+    "depositPercent",
+    "depositFloorPercentOfContractPreHST"
+  ],
+  "properties": {
+    "hst": {
+      "type": "number",
+      "minimum": 0
+    },
+    "holdback": {
+      "type": "number",
+      "minimum": 0
+    },
+    "markup": {
+      "type": "number",
+      "minimum": 0
+    },
+    "depositPercent": {
+      "type": "number",
+      "minimum": 0
+    },
+    "depositFloorPercentOfContractPreHST": {
+      "type": "number",
+      "minimum": 0
+    },
+    "ownerPdfOptions": {
+      "type": "object",
+      "properties": {
+        "showCashFlow": {
+          "type": "boolean"
+        },
+        "showTimeline": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PCFP Profile",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    "schemaVersion",
+    "settings",
+    "modules"
+  ],
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "type": "integer",
+      "enum": [
+        1
+      ]
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date"
+    },
+    "settings": {
+      "$ref": "settings.schema.json"
+    },
+    "schedule": {
+      "$ref": "schedule.schema.json"
+    },
+    "masterCostCodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "code",
+          "name"
+        ],
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "modules": {
+      "type": "object"
+    }
+  }
+}

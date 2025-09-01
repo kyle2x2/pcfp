@@ -1,0 +1,9 @@
+{
+  "name": "gantt",
+  "version": "0.1.0",
+  "description": "Weekly gantt/timeline component stub (2x2 shared)",
+  "exports": [
+    "create",
+    "render"
+  ]
+}
