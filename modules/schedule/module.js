@@ -18,8 +18,6 @@
     priority: 'medium',
     assignee: '',
     progress: 0,
-    budget: 0,
-    actualCost: 0,
     phase: 'Pre-Construction',
     color: '#C6A247',
     reminder: 'none',
@@ -43,6 +41,9 @@
     // Set up event listeners
     setupEventListeners();
     
+    // Set up column resizing
+    setupColumnResizing();
+    
     console.log('[PCFP] Schedule module v1.2 ready');
   }
   
@@ -62,8 +63,6 @@
           priority: 'high',
           assignee: 'John Smith',
           progress: 100,
-          budget: 5000,
-          actualCost: 4800,
           phase: 'Pre-Construction',
           color: '#C6A247',
           reminder: 'none',
@@ -82,8 +81,6 @@
           priority: 'critical',
           assignee: 'Mike Johnson',
           progress: 60,
-          budget: 15000,
-          actualCost: 12000,
           phase: 'Foundation',
           color: '#C6A247',
           reminder: '1day',
@@ -102,8 +99,6 @@
           priority: 'high',
           assignee: 'Tom Wilson',
           progress: 0,
-          budget: 25000,
-          actualCost: 0,
           phase: 'Framing',
           color: '#C6A247',
           reminder: '1week',
@@ -117,33 +112,56 @@
   }
   
   function populateTaskList() {
-    const taskListBody = document.getElementById('taskListBody');
-    if (!taskListBody) return;
+    const taskGridBody = document.getElementById('taskGridBody');
+    if (!taskGridBody) return;
     
-    taskListBody.innerHTML = tasks.map(task => `
-      <div class="task-row" data-task-id="${task.id}">
-        <div class="task-col">
-          <div class="task-title">${task.title}</div>
-          <div class="task-description">${task.description}</div>
+    taskGridBody.innerHTML = tasks.map(task => `
+      <div class="task-grid-row" data-task-id="${task.id}">
+        <div class="task-col" data-col="title">
+          <div style="display: flex; flex-direction: column; width: 100%;">
+            <div class="task-title">${task.title}</div>
+            <div class="task-description">${task.description}</div>
+          </div>
         </div>
-        <div class="task-col">${task.assignee}</div>
-        <div class="task-col">${formatDate(task.startDate)}</div>
-        <div class="task-col">${formatDate(task.endDate)}</div>
-        <div class="task-col">
+        <div class="task-col" data-col="assignee">${task.assignee}</div>
+        <div class="task-col" data-col="startDate">${formatDate(task.startDate)}</div>
+        <div class="task-col" data-col="endDate">${formatDate(task.endDate)}</div>
+        <div class="task-col" data-col="status">
           <span class="status-badge status-${task.status}">${task.status}</span>
         </div>
-        <div class="task-col">
-          <div class="progress-bar">
-            <div class="progress-fill" style="width: ${task.progress}%"></div>
+        <div class="task-col" data-col="progress">
+          <div style="display: flex; flex-direction: column; width: 100%;">
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${task.progress}%"></div>
+            </div>
+            <span class="progress-text">${task.progress}%</span>
           </div>
-          <span class="progress-text">${task.progress}%</span>
         </div>
-        <div class="task-col">
+        <div class="task-col" data-col="priority">
+          <span style="color: ${getPriorityColor(task.priority)}; font-weight: 600;">${task.priority}</span>
+        </div>
+        <div class="task-col" data-col="phase">${task.phase}</div>
+        <div class="task-col" data-col="actions">
           <button class="btn btn-small" onclick="editTask('${task.id}')">Edit</button>
           <button class="btn btn-small" onclick="deleteTask('${task.id}')">Delete</button>
         </div>
       </div>
     `).join('');
+    
+    // Force alignment after rendering
+    setTimeout(() => {
+      alignColumns();
+    }, 0);
+  }
+  
+  function getPriorityColor(priority) {
+    const priorityColors = {
+      'low': '#10b981',
+      'medium': '#3b82f6',
+      'high': '#f59e0b',
+      'critical': '#ef4444'
+    };
+    return priorityColors[priority] || '#64748b';
   }
   
   function updateTaskSummary() {
@@ -155,9 +173,7 @@
     const inProgressTasks = tasks.filter(t => t.status === 'in-progress').length;
     const pendingTasks = tasks.filter(t => t.status === 'not-started').length;
     const criticalTasks = tasks.filter(t => t.priority === 'critical').length;
-    
-    const totalBudget = tasks.reduce((sum, t) => sum + (t.budget || 0), 0);
-    const totalActual = tasks.reduce((sum, t) => sum + (t.actualCost || 0), 0);
+    const highPriorityTasks = tasks.filter(t => t.priority === 'high').length;
     
     summaryElement.innerHTML = `
       <div class="summary-item">
@@ -177,16 +193,12 @@
         <span class="value">${pendingTasks}</span>
       </div>
       <div class="summary-item">
-        <span class="label">Critical:</span>
+        <span class="label">Critical Priority:</span>
         <span class="value">${criticalTasks}</span>
       </div>
       <div class="summary-item">
-        <span class="label">Total Budget:</span>
-        <span class="value">$${totalBudget.toLocaleString()}</span>
-      </div>
-      <div class="summary-item">
-        <span class="label">Actual Cost:</span>
-        <span class="value">$${totalActual.toLocaleString()}</span>
+        <span class="label">High Priority:</span>
+        <span class="value">${highPriorityTasks}</span>
       </div>
     `;
   }
@@ -309,7 +321,6 @@
     document.getElementById('taskStatus').value = task.status;
     document.getElementById('taskPriority').value = task.priority;
     document.getElementById('taskProgress').value = task.progress;
-    document.getElementById('taskBudget').value = task.budget;
     document.getElementById('taskPhase').value = task.phase;
     
     modal.style.display = 'block';
@@ -328,7 +339,6 @@
       status: formData.get('status'),
       priority: formData.get('priority'),
       progress: parseInt(formData.get('progress')) || 0,
-      budget: parseFloat(formData.get('budget')) || 0,
       phase: formData.get('phase')
     };
     
@@ -417,6 +427,70 @@
     
     document.body.appendChild(notification);
     setTimeout(() => notification.remove(), 3000);
+  }
+  
+  function alignColumns() {
+    // Get all header columns
+    const headerColumns = document.querySelectorAll('.task-grid-header .task-col');
+    
+    headerColumns.forEach(headerCol => {
+      const columnType = headerCol.getAttribute('data-col');
+      const headerWidth = headerCol.offsetWidth;
+      
+      // Update all corresponding data columns to match header width
+      const dataColumns = document.querySelectorAll(`.task-grid-row .task-col[data-col="${columnType}"]`);
+      dataColumns.forEach(col => {
+        col.style.flex = `0 0 ${headerWidth}px`;
+        col.style.minWidth = `${headerWidth}px`;
+      });
+    });
+  }
+  
+  function setupColumnResizing() {
+    const resizers = document.querySelectorAll('.col-resizer');
+    
+    resizers.forEach(resizer => {
+      resizer.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        
+        const headerColumn = this.parentElement;
+        const columnType = headerColumn.getAttribute('data-col');
+        const startX = e.clientX;
+        const startWidth = headerColumn.offsetWidth;
+        
+        function onMouseMove(e) {
+          const newWidth = startWidth + (e.clientX - startX);
+          if (newWidth > 80) { // Minimum width
+            // Update header column
+            headerColumn.style.flex = `0 0 ${newWidth}px`;
+            headerColumn.style.minWidth = `${newWidth}px`;
+            
+            // Update all corresponding data columns
+            const dataColumns = document.querySelectorAll(`.task-grid-row .task-col[data-col="${columnType}"]`);
+            dataColumns.forEach(col => {
+              col.style.flex = `0 0 ${newWidth}px`;
+              col.style.minWidth = `${newWidth}px`;
+            });
+            
+            // Add visual feedback
+            document.body.style.cursor = 'col-resize';
+            headerColumn.style.backgroundColor = 'var(--pcfp-gold-light)';
+          }
+        }
+        
+        function onMouseUp() {
+          document.removeEventListener('mousemove', onMouseMove);
+          document.removeEventListener('mouseup', onMouseUp);
+          
+          // Remove visual feedback
+          document.body.style.cursor = '';
+          headerColumn.style.backgroundColor = '';
+        }
+        
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+      });
+    });
   }
   
   // Global functions for task actions

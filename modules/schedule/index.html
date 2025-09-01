@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Schedule - PCFP v1.2</title>
-<link rel="stylesheet" href="../../core/theme.css?v=20250901185018">
-<link rel="stylesheet" href="module.css?v=20250901185018">
+<link rel="stylesheet" href="../../core/theme.css?v=20250901195000">
+<link rel="stylesheet" href="module.css?v=20250901195000">
 </head>
 <body>
 <header class="module-header">
@@ -17,76 +17,104 @@
 
 <div class="module-container">
   <div class="module-content">
-    <div class="schedule-container">
-      <div class="schedule-header">
-        <div class="view-selector">
-          <button class="btn active" data-view="list">List</button>
-          <button class="btn" data-view="calendar">Calendar</button>
-          <button class="btn" data-view="kanban">Kanban</button>
-          <button class="btn" data-view="gantt">Gantt</button>
+          <div class="schedule-container">
+        <div class="schedule-header">
+          <div class="view-selector">
+            <button class="btn active" data-view="list">List</button>
+            <button class="btn" data-view="calendar">Calendar</button>
+            <button class="btn" data-view="kanban">Kanban</button>
+            <button class="btn" data-view="gantt">Gantt</button>
+          </div>
+          <div class="time-scale-selector">
+            <button class="btn" data-scale="day">Day</button>
+            <button class="btn" data-scale="week">Week</button>
+            <button class="btn active" data-scale="month">Month</button>
+            <button class="btn" data-scale="quarter">Quarter</button>
+            <button class="btn" data-scale="year">Year</button>
+          </div>
+          <div class="schedule-actions">
+            <button class="btn btn-primary" id="btnAddTask">+ Add Task</button>
+          </div>
         </div>
-        <div class="time-scale-selector">
-          <button class="btn" data-scale="day">Day</button>
-          <button class="btn" data-scale="week">Week</button>
-          <button class="btn active" data-scale="month">Month</button>
-          <button class="btn" data-scale="quarter">Quarter</button>
-          <button class="btn" data-scale="year">Year</button>
-        </div>
-        <div class="schedule-actions">
-          <button class="btn btn-primary" id="btnAddTask">+ Add Task</button>
-        </div>
-      </div>
-      
-      <div class="schedule-content">
-        <div id="listView" class="view-content active">
-          <div class="task-list">
-            <div class="task-list-header">
-              <div class="task-col">Task</div>
-              <div class="task-col">Assignee</div>
-              <div class="task-col">Start Date</div>
-              <div class="task-col">End Date</div>
-              <div class="task-col">Status</div>
-              <div class="task-col">Progress</div>
-              <div class="task-col">Actions</div>
+        
+        <div class="schedule-content">
+          <div id="listView" class="view-content active">
+            <div class="task-grid">
+              <div class="task-grid-header">
+                <div class="task-col" data-col="title">
+                  <span class="col-title">Task</span>
+                  <div class="col-resizer"></div>
+                </div>
+                <div class="task-col" data-col="assignee">
+                  <span class="col-title">Assignee</span>
+                  <div class="col-resizer"></div>
+                </div>
+                <div class="task-col" data-col="startDate">
+                  <span class="col-title">Start Date</span>
+                  <div class="col-resizer"></div>
+                </div>
+                <div class="task-col" data-col="endDate">
+                  <span class="col-title">End Date</span>
+                  <div class="col-resizer"></div>
+                </div>
+                <div class="task-col" data-col="status">
+                  <span class="col-title">Status</span>
+                  <div class="col-resizer"></div>
+                </div>
+                <div class="task-col" data-col="progress">
+                  <span class="col-title">Progress</span>
+                  <div class="col-resizer"></div>
+                </div>
+                <div class="task-col" data-col="priority">
+                  <span class="col-title">Priority</span>
+                  <div class="col-resizer"></div>
+                </div>
+                <div class="task-col" data-col="phase">
+                  <span class="col-title">Phase</span>
+                  <div class="col-resizer"></div>
+                </div>
+                <div class="task-col" data-col="actions">
+                  <span class="col-title">Actions</span>
+                </div>
+              </div>
+              <div class="task-grid-body" id="taskGridBody">
+                <!-- Tasks will be populated here -->
+              </div>
             </div>
-            <div class="task-list-body" id="taskListBody">
-              <!-- Tasks will be populated here -->
+          </div>
+          
+          <div id="calendarView" class="view-content">
+            <div class="calendar-placeholder">
+              <h3>Calendar View</h3>
+              <p>FullCalendar.js integration coming in v1.2</p>
+              <p>External libraries disabled for iframe compatibility</p>
+            </div>
+          </div>
+          
+          <div id="kanbanView" class="view-content">
+            <div class="kanban-placeholder">
+              <h3>Kanban View</h3>
+              <p>SortableJS integration coming in v1.3</p>
+            </div>
+          </div>
+          
+          <div id="ganttView" class="view-content">
+            <div class="gantt-placeholder">
+              <h3>Gantt View</h3>
+              <p>Frappe Gantt integration coming in v1.4</p>
             </div>
           </div>
         </div>
         
-        <div id="calendarView" class="view-content">
-          <div class="calendar-placeholder">
-            <h3>Calendar View</h3>
-            <p>FullCalendar.js integration coming in v1.2</p>
-            <p>External libraries disabled for iframe compatibility</p>
-          </div>
-        </div>
-        
-        <div id="kanbanView" class="view-content">
-          <div class="kanban-placeholder">
-            <h3>Kanban View</h3>
-            <p>SortableJS integration coming in v1.3</p>
-          </div>
-        </div>
-        
-        <div id="ganttView" class="view-content">
-          <div class="gantt-placeholder">
-            <h3>Gantt View</h3>
-            <p>Frappe Gantt integration coming in v1.4</p>
+        <div class="task-summary-section">
+          <div class="task-summary">
+            <h3>Task Summary</h3>
+            <div id="taskSummary">
+              <!-- Summary will be populated here -->
+            </div>
           </div>
         </div>
       </div>
-      
-      <div class="schedule-sidebar">
-        <div class="task-summary">
-          <h3>Task Summary</h3>
-          <div id="taskSummary">
-            <!-- Summary will be populated here -->
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -146,15 +174,9 @@
           </div>
         </div>
         
-        <div class="form-row">
-          <div class="form-group">
-            <label for="taskProgress">Progress (%)</label>
-            <input type="number" id="taskProgress" name="progress" min="0" max="100" value="0">
-          </div>
-          <div class="form-group">
-            <label for="taskBudget">Budget ($)</label>
-            <input type="number" id="taskBudget" name="budget" min="0" step="0.01" value="0">
-          </div>
+        <div class="form-group">
+          <label for="taskProgress">Progress (%)</label>
+          <input type="number" id="taskProgress" name="progress" min="0" max="100" value="0">
         </div>
         
         <div class="form-group">
@@ -181,6 +203,6 @@
   </div>
 </div>
 
-<script src="module.js?v=20250901185018"></script>
+<script src="module.js?v=20250901185020"></script>
 </body>
 </html>
