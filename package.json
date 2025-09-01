@@ -1,0 +1,31 @@
+{
+  "name": "pcfp-cursor-branch",
+  "version": "8.1.0",
+  "description": "PCFP Application - Cursor Branch with Enhanced Architecture",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000",
+    "lint": "eslint core/**/*.js modules/**/*.js",
+    "lint:fix": "eslint core/**/*.js modules/**/*.js --fix",
+    "test": "echo 'No tests configured yet'",
+    "build": "echo 'No build process needed for static files'"
+  },
+  "devDependencies": {
+    "eslint": "^8.0.0"
+  },
+  "keywords": [
+    "construction",
+    "project-management",
+    "payment-planner",
+    "modular-architecture"
+  ],
+  "author": "PCFP Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-repo/pcfp.git"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}

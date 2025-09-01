@@ -1,4 +1,4 @@
-# Versioning System Guide
+# Versioning System Guide - Cursor Branch
 
 ## Overview
 

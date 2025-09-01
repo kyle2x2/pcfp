@@ -1,6 +1,6 @@
 // Single source of truth for versions
 // Main application version - displayed in left sidebar, changes with every iteration
-window.APP_BUILD = "v8.1";
+window.APP_BUILD = "v8.1-cursor";
 
 // Individual module versions - each module has its own version
 // All modules are independent, including payment-planner

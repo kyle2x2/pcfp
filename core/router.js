@@ -1,16 +1,30 @@
-// core/router.js - hash router with named modules & query params
+// core/router.js (v8.1) - hash router with named modules & query params
 (function(g){
   const bus = (g.PCFP = g.PCFP || {}, g.PCFP.bus);
   const Router = {
     current: { module: null, params: {} },
     parse(){
-      const h = g.location.hash.replace(/^#\/?/, '');
-      const [path, q] = h.split('?');
-      const segs = (path||'').split('/').filter(Boolean);
-      const module = segs[1] || segs[0] || 'payment-planner';
-      const params = {};
-      if(q){ q.split('&').forEach(p=>{ const [k,v]=p.split('='); params[decodeURIComponent(k)]=decodeURIComponent(v||''); }); }
-      return { module, params };
+      try {
+        const h = g.location.hash.replace(/^#\/?/, '');
+        const [path, q] = h.split('?');
+        const segs = (path||'').split('/').filter(Boolean);
+        const module = segs[1] || segs[0] || 'payment-planner';
+        const params = {};
+        if(q){ 
+          q.split('&').forEach(p=>{ 
+            try {
+              const [k,v]=p.split('='); 
+              params[decodeURIComponent(k)]=decodeURIComponent(v||''); 
+            } catch(e) {
+              console.warn('Failed to parse query param:', p, e);
+            }
+          }); 
+        }
+        return { module, params };
+      } catch(e) {
+        console.error('Router parse error:', e);
+        return { module: 'payment-planner', params: {} };
+      }
     },
     go(module, params={}){
       const q = Object.keys(params).map(k=>`${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`).join('&');
