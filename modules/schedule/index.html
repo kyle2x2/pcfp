@@ -1,21 +1,130 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>📅 Schedule — Coming Soon</title>
-<link rel="stylesheet" href="../../core/theme.css?v=20250831223240">
-<style>
-  body{margin:0;background:#fff;color:#0f172a;font:14px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-  .wrap{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:10px}
-  h1{margin:0;font-size:18px}
-  .tag{border:1px solid var(--ring);background:var(--panel);padding:6px 10px;border-radius:999px}
-</style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Schedule - PCFP v1.1</title>
+<!-- Standard module styling -->
+<link rel="stylesheet" href="../../core/theme.css?v=20250901185000">
+<link rel="stylesheet" href="module.css?v=20250901185000">
+<!-- Module metadata -->
+<script>
+  window.MODULE_META = {
+    name: "Schedule",
+    version: "v1.1",
+    key: "schedule",
+    description: "Project scheduling and timeline management",
+    icon: "📅"
+  };
+</script>
 </head>
 <body>
-<div class="wrap">
-  <div class="tag">2x2 Module</div>
-  <h1>📅 Schedule</h1>
-  <div>Coming soon</div>
+<header class="module-header">
+  <div class="module-brand">
+    <div class="module-badge">📅 Schedule</div>
+    <h1>Schedule Management</h1>
+  </div>
+  <div class="module-toolbar">
+    <button class="btn" id="btnSave" title="Save data">Save</button>
+    <button class="btn" id="btnExport" title="Export data">Export</button>
+    <button class="btn" id="btnShare" title="Share module state">Share</button>
+  </div>
+</header>
+<div class="module-container">
+  <!-- Module content goes here -->
+  <div class="module-content">
+    <div class="placeholder">
+      <h2>Schedule Module</h2>
+      <p>This module is under development.</p>
+      <div class="module-stats">
+        <div class="stat">
+          <span class="label">Version:</span>
+          <span class="value">v1.1</span>
+        </div>
+        <div class="stat">
+          <span class="label">Status:</span>
+          <span class="value">In Development</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+<!-- Standard module scripts -->
+<script src="../../core/services/errors.js?v=20250901185000"></script>
+<script src="module.js?v=20250901185000"></script>
+<!-- Module initialization -->
+<script>
+  // Standard module initialization with v8.4 enhancements
+  (function() {
+    const { 
+      safe, 
+      createErrorBoundary, 
+      sanitizeHTML, 
+      safeSetInnerHTML, 
+      domCache, 
+      memoryManager, 
+      stateManager 
+    } = window.__pcfpCore || {};
+    
+    // Create error boundary for this module
+    const errorBoundary = createErrorBoundary ? createErrorBoundary('schedule') : null;
+    
+    // Create module-specific services
+    const moduleLifecycle = memoryManager ? memoryManager.createModuleLifecycle('schedule') : null;
+    const moduleState = stateManager ? stateManager.createModuleState('schedule') : null;
+    
+    // Initialize module when DOM is ready
+    function initModule() {
+      safe(() => {
+        console.log(`[PCFP] Initializing Schedule module v1.1`);
+        
+        // Register module with module manager
+        if (window.PCFP && window.PCFP.moduleManager) {
+          window.PCFP.moduleManager.register('schedule', {
+            name: 'Schedule',
+            version: 'v1.1',
+            description: 'Project scheduling and timeline management',
+            icon: '📅'
+          });
+        }
+        
+        // Emit module ready event
+        if (window.PCFP && window.PCFP.events) {
+          window.PCFP.events.emit('module:ready', {
+            module: 'schedule',
+            version: 'v1.1',
+            timestamp: Date.now()
+          });
+        }
+        
+        // Initialize module-specific functionality
+        if (window.initscheduleModule) {
+          window.initscheduleModule({
+            moduleLifecycle,
+            moduleState,
+            domCache,
+            sanitizeHTML,
+            safeSetInnerHTML
+          });
+        }
+        
+      }, 'module:init');
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initModule);
+    } else {
+      initModule();
+    }
+    
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (moduleLifecycle) {
+        moduleLifecycle.cleanup();
+      }
+    });
+    
+  })();
+</script>
 </body>
 </html>

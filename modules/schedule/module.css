@@ -1,0 +1,260 @@
+/* modules/schedule/module.css - Schedule Module v1.1 Styles */
+
+.schedule-container {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  gap: 20px;
+  height: 100%;
+  padding: 20px;
+}
+
+.schedule-header {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: var(--panel);
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.view-selector,
+.time-scale-selector {
+  display: flex;
+  gap: 5px;
+}
+
+.view-selector .btn,
+.time-scale-selector .btn {
+  padding: 8px 12px;
+  border: 1px solid var(--ring);
+  background: white;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.view-selector .btn.active,
+.time-scale-selector .btn.active {
+  background: var(--gold);
+  color: white;
+  border-color: var(--gold);
+}
+
+.schedule-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: white;
+  border: 1px solid var(--gold);
+}
+
+.schedule-content {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid var(--ring);
+  overflow: hidden;
+}
+
+.view-content {
+  display: none;
+  padding: 20px;
+  min-height: 400px;
+}
+
+.view-content.active {
+  display: block;
+}
+
+/* List View Styles */
+.task-list {
+  width: 100%;
+}
+
+.task-list-header {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 10px;
+  padding: 15px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--ring);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.task-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  gap: 10px;
+  padding: 15px;
+  border-bottom: 1px solid var(--ring);
+  align-items: center;
+  transition: background 0.2s;
+}
+
+.task-row:hover {
+  background: var(--panel);
+}
+
+.task-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.task-description {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-completed {
+  background: #4CAF50;
+  color: white;
+}
+
+.status-in-progress {
+  background: #FF9800;
+  color: white;
+}
+
+.status-not-started {
+  background: #9E9E9E;
+  color: white;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--ring);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 4px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--gold);
+  transition: width 0.3s;
+}
+
+.progress-text {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.btn-small {
+  padding: 4px 8px;
+  font-size: 11px;
+  margin-right: 5px;
+}
+
+/* Sidebar Styles */
+.schedule-sidebar {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid var(--ring);
+  padding: 20px;
+  height: fit-content;
+}
+
+.task-summary h3 {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  color: var(--fg);
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--ring);
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.summary-item .label {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.summary-item .value {
+  font-weight: 600;
+  color: var(--fg);
+}
+
+/* Placeholder Styles */
+.calendar-placeholder,
+.kanban-placeholder,
+.gantt-placeholder {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+
+.calendar-placeholder h3,
+.kanban-placeholder h3,
+.gantt-placeholder h3 {
+  margin: 0 0 10px 0;
+  color: var(--fg);
+}
+
+/* Notification Styles */
+.notification {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .schedule-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .schedule-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .task-list-header,
+  .task-row {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+  
+  .task-list-header {
+    display: none;
+  }
+  
+  .task-row {
+    border: 1px solid var(--ring);
+    border-radius: 8px;
+    margin-bottom: 10px;
+    padding: 15px;
+  }
+}

@@ -26,7 +26,7 @@ window.APP_BUILD = APP_META.build;
 // All modules are independent, including payment-planner
 window.MODULE_VERS = {
   "payments": "v1.0",        // Payment-planner is now independent
-  "schedule": "v1.0",        // All other modules are v1.0
+  "schedule": "v1.1",        // All other modules are v1.0
   "logs": "v1.0",            // All other modules are v1.0
   "todos": "v1.0",           // All other modules are v1.0
   "changes": "v1.0",         // All other modules are v1.0
