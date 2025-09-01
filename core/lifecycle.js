@@ -1,13 +1,15 @@
 (function(g){
-  const bus = g.PCFP && g.PCFP.bus;
+  // Updated to use new event system instead of old bus
+  const events = g.PCFP && g.PCFP.events;
   const router = g.PCFP && g.PCFP.router;
-  if(!bus || !router) return;
-  bus.on('route:enter', ({module, params})=>{
+  if(!events || !router) return;
+  
+  events.on('route:enter', ({module, params})=>{
     // Broadcast lifecycle for modules to listen
-    bus.emit('module:enter:'+module, {params});
+    events.emit('module:enter:'+module, {params});
   });
-  bus.on('route:leave', ({module})=>{
-    bus.emit('module:leave:'+module, {});
+  events.on('route:leave', ({module})=>{
+    events.emit('module:leave:'+module, {});
   });
   router.start();
 })(window);

@@ -1,4 +1,4 @@
-# PCFP - Project Construction Financial Planner v8.2
+# PCFP - Project Construction Financial Planner v8.4
 
 ## 🚀 BuilderTrend Competitor - Modern Construction Project Management
 
@@ -54,8 +54,8 @@ Each module is independent with its own version and functionality:
 
 | Module | Purpose | Version |
 |--------|---------|---------|
-| 💸 **Payment Planner** | Financial planning & payment tracking | v1.0 |
-| 📅 **Schedule** | Project scheduling & timeline management | v1.0 |
+| 💸 **Payment Planner** | Financial planning & payment tracking | v7.5 |
+| 📅 **Schedule** | Project scheduling & timeline management | v1.1 |
 | 📝 **Daily Logs** | Daily activity logging & reporting | v1.0 |
 | ✅ **To-Dos** | Task management & completion tracking | v1.0 |
 | 🔁 **Change Orders** | Change order management & approval | v1.0 |
@@ -73,8 +73,8 @@ Each module is independent with its own version and functionality:
 ### **Dual-Versioning Policy**
 PCFP uses a sophisticated dual-versioning system:
 
-1. **Build Version** (`v8.2`)
-   - Shows in sidebar as "Build v8.2"
+1. **Build Version** (`v8.4`)
+   - Shows in sidebar as "Build v8.4"
    - Changes with every application iteration
    - Reflects core system improvements
    - Defined in `core/config.js` as `APP_META.build`

@@ -1,20 +1,20 @@
-// core/kernel.standalone.js (v8.2 - BuilderTrend Competitor Router)
+// core/kernel.standalone.js (v8.4 - BuilderTrend Competitor Router)
 // Performance-optimized with API-ready navigation events
 (function(){
   const routes = {
-    '#/payments':        { title: 'Payment Planner',  src: 'modules/payment-planner/index.html' },
+    '#/payments':        { title: 'Payment Planner v7.5',  src: 'modules/payment-planner/index.html' },
     '#/schedule':        { title: 'Schedule v1.1',    src: 'modules/schedule/index.html' },
-    '#/daily-logs':      { title: 'Daily Logs',       src: 'modules/daily-logs/index.html' },
-    '#/to-dos':          { title: 'To‑Dos',           src: 'modules/to-dos/index.html' },
-    '#/change-orders':   { title: 'Change Orders',    src: 'modules/change-orders/index.html' },
-    '#/selections':      { title: 'Selections',       src: 'modules/selections/index.html' },
-    '#/specifications':  { title: 'Specifications',   src: 'modules/specifications/index.html' },
-    '#/documents':       { title: 'Documents',        src: 'modules/documents/index.html' },
-    '#/bids':            { title: 'Bids',             src: 'modules/bids/index.html' },
-    '#/purchase-orders': { title: 'Purchase Orders',  src: 'modules/purchase-orders/index.html' },
-    '#/bills':           { title: 'Bills',            src: 'modules/bills/index.html' },
-    '#/budget':          { title: 'Budget',           src: 'modules/budget/index.html' },
-    '#/invoices':        { title: 'Invoices',         src: 'modules/invoices/index.html' },
+    '#/daily-logs':      { title: 'Daily Logs v1.0',       src: 'modules/daily-logs/index.html' },
+    '#/to-dos':          { title: 'To‑Dos v1.0',           src: 'modules/to-dos/index.html' },
+    '#/change-orders':   { title: 'Change Orders v1.0',    src: 'modules/change-orders/index.html' },
+    '#/selections':      { title: 'Selections v1.0',       src: 'modules/selections/index.html' },
+    '#/specifications':  { title: 'Specifications v1.0',   src: 'modules/specifications/index.html' },
+    '#/documents':       { title: 'Documents v1.0',        src: 'modules/documents/index.html' },
+    '#/bids':            { title: 'Bids v1.0',             src: 'modules/bids/index.html' },
+    '#/purchase-orders': { title: 'Purchase Orders v1.0',  src: 'modules/purchase-orders/index.html' },
+    '#/bills':           { title: 'Bills v1.0',            src: 'modules/bills/index.html' },
+    '#/budget':          { title: 'Budget v1.0',            src: 'modules/budget/index.html' },
+    '#/invoices':        { title: 'Invoices v1.0',         src: 'modules/invoices/index.html' },
   };
 
   const frame = document.getElementById('module-frame');

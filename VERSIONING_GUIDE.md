@@ -20,8 +20,8 @@ window.APP_BUILD = "v8.4";
 // Individual module versions - each module has its own version
 // All modules are independent, including payment-planner
 window.MODULE_VERS = {
-  "payments": "v1.0",        // Payment-planner is now independent
-  "schedule": "v1.0",        // All other modules are v1.0
+  "payments": "v7.5",        // Payment-planner is v7.5
+  "schedule": "v1.1",        // Schedule is v1.1
   "logs": "v1.0",            // All other modules are v1.0
   "todos": "v1.0",           // All other modules are v1.0
   "changes": "v1.0",         // All other modules are v1.0
@@ -39,67 +39,92 @@ window.MODULE_VERS = {
 ## Version Display Locations
 
 ### 1. Left Sidebar (Main Application Version)
-- **Location**: Left sidebar, displayed as "Build v8.0"
+- **Location**: Left sidebar, displayed as "2x2 Modules Build v8.4"
 - **Source**: `window.APP_BUILD`
 - **Updates**: Change with every iteration of the app
 
 ### 2. Module Headers (Individual Module Versions)
-- **Location**: Top bar next to module title (e.g., "Payment Planner v8.0")
-- **Source**: `window.MODULE_VERS[moduleKey]`
+- **Location**: Top bar next to module title (e.g., "Payment Planner v7.5", "Schedule v1.1")
+- **Source**: `core/kernel.standalone.js` routes object
 - **Updates**: Independent for each module
 
 ## Special Rules
 
-### All Modules (Including Payment Planner)
-- **Version**: All modules are independent
+### Payment Planner Module
+- **Version**: v7.5 (special legacy version)
+- **Updates**: Only change when payment-planner code is modified
+
+### Schedule Module
+- **Version**: v1.1 (current active development)
+- **Updates**: Increment when schedule module code is modified
+
+### All Other Modules
+- **Version**: v1.0 (baseline)
 - **Updates**: Only change when the specific module code is modified
-- **Example**: Payment-planner is v1.0, Schedule is v1.0, main app is v8.2
 
 ## How to Update Versions
 
 ### Updating Main Application Version
 1. Edit `core/config.js`
-2. Update `window.APP_BUILD = "v8.2"` (or next version)
-3. No need to update any module versions (they're all independent now)
-4. Update `index.html` title and sidebar version display (now pulls from config.js automatically)
+2. Update `window.APP_BUILD = "v8.5"` (or next version)
+3. Update `index.html` title and cache-busting parameters
+4. No need to update any module versions (they're all independent)
 
 ### Updating Individual Module Version
-1. Edit `core/config.js`
-2. Update the specific module version in `window.MODULE_VERS`
-3. Example: `"schedule": "v1.1"`
+1. Edit `core/config.js` - Update the specific module version in `window.MODULE_VERS`
+2. Edit `core/kernel.standalone.js` - Update the title in the routes object
+3. Example: 
+   ```javascript
+   // In config.js
+   "schedule": "v1.2"
+   
+   // In kernel.standalone.js
+   '#/schedule': { title: 'Schedule v1.2', src: 'modules/schedule/index.html' }
+   ```
+
+## CRITICAL: Preventing Version Display Issues
+
+### ✅ DO:
+- Always update BOTH `core/config.js` AND `core/kernel.standalone.js`
+- Update cache-busting parameters after any version change
+- Test by refreshing browser completely (Ctrl+F5)
+- Keep module versions independent of main app version
+
+### ❌ DON'T:
+- Don't hardcode versions in individual module files
+- Don't use `module_header_version.js` (it's disabled)
+- Don't forget to update cache-busting parameters
+- Don't let module versions get out of sync between config.js and kernel.standalone.js
 
 ## Files Modified
 
 The following files were updated to implement this versioning system:
 
 - `core/config.js` - **SINGLE SOURCE OF TRUTH** for all versioning
-- `core/module_header_version.js` - Module header version display logic
-- `core/version_shim.js` - Version display and cache busting
-- `core/header_version.js` - Header version display
-- `core/integrity_banner.js` - Integrity banner version display
+- `core/kernel.standalone.js` - **MODULE TITLE DISPLAY** (must match config.js)
+- `core/version_shim.js` - Version display and cache busting (sidebar disabled)
 - `index.html` - Sidebar version display and page title
 
-**Removed redundant files:**
+**Removed/Disabled:**
+- `core/module_header_version.js` - **DISABLED** (was causing conflicts)
 - `core/version.js` - Deleted (redundant)
 - `core/module_versions.js` - Deleted (redundant)
-
-**Fixed conflicts:**
-- `core/version_shim.js` - Disabled module version display (was conflicting with module_header_version.js)
 
 ## Testing
 
 The centralized versioning system can be tested by:
 
-- Checking that left sidebar shows "Build v8.2"
-- Verifying payment-planner shows "v1.0" in module header (independent)
-- Confirming all other modules show "v1.0" in module headers
-- Ensuring all version displays pull from `core/config.js` only
+- Checking that left sidebar shows "2x2 Modules Build v8.4"
+- Verifying payment-planner shows "Payment Planner v7.5" in main header
+- Confirming schedule shows "Schedule v1.1" in main header
+- Ensuring all other modules show "v1.0" in main headers
+- Confirming no version badges appear in module internal headers
 
 ## Benefits
 
 1. **Clear Separation**: Main app version vs module versions are distinct
 2. **Flexible Updates**: Modules can be updated independently
-3. **Consistent Display**: Version numbers appear consistently across the UI
+3. **Consistent Display**: Version numbers appear consistently in main app header
 4. **Easy Maintenance**: Single source of truth in `core/config.js`
 5. **Independent Modules**: All modules have their own version numbers
 6. **No Conflicts**: All display systems use the same source, eliminating version conflicts

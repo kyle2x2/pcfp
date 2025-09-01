@@ -1,4 +1,4 @@
-// v8.2 core/store - unified data access layer with persistence
+// v8.4 core/store - unified data access layer with persistence
 export function createStore(initial){
   let state = structuredClone(initial || {});
   const subs = new Set();

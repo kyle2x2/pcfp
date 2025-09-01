@@ -1,4 +1,4 @@
-// v8.2 core/events - Enhanced Event System for BuilderTrend Competitor
+// v8.4 core/events - Enhanced Event System for BuilderTrend Competitor
 // Performance-optimized with API-ready architecture
 
 import { performanceMonitor, logError } from './errors.js';

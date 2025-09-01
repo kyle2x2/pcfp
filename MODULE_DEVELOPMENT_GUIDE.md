@@ -1,8 +1,8 @@
-# PCFP Module Development Guide v8.2
+# PCFP Module Development Guide v8.4
 
 ## 🚀 Building Modules for Your BuilderTrend Competitor
 
-This guide covers how to develop modules using the enhanced PCFP v8.2 architecture with standardized patterns, performance monitoring, and API-ready design.
+This guide covers how to develop modules using the enhanced PCFP v8.4 architecture with standardized patterns, performance monitoring, and API-ready design.
 
 ## 📋 Module Development Checklist
 

@@ -1,4 +1,4 @@
-// core/router.js (v8.2) - hash router with named modules & query params
+// core/router.js (v8.4) - hash router with named modules & query params
 (function(g){
   const bus = (g.PCFP = g.PCFP || {}, g.PCFP.bus);
   const Router = {

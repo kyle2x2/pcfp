@@ -1,4 +1,4 @@
-PCFP Module Integration (V8.2 - BuilderTrend Competitor)
+PCFP Module Integration (V8.4 - BuilderTrend Competitor)
 -------------------------------------------------------
 Hooks you can use:
   - window.PCFP.events.on('module:enter:<your-module>', ({params}) => { ... })
