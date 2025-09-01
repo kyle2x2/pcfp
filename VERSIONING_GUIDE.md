@@ -1,4 +1,4 @@
-# Versioning System Guide - BuilderTrend Competitor (v8.3)
+# Versioning System Guide - BuilderTrend Competitor (v8.4)
 
 ## Overview
 
@@ -15,7 +15,7 @@ This is the single source of truth for all versioning:
 
 ```javascript
 // Main application version - displayed in left sidebar, changes with every iteration
-window.APP_BUILD = "v8.2";
+window.APP_BUILD = "v8.4";
 
 // Individual module versions - each module has its own version
 // All modules are independent, including payment-planner

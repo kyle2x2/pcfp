@@ -53,19 +53,24 @@
 
     // Set module version text
     const modVer = MV[key] || 'v1.0';
+    console.log('[PCFP] Module version debug - key:', key, 'version:', modVer, 'badge found:', !!badge);
     if (badge) badge.textContent = modVer;
   } catch(e) {
     console.warn('module_header_version hotfix error', e);
   }
   }
   
-  // Run when DOM is ready
+  // Run when DOM is ready with a longer delay to ensure router has updated title
+  function runUpdate() {
+    setTimeout(updateModuleVersion, 200);
+  }
+  
   if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    updateModuleVersion();
+    runUpdate();
   } else {
-    document.addEventListener('DOMContentLoaded', updateModuleVersion);
+    document.addEventListener('DOMContentLoaded', runUpdate);
   }
   
   // Also run on hash change
-  window.addEventListener('hashchange', updateModuleVersion);
+  window.addEventListener('hashchange', runUpdate);
 })();

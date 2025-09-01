@@ -3,7 +3,7 @@
 (function(){
   const routes = {
     '#/payments':        { title: 'Payment Planner',  src: 'modules/payment-planner/index.html' },
-    '#/schedule':        { title: 'Schedule',         src: 'modules/schedule/index.html' },
+    '#/schedule':        { title: 'Schedule v1.1',    src: 'modules/schedule/index.html' },
     '#/daily-logs':      { title: 'Daily Logs',       src: 'modules/daily-logs/index.html' },
     '#/to-dos':          { title: 'To‑Dos',           src: 'modules/to-dos/index.html' },
     '#/change-orders':   { title: 'Change Orders',    src: 'modules/change-orders/index.html' },

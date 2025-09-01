@@ -8,7 +8,7 @@
         const h = g.location.hash.replace(/^#\/?/, '');
         const [path, q] = h.split('?');
         const segs = (path||'').split('/').filter(Boolean);
-        const module = segs[1] || segs[0] || 'payment-planner';
+        const module = segs[0] || 'payment-planner';
         const params = {};
         if(q){ 
           q.split('&').forEach(p=>{ 

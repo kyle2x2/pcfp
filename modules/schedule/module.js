@@ -1,58 +1,33 @@
-// modules/schedule/module.js - Schedule Module v1.1
+// modules/schedule/module.js - Schedule Module v1.1 (Simplified)
 // Construction project scheduling and timeline management
 
 (function() {
-  // Module state
-  let scheduleState;
-  let moduleLifecycle;
   let currentView = 'list';
   let currentTimeScale = 'month';
   let tasks = [];
   
-  // Initialize module
-  window.initscheduleModule = function(services) {
-    console.log('[PCFP] initscheduleModule called with services:', services);
+  // Initialize when DOM is ready
+  function init() {
+    console.log('[PCFP] Schedule module v1.1 initializing...');
     
-    const { 
-      moduleLifecycle: lifecycle, 
-      moduleState: state, 
-      domCache, 
-      sanitizeHTML, 
-      safeSetInnerHTML 
-    } = services;
-    
-    moduleLifecycle = lifecycle;
-    scheduleState = state;
-    
-    // Initialize module
-    initializeScheduleModule();
-  };
-  
-  function initializeScheduleModule() {
-    console.log('[PCFP] Initializing Schedule module v1.1');
-    
-    // Load initial data
+    // Load data
     loadScheduleData();
     
     // Set up UI
-    setupScheduleUI();
+    populateTaskList();
+    updateTaskSummary();
     
     // Set up event listeners
     setupEventListeners();
-    
-    // Register with module manager
-    registerModule();
     
     console.log('[PCFP] Schedule module v1.1 ready');
   }
   
   function loadScheduleData() {
-    // Load tasks from localStorage
     const savedTasks = localStorage.getItem('pcfp_schedule_tasks');
     if (savedTasks) {
       tasks = JSON.parse(savedTasks);
     } else {
-      // Default construction tasks
       tasks = [
         {
           id: 'task_001',
@@ -95,177 +70,6 @@
         }
       ];
     }
-    
-    // Update state if available
-    if (scheduleState && scheduleState.setState) {
-      scheduleState.setState('tasks', tasks);
-    }
-  }
-  
-  function setupScheduleUI() {
-    console.log('[PCFP] Setting up Schedule UI...');
-    // Create main UI structure
-    const container = document.querySelector('.module-content');
-    console.log('[PCFP] Found container:', container);
-    if (container) {
-      // Replace the placeholder content with our schedule UI
-      console.log('[PCFP] Replacing content...');
-      container.innerHTML = `
-        <div class="schedule-container">
-          <div class="schedule-header">
-            <div class="view-selector">
-              <button class="btn ${currentView === 'list' ? 'active' : ''}" data-view="list">List</button>
-              <button class="btn ${currentView === 'calendar' ? 'active' : ''}" data-view="calendar">Calendar</button>
-              <button class="btn ${currentView === 'kanban' ? 'active' : ''}" data-view="kanban">Kanban</button>
-              <button class="btn ${currentView === 'gantt' ? 'active' : ''}" data-view="gantt">Gantt</button>
-            </div>
-            <div class="time-scale-selector">
-              <button class="btn ${currentTimeScale === 'day' ? 'active' : ''}" data-scale="day">Day</button>
-              <button class="btn ${currentTimeScale === 'week' ? 'active' : ''}" data-scale="week">Week</button>
-              <button class="btn ${currentTimeScale === 'month' ? 'active' : ''}" data-scale="month">Month</button>
-              <button class="btn ${currentTimeScale === 'quarter' ? 'active' : ''}" data-scale="quarter">Quarter</button>
-              <button class="btn ${currentTimeScale === 'year' ? 'active' : ''}" data-scale="year">Year</button>
-            </div>
-            <div class="schedule-actions">
-              <button class="btn btn-primary" id="btnAddTask">+ Add Task</button>
-              <button class="btn" id="btnSave">Save</button>
-              <button class="btn" id="btnExport">Export</button>
-            </div>
-          </div>
-          
-          <div class="schedule-content">
-            <div id="listView" class="view-content ${currentView === 'list' ? 'active' : ''}">
-              <div class="task-list">
-                <div class="task-list-header">
-                  <div class="task-col">Task</div>
-                  <div class="task-col">Assignee</div>
-                  <div class="task-col">Start Date</div>
-                  <div class="task-col">End Date</div>
-                  <div class="task-col">Status</div>
-                  <div class="task-col">Progress</div>
-                  <div class="task-col">Actions</div>
-                </div>
-                <div class="task-list-body" id="taskListBody">
-                  <!-- Tasks will be populated here -->
-                </div>
-              </div>
-            </div>
-            
-            <div id="calendarView" class="view-content ${currentView === 'calendar' ? 'active' : ''}">
-              <div class="calendar-placeholder">
-                <h3>Calendar View</h3>
-                <p>FullCalendar.js integration coming in v1.2</p>
-              </div>
-            </div>
-            
-            <div id="kanbanView" class="view-content ${currentView === 'kanban' ? 'active' : ''}">
-              <div class="kanban-placeholder">
-                <h3>Kanban View</h3>
-                <p>SortableJS integration coming in v1.2</p>
-              </div>
-            </div>
-            
-            <div id="ganttView" class="view-content ${currentView === 'gantt' ? 'active' : ''}">
-              <div class="gantt-placeholder">
-                <h3>Gantt View</h3>
-                <p>Frappe Gantt integration coming in v1.3</p>
-              </div>
-            </div>
-          </div>
-          
-          <div class="schedule-sidebar">
-            <div class="task-summary">
-              <h3>Task Summary</h3>
-              <div id="taskSummary">
-                <!-- Summary will be populated here -->
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-    
-    // Populate task list
-    populateTaskList();
-    updateTaskSummary();
-  }
-  
-  function setupEventListeners() {
-    // View selector
-    document.querySelectorAll('[data-view]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const view = e.target.dataset.view;
-        switchView(view);
-      });
-    });
-    
-    // Time scale selector
-    document.querySelectorAll('[data-scale]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const scale = e.target.dataset.scale;
-        switchTimeScale(scale);
-      });
-    });
-    
-    // Action buttons
-    document.getElementById('btnAddTask')?.addEventListener('click', showAddTaskModal);
-    document.getElementById('btnSave')?.addEventListener('click', saveScheduleData);
-    document.getElementById('btnExport')?.addEventListener('click', exportScheduleData);
-  }
-  
-  function registerModule() {
-    if (window.PCFP && window.PCFP.moduleManager) {
-      window.PCFP.moduleManager.register('schedule', {
-        name: 'Schedule',
-        version: 'v1.1',
-        description: 'Project scheduling and timeline management',
-        icon: '📅',
-        views: ['list', 'calendar', 'kanban', 'gantt'],
-        timeScales: ['day', 'week', 'month', 'quarter', 'year'],
-        onInitialize: async (params) => {
-          console.log('[PCFP] Module manager calling onInitialize...');
-          // Call our custom initialization function
-          if (window.initscheduleModule) {
-            window.initscheduleModule({
-              moduleLifecycle: null, // Will be created by the module manager
-              moduleState: null,     // Will be created by the module manager
-              domCache: window.PCFP?.domCache,
-              sanitizeHTML: window.PCFP?.sanitizeHTML,
-              safeSetInnerHTML: window.PCFP?.safeSetInnerHTML
-            });
-          }
-        }
-      });
-    }
-  }
-  
-  function switchView(view) {
-    currentView = view;
-    
-    // Update active states
-    document.querySelectorAll('[data-view]').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.view === view);
-    });
-    
-    // Show/hide view content
-    document.querySelectorAll('.view-content').forEach(content => {
-      content.classList.toggle('active', content.id === view + 'View');
-    });
-    
-    // Update state
-    scheduleState.setState('currentView', view);
-  }
-  
-  function switchTimeScale(scale) {
-    currentTimeScale = scale;
-    
-    // Update active states
-    document.querySelectorAll('[data-scale]').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.scale === scale);
-    });
-    
-    // Update state
-    scheduleState.setState('currentTimeScale', scale);
   }
   
   function populateTaskList() {
@@ -327,6 +131,56 @@
     `;
   }
   
+  function setupEventListeners() {
+    // View selector
+    document.querySelectorAll('[data-view]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const view = e.target.dataset.view;
+        switchView(view);
+      });
+    });
+    
+    // Time scale selector
+    document.querySelectorAll('[data-scale]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const scale = e.target.dataset.scale;
+        switchTimeScale(scale);
+      });
+    });
+    
+    // Add task button
+    document.getElementById('btnAddTask')?.addEventListener('click', showAddTaskModal);
+    
+    // Save button
+    document.getElementById('btnSave')?.addEventListener('click', saveScheduleData);
+    
+    // Export button
+    document.getElementById('btnExport')?.addEventListener('click', exportScheduleData);
+  }
+  
+  function switchView(view) {
+    currentView = view;
+    
+    // Update active states
+    document.querySelectorAll('[data-view]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.view === view);
+    });
+    
+    // Show/hide view content
+    document.querySelectorAll('.view-content').forEach(content => {
+      content.classList.toggle('active', content.id === view + 'View');
+    });
+  }
+  
+  function switchTimeScale(scale) {
+    currentTimeScale = scale;
+    
+    // Update active states
+    document.querySelectorAll('[data-scale]').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.scale === scale);
+    });
+  }
+  
   function showAddTaskModal() {
     const taskName = prompt('Enter task name:');
     if (!taskName) return;
@@ -346,8 +200,6 @@
     };
     
     tasks.push(newTask);
-    scheduleState.setState('tasks', tasks);
-    
     populateTaskList();
     updateTaskSummary();
     saveScheduleData();
@@ -386,7 +238,6 @@
   }
   
   function showNotification(message, type = 'info') {
-    // Simple notification for now
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.textContent = message;
@@ -413,7 +264,6 @@
     const newTitle = prompt('Edit task title:', task.title);
     if (newTitle) {
       task.title = newTitle;
-      scheduleState.setState('tasks', tasks);
       populateTaskList();
       saveScheduleData();
     }
@@ -422,7 +272,6 @@
   window.deleteTask = function(taskId) {
     if (confirm('Are you sure you want to delete this task?')) {
       tasks = tasks.filter(t => t.id !== taskId);
-      scheduleState.setState('tasks', tasks);
       populateTaskList();
       updateTaskSummary();
       saveScheduleData();
@@ -431,15 +280,10 @@
   
   // Initialize when DOM is ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      console.log('[PCFP] DOM loaded, initializing schedule module...');
-      initializeScheduleModule();
-    });
+    document.addEventListener('DOMContentLoaded', init);
   } else {
-    console.log('[PCFP] DOM already ready, initializing schedule module...');
-    initializeScheduleModule();
+    init();
   }
   
-  // Test that module.js is loaded
   console.log('[PCFP] Schedule module.js loaded successfully');
 })();

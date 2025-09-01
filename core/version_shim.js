@@ -17,26 +17,26 @@
 
     // After load, patch badges
     function patchBadges(){
-      // Sidebar build badge – try common selectors
-      const sidebar = document.querySelector('aside') || document.querySelector('.sidebar');
-      if (sidebar){
-        const allChips = sidebar.querySelectorAll('small, .badge, .chip, .version, .build');
-        let buildNode = null;
-        for (const n of allChips){
-          const t = (n.textContent||'').toLowerCase();
-          if (t.includes('build v')) { buildNode = n; break; }
-        }
-        if (buildNode){ buildNode.textContent = `Build ${build}`; }
-        else {
-          // create discreet build chip at the top if none exists
-          const chip = document.createElement('div');
-          chip.className = 'version chip build';
-          chip.style.cssText = 'font-size:12px;opacity:.8;margin-left:6px;display:inline-block;';
-          chip.textContent = `Build ${build}`;
-          const h = sidebar.querySelector('header, .app-name, .logo, h1, h2');
-          if (h && h.parentNode) h.parentNode.insertBefore(chip, h.nextSibling);
-        }
-      }
+      // Sidebar build badge - DISABLED: User requested removal
+      // const sidebar = document.querySelector('aside') || document.querySelector('.sidebar');
+      // if (sidebar){
+      //   const allChips = sidebar.querySelectorAll('small, .badge, .chip, .version, .build');
+      //   let buildNode = null;
+      //   for (const n of allChips){
+      //     const t = (n.textContent||'').toLowerCase();
+      //     if (t.includes('build v')) { buildNode = n; break; }
+      //   }
+      //   if (buildNode){ buildNode.textContent = `Build ${build}`; }
+      //   else {
+      //     // create discreet build chip at the top if none exists
+      //     const chip = document.createElement('div');
+      //     chip.className = 'version chip build';
+      //     chip.style.cssText = 'font-size:12px;opacity:.8;margin-left:6px;display:inline-block;';
+      //     chip.textContent = `Build ${build}`;
+      //     const h = sidebar.querySelector('header, .app-name, .logo, h1, h2');
+      //     if (h && h.parentNode) h.parentNode.insertBefore(chip, h.nextSibling);
+      //   }
+      // }
 
       // Module header version - DISABLED: handled by module_header_version.js
       // This was causing conflicts with individual module versions

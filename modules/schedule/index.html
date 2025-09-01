@@ -4,127 +4,94 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Schedule - PCFP v1.1</title>
-<!-- Standard module styling -->
-<link rel="stylesheet" href="../../core/theme.css?v=20250901185000">
-<link rel="stylesheet" href="module.css?v=20250901185000">
-<!-- Module metadata -->
-<script>
-  window.MODULE_META = {
-    name: "Schedule",
-    version: "v1.1",
-    key: "schedule",
-    description: "Project scheduling and timeline management",
-    icon: "📅"
-  };
-</script>
+<link rel="stylesheet" href="../../core/theme.css?v=20250901185006">
+<link rel="stylesheet" href="module.css?v=20250901185006">
 </head>
 <body>
 <header class="module-header">
-  <div class="module-brand">
-    <div class="module-badge">📅 Schedule</div>
-    <h1>Schedule Management</h1>
-  </div>
   <div class="module-toolbar">
     <button class="btn" id="btnSave" title="Save data">Save</button>
     <button class="btn" id="btnExport" title="Export data">Export</button>
-    <button class="btn" id="btnShare" title="Share module state">Share</button>
+  </div>
+  <div class="module-version-display">
+    <span class="version-badge">v1.1</span>
   </div>
 </header>
+
 <div class="module-container">
-  <!-- Module content goes here -->
   <div class="module-content">
-    <div class="placeholder">
-      <h2>Schedule Module</h2>
-      <p>This module is under development.</p>
-      <div class="module-stats">
-        <div class="stat">
-          <span class="label">Version:</span>
-          <span class="value">v1.1</span>
+    <div class="schedule-container">
+      <div class="schedule-header">
+        <div class="view-selector">
+          <button class="btn active" data-view="list">List</button>
+          <button class="btn" data-view="calendar">Calendar</button>
+          <button class="btn" data-view="kanban">Kanban</button>
+          <button class="btn" data-view="gantt">Gantt</button>
         </div>
-        <div class="stat">
-          <span class="label">Status:</span>
-          <span class="value">In Development</span>
+        <div class="time-scale-selector">
+          <button class="btn" data-scale="day">Day</button>
+          <button class="btn" data-scale="week">Week</button>
+          <button class="btn active" data-scale="month">Month</button>
+          <button class="btn" data-scale="quarter">Quarter</button>
+          <button class="btn" data-scale="year">Year</button>
+        </div>
+        <div class="schedule-actions">
+          <button class="btn btn-primary" id="btnAddTask">+ Add Task</button>
+        </div>
+      </div>
+      
+      <div class="schedule-content">
+        <div id="listView" class="view-content active">
+          <div class="task-list">
+            <div class="task-list-header">
+              <div class="task-col">Task</div>
+              <div class="task-col">Assignee</div>
+              <div class="task-col">Start Date</div>
+              <div class="task-col">End Date</div>
+              <div class="task-col">Status</div>
+              <div class="task-col">Progress</div>
+              <div class="task-col">Actions</div>
+            </div>
+            <div class="task-list-body" id="taskListBody">
+              <!-- Tasks will be populated here -->
+            </div>
+          </div>
+        </div>
+        
+        <div id="calendarView" class="view-content">
+          <div class="calendar-placeholder">
+            <h3>Calendar View</h3>
+            <p>FullCalendar.js integration coming in v1.2</p>
+          </div>
+        </div>
+        
+        <div id="kanbanView" class="view-content">
+          <div class="kanban-placeholder">
+            <h3>Kanban View</h3>
+            <p>SortableJS integration coming in v1.2</p>
+          </div>
+        </div>
+        
+        <div id="ganttView" class="view-content">
+          <div class="gantt-placeholder">
+            <h3>Gantt View</h3>
+            <p>Frappe Gantt integration coming in v1.3</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="schedule-sidebar">
+        <div class="task-summary">
+          <h3>Task Summary</h3>
+          <div id="taskSummary">
+            <!-- Summary will be populated here -->
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-<!-- Standard module scripts -->
-<script src="../../core/services/errors.js?v=20250901185000"></script>
-<script src="module.js?v=20250901185000"></script>
-<!-- Module initialization -->
-<script>
-  // Standard module initialization with v8.4 enhancements
-  (function() {
-    const { 
-      safe, 
-      createErrorBoundary, 
-      sanitizeHTML, 
-      safeSetInnerHTML, 
-      domCache, 
-      memoryManager, 
-      stateManager 
-    } = window.__pcfpCore || {};
-    
-    // Create error boundary for this module
-    const errorBoundary = createErrorBoundary ? createErrorBoundary('schedule') : null;
-    
-    // Create module-specific services
-    const moduleLifecycle = memoryManager ? memoryManager.createModuleLifecycle('schedule') : null;
-    const moduleState = stateManager ? stateManager.createModuleState('schedule') : null;
-    
-    // Initialize module when DOM is ready
-    function initModule() {
-      safe(() => {
-        console.log(`[PCFP] Initializing Schedule module v1.1`);
-        
-        // Register module with module manager
-        if (window.PCFP && window.PCFP.moduleManager) {
-          window.PCFP.moduleManager.register('schedule', {
-            name: 'Schedule',
-            version: 'v1.1',
-            description: 'Project scheduling and timeline management',
-            icon: '📅'
-          });
-        }
-        
-        // Emit module ready event
-        if (window.PCFP && window.PCFP.events) {
-          window.PCFP.events.emit('module:ready', {
-            module: 'schedule',
-            version: 'v1.1',
-            timestamp: Date.now()
-          });
-        }
-        
-        // Initialize module-specific functionality
-        if (window.initscheduleModule) {
-          window.initscheduleModule({
-            moduleLifecycle,
-            moduleState,
-            domCache,
-            sanitizeHTML,
-            safeSetInnerHTML
-          });
-        }
-        
-      }, 'module:init');
-    }
-    
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initModule);
-    } else {
-      initModule();
-    }
-    
-    // Cleanup on page unload
-    window.addEventListener('beforeunload', () => {
-      if (moduleLifecycle) {
-        moduleLifecycle.cleanup();
-      }
-    });
-    
-  })();
-</script>
+
+<script src="module.js?v=20250901185006"></script>
 </body>
 </html>
