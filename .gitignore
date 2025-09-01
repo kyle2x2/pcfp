@@ -1,0 +1,13 @@
+# Mac system junk
+.DS_Store
+Thumbs.db
+
+# Zips and archives
+*.zip
+
+# Logs
+*.log
+
+# Editor settings
+.vscode/
+.idea/
