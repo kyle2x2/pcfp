@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>2x2 App — v8.4</title>
+<title>2x2 App — v8.5.1</title>
 <link rel="icon" href="assets/favicon.svg" />
-<link rel="stylesheet" href="core/theme.css?v=20250901185015">
+<link rel="stylesheet" href="core/theme.css?v=20250101130100">
 <style>
   :root{--bg:#fff;--fg:#0f172a;--muted:#475569;--gold:#C6A247;--ring:#e5e7eb;--panel:#f8fafc}
-  body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-  .app{display:grid;grid-template-columns:260px 1fr;min-height:100vh}
+  html, body{margin:0;height:100vh;overflow:hidden;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+  .app{display:grid;grid-template-columns:260px 1fr;height:100vh;overflow:hidden}
   aside{border-right:1px solid var(--ring);background:#fff}
   header{padding:16px;border-bottom:1px solid var(--ring);display:flex;align-items:center;gap:10px}
   header .logo{width:28px;height:28px;border-radius:6px;background:var(--gold)}
@@ -21,28 +21,28 @@
   .topbar{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--ring);padding:10px 16px;background:#fff}
   .badge{background:var(--panel);border:1px solid var(--ring);padding:4px 8px;border-radius:999px}
   .content{position:relative;min-height:0;flex:1}
-  iframe.module-frame{border:0;width:100%;height:calc(100vh - 62px);background:#fff}
+  iframe.module-frame{border:0;width:100%;height:100%;background:#fff}
   .version{color:var(--muted);font-size:12px}
 </style>
-<link rel="stylesheet" href="./core/design/tokens.css?v=20250901185015">
+<link rel="stylesheet" href="./core/design/tokens.css?v=20250101130100">
 
 <script>
   (function(g){
     g.PCFP = g.PCFP || {};
-    g.PCFP.version = { app: window.APP_BUILD || 'v8.4', build: '20250901185015Z' };
+    
     function setPill(){
+      // Wait for config to load
+      if (!window.APP_BUILD) {
+        setTimeout(setPill, 100);
+        return;
+      }
+      
+      g.PCFP.version = { app: window.APP_BUILD, build: '20250101130000Z' };
       var pill = document.querySelector('[data-app-version]');
       if(pill) pill.textContent = g.PCFP.version.app;
-      // Mega-visible banner for this build (temporary)
-      var b = document.createElement('div');
-      b.textContent = 'RUNNING ' + (window.APP_BUILD || 'v8.4') + ' (cache-busted)';
-      b.style.position='fixed'; b.style.top='10px'; b.style.left='10px';
-      b.style.background='#b08d2f'; b.style.color='#000'; b.style.padding='6px 10px';
-      b.style.zIndex='100000'; b.style.borderRadius='6px';
-      document.addEventListener('click', function(){ try{ b.remove(); }catch(e){} }, {once:true});
-      document.body.appendChild(b);
-      setTimeout(function(){ try{ b.remove(); }catch(e){} }, 4000);
     }
+    }
+    
     if(document.readyState!=='loading') setPill();
     else document.addEventListener('DOMContentLoaded', setPill);
   })(window);
@@ -79,41 +79,40 @@
   </main>
 </div>
 
-<script src="core/kernel.standalone.js?v=20250901185015"></script>
-<script type="module" src="./core/shim.js?v=20250901185015"></script>
-<script type="module" src="core/services/module-manager.js?v=20250901185015"></script>
-<script type="module" src="core/version-manager.js?v=20250901185015"></script>
+<script src="core/kernel.standalone.js?v=20250101130000"></script>
+<script type="module" src="./core/shim.js?v=20250101130000"></script>
+<script type="module" src="core/services/module-manager.js?v=20250101130000"></script>
+<script type="module" src="core/version-manager.js?v=20250101130000"></script>
 
-<script src="core/config.js?v=20250901185015"></script>
-<script src="core/version_shim.js?v=20250901185015"></script>
-<script src="core/events/emit.js?v=20250901185015"></script>
-<script src="core/events/on.js?v=20250901185015"></script>
-<script src="core/adapters/http.js?v=20250901185015"></script>
-<script src="repos/projects.js?v=20250901185015"></script>
-<script src="repos/profiles.js?v=20250901185015"></script>
-<script src="repos/events.js?v=20250901185015"></script>
-<script src="core/compute/money.js?v=20250901185015"></script>
-<script src="core/compute/schedule.js?v=20250901185015"></script>
-<script src="components/index.js?v=20250901185015"></script>
-<script type="module" src="core/components/index.js?v=20250901185015"></script>
-<link rel="stylesheet" href="components/export_bar.css?v=20250901185015">
-<script src="core/contracts/validator.js?v=20250901185015"></script>
-<script src="components/export_bar.js?v=20250901185015"></script>
-<script src="components/gantt/index.js?v=20250901185015"></script>
-<script src="components/kebab/index.js?v=20250901185015"></script>
+<script src="core/config.js?v=20250101130100"></script>
+<script src="core/version_shim.js?v=20250101130000"></script>
+<script src="core/events/emit.js?v=20250101130000"></script>
+<script src="core/events/on.js?v=20250101130000"></script>
+<script src="core/adapters/http.js?v=20250101130000"></script>
+<script src="repos/projects.js?v=20250101130000"></script>
+<script src="repos/profiles.js?v=20250101130000"></script>
+<script src="repos/events.js?v=20250101130000"></script>
+<script src="core/compute/money.js?v=20250101130000"></script>
+<script src="core/compute/schedule.js?v=20250101130000"></script>
+<script src="components/index.js?v=20250101130000"></script>
+<script type="module" src="core/components/index.js?v=20250101130000"></script>
+<link rel="stylesheet" href="components/export_bar.css?v=20250101130000">
+<script src="core/contracts/validator.js?v=20250101130000"></script>
+<script src="components/export_bar.js?v=20250101130000"></script>
+<script src="components/gantt/index.js?v=20250101130000"></script>
+<script src="components/kebab/index.js?v=20250101130000"></script>
 
-<div class="pcfp-version-pill">Build <b><span data-app-version>v8.4</span></b></div>
-<script src="core/verify/v73_integrity.js?v=20250901185015"></script>
-<script src="core/boot_check.js?v=20250901185015"></script>
+<script src="core/verify/v73_integrity.js?v=20250101130000"></script>
+<script src="core/boot_check.js?v=20250101130000"></script>
 
-<script src="core/router.js?v=20250901185015"></script>
-<script src="core/contracts/migrations.js?v=20250901185015"></script>
-<script src="core/projects.js?v=20250901185015"></script>
+<script src="core/router.js?v=20250101130000"></script>
+<script src="core/contracts/migrations.js?v=20250101130000"></script>
+<script src="core/projects.js?v=20250101130000"></script>
 
-<script src="core/log.js?v=20250901185015"></script>
-<script src="core/lifecycle.js?v=20250901185015"></script>
-<script src="core/integrity_banner.js?v=20250901185015"></script>
-<script src="core/header_version.js?v=20250901185015"></script>
+<script src="core/log.js?v=20250101130000"></script>
+<script src="core/lifecycle.js?v=20250101130000"></script>
+<script src="core/integrity_banner.js?v=20250101130100"></script>
+<script src="core/header_version.js?v=20250101130100"></script>
 
 </body>
 </html>

@@ -1,4 +1,4 @@
-# PCFP Development Guide v8.4
+# PCFP Development Guide v8.5.1
 
 ## 🎯 Table of Contents
 
@@ -6,12 +6,62 @@
 2. **[Feature Development SOP](#-feature-development-sop)** - Standard process for new features  
 3. **[Debugging Strategy](#-debugging-strategy)** - Multi-option testing approach
 4. **[Version Management](#-version-management)** - Dual versioning system
-5. **[Learning & Knowledge Base](#-learning--knowledge-base)** - What works and what doesn't
-6. **[Proven Implementations](#-proven-implementations)** - Working solutions for common problems
+5. **[Design System & UI Patterns](#-design-system--ui-patterns)** - Consistent styling and components
+6. **[Common Development Tasks](#-common-development-tasks)** - Quick reference for frequent operations
+7. **[Performance Best Practices](#-performance-best-practices)** - Optimization and efficiency guidelines
+8. **[Testing & Quality Assurance](#-testing--quality-assurance)** - Quality standards and validation
+9. **[Troubleshooting Guide](#-troubleshooting-guide)** - Common issues and solutions
+10. **[Code Review & Maintenance Process](#-code-review--maintenance-process)** - Quality standards and maintenance
+11. **[Success Metrics & Validation](#-success-metrics--validation)** - Defining completion criteria
+12. **[Learning & Knowledge Base](#-learning--knowledge-base)** - What works and what doesn't
+13. **[Proven Implementations](#-proven-implementations)** - Working solutions for common problems
+14. **[Quick Reference Cheat Sheet](#-quick-reference-cheat-sheet)** - Daily practical reference
+
+## ⭐ Most Frequently Used Sections
+
+**Daily Development**: [Quick Reference Cheat Sheet](#-quick-reference-cheat-sheet) | [Common Development Tasks](#-common-development-tasks) | [Troubleshooting Guide](#-troubleshooting-guide)
+
+**New Features**: [Feature Development SOP](#-feature-development-sop) | [Debugging Strategy](#-debugging-strategy) | [Proven Implementations](#-proven-implementations)
+
+**Quality & Performance**: [Testing & Quality Assurance](#-testing--quality-assurance) | [Performance Best Practices](#-performance-best-practices) | [Success Metrics & Validation](#-success-metrics--validation)
+
+## 🎯 Task-Specific Navigation
+
+### **Creating New Module**
+- [Module Development](#-module-development) - Core patterns and architecture
+- [Common Development Tasks](#-common-development-tasks) - Step-by-step module creation
+- [Design System & UI Patterns](#-design-system--ui-patterns) - Consistent styling
+- [Quick Reference Cheat Sheet](#-quick-reference-cheat-sheet) - Common patterns
+
+### **Adding New Feature**
+- [Feature Development SOP](#-feature-development-sop) - Complete process
+- [Debugging Strategy](#-debugging-strategy) - Test-first approach
+- [Performance Best Practices](#-performance-best-practices) - Optimization guidelines
+- [Testing & Quality Assurance](#-testing--quality-assurance) - Quality standards
+- [Success Metrics & Validation](#-success-metrics--validation) - Completion criteria
+
+### **Fixing Bug or Issue**
+- [Troubleshooting Guide](#-troubleshooting-guide) - Common issues and solutions
+- [Debugging Strategy](#-debugging-strategy) - Systematic approach
+- [Quick Reference Cheat Sheet](#-quick-reference-cheat-sheet) - Quick fixes
+
+### **Performance Optimization**
+- [Performance Best Practices](#-performance-best-practices) - Optimization guidelines
+- [Testing & Quality Assurance](#-testing--quality-assurance) - Performance testing
+- [Success Metrics & Validation](#-success-metrics--validation) - Performance benchmarks
+
+### **Code Review & Maintenance**
+- [Code Review & Maintenance Process](#-code-review--maintenance-process) - Quality standards
+- [Learning & Knowledge Base](#-learning--knowledge-base) - What works and what doesn't
+- [Testing & Quality Assurance](#-testing--quality-assurance) - Quality checklist
 
 ---
 
 ## 🏗️ Module Development
+
+**Quick Start**: [Module Registration](#module-registration) | [Common Tasks](#common-development-tasks) | [Quick Reference](#-quick-reference-cheat-sheet)
+
+**Troubleshooting**: [Common Issues](#debugging-common-issues) | [Troubleshooting Guide](#-troubleshooting-guide)
 
 ### **File Structure**
 ```
@@ -110,6 +160,10 @@ const projectData = window.PCFP.moduleManager.getSharedData('project_data');
 ---
 
 ## 📋 Feature Development SOP
+
+**Quick Start**: [Phase 1: Initial Request](#-phase-1-initial-request--understanding) | [Phase 2: Detailed Clarification](#-phase-2-detailed-clarification-critical)
+
+**Implementation**: [Phase 4: Implementation](#-phase-4-implementation) | [Testing & Validation](#testing--quality-assurance)
 
 ### **🎯 Standard Operating Procedure for New Features**
 
@@ -220,6 +274,10 @@ Assistant creates a comprehensive plan including:
 ---
 
 ## 🔍 Debugging Strategy
+
+**Quick Start**: [Test-First Process](#-test-first-development-process) | [Test File Template](#-test-file-template)
+
+**Implementation**: [Knowledge Documentation](#-step-8-knowledge-documentation) | [Main Code Implementation](#-step-9-main-code-implementation)
 
 ### **🎯 Test-First Development Process**
 
@@ -453,14 +511,893 @@ window.MODULE_VERS = {
 - Update cache-busting parameters after any version change
 - Test by refreshing browser completely (Ctrl+F5)
 - Keep module versions independent of main app version
+- **NEW**: Check for hardcoded fallback values in version-related files
+- **NEW**: Ensure proper script loading order (config.js must load before version scripts)
 
 #### **❌ DON'T:**
 - Don't hardcode versions in individual module files
 - Don't use `module_header_version.js` (it's disabled)
 - Don't forget to update cache-busting parameters
 - Don't let module versions get out of sync between config.js and kernel.standalone.js
+- **NEW**: Don't rely on fallback values in version scripts
+- **NEW**: Don't assume scripts load in the correct order
+
+### **🔍 Version Update Troubleshooting**
+
+#### **Common Issues & Solutions**
+
+**Issue**: Left sidebar shows old version despite updating config.js
+**Root Cause**: Hardcoded fallback values in version scripts
+**Solution**: Update fallback values in these files:
+- `core/integrity_banner.js` - line 20: `'v8.4'` → `'v8.5'`
+- `core/version_shim.js` - line 5: `'v8.4'` → `'v8.5'`
+- `core/header_version.js` - lines 20, 29: `'v8.4'` → `'v8.5'`
+
+**Issue**: Version scripts run before config.js loads
+**Root Cause**: Script loading race condition
+**Solution**: Add wait logic for `window.APP_BUILD`:
+```javascript
+function setPill(){
+  // Wait for config to load
+  if (!window.APP_BUILD) {
+    setTimeout(setPill, 100);
+    return;
+  }
+  // ... rest of version setting logic
+}
+```
+
+**Issue**: Cache-busting parameters prevent fresh script loading
+**Root Cause**: Old cache-busting parameters in index.html
+**Solution**: Update ALL script references with new timestamp:
+```html
+<script src="core/config.js?v=20250101130000"></script>
+```
+
+#### **Complete Version Update Checklist**
+
+1. ✅ Update `core/config.js` - `window.APP_BUILD` and `window.MODULE_VERS`
+2. ✅ Update `core/kernel.standalone.js` - route titles
+3. ✅ Update `index.html` - title and cache-busting parameters
+4. ✅ Update fallback values in version scripts (if any)
+5. ✅ Test with hard refresh (Ctrl+F5)
+6. ✅ Verify all version displays are correct
 
 ---
+
+## 🎨 Design System & UI Patterns
+
+### **PCFP Color Scheme**
+- **Primary**: White (#ffffff) and Gold (#fbbf24)
+- **Background**: Light gray (#f8fafc)
+- **Borders**: Subtle gray (#e5e7eb)
+- **Text**: Dark gray (#0f172a)
+- **Muted Text**: Medium gray (#64748b)
+
+### **CSS Custom Properties**
+```css
+:root {
+  --pcfp-white: #ffffff;
+  --pcfp-gold: #fbbf24;
+  --pcfp-panel: #f8fafc;
+  --pcfp-border: #e5e7eb;
+  --pcfp-text: #0f172a;
+  --pcfp-text-muted: #64748b;
+}
+```
+
+### **Common UI Components**
+
+#### **Buttons**
+```css
+.btn {
+  background: var(--pcfp-white);
+  border: 1px solid var(--pcfp-border);
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: var(--pcfp-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background: var(--pcfp-panel);
+  border-color: var(--pcfp-gold);
+}
+
+.btn-primary {
+  background: var(--pcfp-gold);
+  color: var(--pcfp-text);
+  border-color: var(--pcfp-gold);
+}
+```
+
+#### **Modals**
+```css
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--pcfp-white);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+```
+
+#### **Forms**
+```css
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: var(--pcfp-text);
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--pcfp-border);
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: var(--pcfp-gold);
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.1);
+}
+
+### **Layout Patterns**
+
+#### **Full-Height Application Layout**
+```css
+/* Prevents outer scrollbars and ensures clean layout */
+html, body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Sidebar */
+aside {
+  border-right: 1px solid var(--pcfp-border);
+  background: var(--pcfp-white);
+  overflow-y: auto; /* Only if content exceeds height */
+}
+
+/* Main content area */
+main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.content {
+  position: relative;
+  min-height: 0;
+  flex: 1;
+  overflow: hidden; /* Let iframe handle scrolling */
+}
+
+/* Module iframe */
+iframe.module-frame {
+  border: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--pcfp-white);
+}
+```
+
+#### **Why This Layout Works**
+- **No Outer Scrollbars**: `html, body { overflow: hidden }` prevents page-level scrolling
+- **Contained Layout**: `.app { height: 100vh }` ensures app fits viewport exactly
+- **Independent Scrolling**: Each area (sidebar, module content) handles its own overflow
+- **Clean Separation**: No duplicate scrollbars or overlapping scroll areas
+
+#### **Version Display Management**
+```css
+/* Single version display in sidebar header */
+header h1 {
+  font-size: 14px;
+  margin: 0;
+  font-weight: 700;
+}
+
+/* Remove any duplicate version pills */
+.pcfp-version-pill {
+  display: none; /* If outside main app structure */
+}
+```
+
+#### **Common Layout Issues & Solutions**
+
+**Issue**: Duplicate scrollbars (outer + inner)
+**Solution**: 
+```css
+html, body { overflow: hidden; height: 100vh; }
+.app { height: 100vh; overflow: hidden; }
+```
+
+**Issue**: Version displays in multiple locations
+**Solution**: Keep only one version display in sidebar header, remove others
+
+**Issue**: Content extending beyond viewport
+**Solution**: Use `height: 100vh` and `overflow: hidden` on containers
+```
+
+#### **Status Indicators**
+```css
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.status-badge.completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-badge.in-progress {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-badge.pending {
+  background: #f3f4f6;
+  color: #374151;
+}
+```
+
+### **Grid & Table Patterns**
+```css
+.data-grid {
+  display: grid;
+  grid-template-columns: 400px 120px 120px 120px 120px 120px 120px 120px;
+  border: 1px solid var(--pcfp-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.grid-header {
+  background: var(--pcfp-panel);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--pcfp-text-muted);
+}
+
+.grid-cell {
+  padding: 15px 10px;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid var(--pcfp-border) !important;
+  border-bottom: 1px solid var(--pcfp-border) !important;
+}
+```
+
+---
+
+## 🔧 Common Development Tasks
+
+### **Adding New Modules**
+
+#### **Step 1: Create Module Directory**
+```bash
+mkdir modules/your-module-name
+cd modules/your-module-name
+```
+
+#### **Step 2: Copy Template Files**
+```bash
+cp ../../core/templates/module-template.html index.html
+cp ../../core/templates/module.css module.css
+cp ../../core/templates/module.js module.js
+```
+
+#### **Step 3: Update Configuration**
+1. **Edit `core/config.js`**:
+   ```javascript
+   window.MODULE_VERS = {
+     // ... existing modules
+     "your-module": "v1.0"
+   };
+   ```
+
+2. **Edit `core/kernel.standalone.js`**:
+   ```javascript
+   const routes = {
+     // ... existing routes
+     '#/your-module': { 
+       title: 'Your Module v1.0', 
+       src: 'modules/your-module/index.html' 
+     }
+   };
+   ```
+
+#### **Step 4: Test Module Loading**
+- Start development server: `python3 -m http.server 8000`
+- Navigate to `http://localhost:8000/#/your-module`
+- Verify module loads correctly
+
+### **Updating Cache-Busting Parameters**
+
+#### **When to Update**
+- After any CSS changes
+- After any JavaScript changes
+- After version updates
+- When styles aren't updating
+
+#### **How to Update**
+1. **Generate timestamp**: `YYYYMMDDHHMMSS` format
+2. **Update HTML files**:
+   ```html
+   <link rel="stylesheet" href="../../core/theme.css?v=20250101120000">
+   <link rel="stylesheet" href="module.css?v=20250101120000">
+   <script src="module.js?v=20250101120000"></script>
+   ```
+3. **Test with hard refresh**: `Ctrl+F5` (Windows) or `Cmd+Shift+R` (Mac)
+
+### **Debugging Common Issues**
+
+#### **Module Not Loading**
+- **Symptom**: Module doesn't appear in navigation
+- **Check**: Route configuration in `core/kernel.standalone.js`
+- **Solution**: Verify route exists and points to correct file
+
+#### **Styles Not Updating**
+- **Symptom**: CSS changes not visible
+- **Check**: Cache-busting parameters in HTML files
+- **Solution**: Update `?v=YYYYMMDDHHMMSS` and hard refresh
+
+#### **JavaScript Errors**
+- **Symptom**: Console errors or broken functionality
+- **Check**: Browser console for error messages
+- **Solution**: Use `safe()` wrapper and check error handling
+
+#### **Version Mismatches**
+- **Symptom**: Version numbers don't match between files
+- **Check**: Both `core/config.js` and `core/kernel.standalone.js`
+- **Solution**: Update both files consistently
+
+---
+
+## 📊 Performance Best Practices
+
+### **Code Optimization**
+
+#### **Error Handling**
+```javascript
+// ✅ Good: Use safe() for all operations
+safe(() => {
+  updateUI();
+}, 'module:updateUI');
+
+// ✅ Good: Use safeAsync() for async operations
+const loadData = safeAsync(async () => {
+  const response = await fetch('/api/data');
+  return await response.json();
+}, 'module:loadData');
+```
+
+#### **DOM Operations**
+```javascript
+// ✅ Good: Cache DOM queries
+const container = document.getElementById('container');
+const updateUI = () => {
+  container.innerHTML = newContent;
+};
+
+// ❌ Bad: Query DOM repeatedly
+const updateUI = () => {
+  document.getElementById('container').innerHTML = newContent;
+};
+```
+
+#### **Event Handling**
+```javascript
+// ✅ Good: Use event delegation
+document.addEventListener('click', (e) => {
+  if (e.target.matches('.btn-edit')) {
+    editItem(e.target.dataset.id);
+  }
+});
+
+// ❌ Bad: Add listeners to each element
+document.querySelectorAll('.btn-edit').forEach(btn => {
+  btn.addEventListener('click', () => editItem(btn.dataset.id));
+});
+```
+
+### **Loading Optimization**
+
+#### **Lazy Loading**
+```javascript
+// ✅ Good: Load modules on demand
+const loadModule = async (moduleName) => {
+  const module = await import(`./modules/${moduleName}/module.js`);
+  return module.default;
+};
+```
+
+#### **Data Caching**
+```javascript
+// ✅ Good: Cache frequently accessed data
+const cache = new Map();
+
+const getData = async (key) => {
+  if (cache.has(key)) {
+    return cache.get(key);
+  }
+  const data = await fetchData(key);
+  cache.set(key, data);
+  return data;
+};
+```
+
+### **Memory Management**
+
+#### **Event Listener Cleanup**
+```javascript
+// ✅ Good: Clean up event listeners
+const cleanup = () => {
+  document.removeEventListener('click', handleClick);
+  window.removeEventListener('resize', handleResize);
+};
+
+// Call cleanup when component unmounts
+window.addEventListener('beforeunload', cleanup);
+```
+
+#### **DOM Element Cleanup**
+```javascript
+// ✅ Good: Remove elements properly
+const removeElement = (element) => {
+  if (element && element.parentNode) {
+    element.parentNode.removeChild(element);
+  }
+};
+```
+
+### **Performance Monitoring**
+```javascript
+// ✅ Good: Monitor performance
+const measurePerformance = (name, fn) => {
+  const start = performance.now();
+  const result = fn();
+  const end = performance.now();
+  console.log(`${name} took ${end - start}ms`);
+  return result;
+};
+```
+
+---
+
+## 🧪 Testing & Quality Assurance
+
+### **Pre-Implementation Testing**
+
+#### **Test File Creation**
+```bash
+# Create isolated test files for new approaches
+test-strategy-a-approach.html
+test-strategy-b-approach.html
+test-strategy-c-approach.html
+```
+
+#### **Browser Testing**
+- **Chrome**: Primary development browser
+- **Firefox**: Cross-browser compatibility
+- **Safari**: Mobile and desktop testing
+- **Edge**: Windows compatibility
+
+#### **Responsive Testing**
+- **Desktop**: 1920x1080 and larger
+- **Tablet**: 768x1024
+- **Mobile**: 375x667
+- **Test**: All breakpoints and orientations
+
+### **Post-Implementation Testing**
+
+#### **Functionality Testing**
+- [ ] All features work as specified
+- [ ] Edge cases handled properly
+- [ ] Error scenarios managed correctly
+- [ ] Data persistence works
+- [ ] User interactions are smooth
+
+#### **Integration Testing**
+- [ ] Module loads correctly
+- [ ] Navigation works properly
+- [ ] Data flows between components
+- [ ] Error handling works end-to-end
+- [ ] Performance is acceptable
+
+### **Quality Checklist**
+
+#### **Code Quality**
+- [ ] Follows established patterns
+- [ ] Uses proper error handling
+- [ ] Includes appropriate comments
+- [ ] Variable names are clear
+- [ ] Functions are focused and small
+
+#### **Performance Quality**
+- [ ] No memory leaks
+- [ ] Efficient algorithms
+- [ ] Optimized DOM operations
+- [ ] Appropriate caching
+- [ ] Fast loading times
+
+#### **User Experience Quality**
+- [ ] Intuitive interface
+- [ ] Responsive design
+- [ ] Accessible to all users
+- [ ] Consistent styling
+- [ ] Smooth interactions
+
+### **Testing Best Practices**
+
+#### **Test-Driven Development**
+1. **Write test first** for new functionality
+2. **Implement feature** to pass test
+3. **Refactor** while maintaining test coverage
+4. **Repeat** for all new features
+
+#### **Regression Testing**
+- **Before changes**: Document current behavior
+- **After changes**: Verify behavior unchanged
+- **Automated**: Use test files for quick validation
+- **Manual**: User testing for complex scenarios
+
+---
+
+## 🚨 Troubleshooting Guide
+
+### **Common Issues & Solutions**
+
+#### **Module Not Loading**
+- **Symptom**: Module doesn't appear in navigation or shows error
+- **Check**: 
+  - Route exists in `core/kernel.standalone.js`
+  - File path is correct
+  - Module files exist in correct location
+- **Solution**: 
+  - Add missing route
+  - Fix file path
+  - Create missing files
+
+#### **Styles Not Updating**
+- **Symptom**: CSS changes not visible after saving
+- **Check**: 
+  - Cache-busting parameters in HTML files
+  - Browser cache
+  - File save was successful
+- **Solution**: 
+  - Update `?v=YYYYMMDDHHMMSS` parameters
+  - Hard refresh browser (`Ctrl+F5`)
+  - Check file permissions
+
+#### **JavaScript Errors**
+- **Symptom**: Console errors or broken functionality
+- **Check**: 
+  - Browser console for error messages
+  - JavaScript syntax errors
+  - Missing dependencies
+- **Solution**: 
+  - Fix syntax errors
+  - Add missing dependencies
+  - Use `safe()` wrapper for error handling
+
+#### **Version Mismatches**
+- **Symptom**: Version numbers don't match between files
+- **Check**: 
+  - `core/config.js` module versions
+  - `core/kernel.standalone.js` route titles
+  - Cache-busting parameters
+- **Solution**: 
+  - Update both files consistently
+  - Update cache-busting parameters
+  - Test with hard refresh
+
+#### **Grid Layout Issues**
+- **Symptom**: Columns misaligned or borders missing
+- **Check**: 
+  - CSS Grid configuration
+  - Border application rules
+  - `display: contents` conflicts
+- **Solution**: 
+  - Use direct border application
+  - Check CSS specificity
+  - Test with isolated files
+
+#### **Menu Not Opening**
+- **Symptom**: Dropdown menus don't appear
+- **Check**: 
+  - JavaScript event handlers
+  - CSS display/visibility conflicts
+  - DOM positioning
+- **Solution**: 
+  - Use dynamic creation approach
+  - Append to `document.body`
+  - Check z-index values
+
+### **Diagnostic Procedures**
+
+#### **Console Debugging**
+```javascript
+// Add debug logging
+console.log('[DEBUG]', 'Variable value:', variable);
+console.log('[DEBUG]', 'Function called:', functionName);
+console.log('[DEBUG]', 'Element found:', element);
+```
+
+#### **Network Debugging**
+- **Check**: Browser Network tab for failed requests
+- **Look for**: 404 errors, CORS issues, timeout errors
+- **Solution**: Fix file paths, check server status
+
+#### **Performance Debugging**
+```javascript
+// Measure function performance
+const start = performance.now();
+// ... your code ...
+const end = performance.now();
+console.log('Function took:', end - start, 'ms');
+```
+
+### **Prevention Strategies**
+
+#### **Proactive Testing**
+- **Create test files** before implementing features
+- **Test in multiple browsers** for compatibility
+- **Validate user interactions** before deployment
+- **Monitor performance** regularly
+
+#### **Code Quality**
+- **Use established patterns** from knowledge base
+- **Follow error handling** guidelines
+- **Test edge cases** thoroughly
+- **Document learnings** for future reference
+
+---
+
+## 🔄 Code Review & Maintenance Process
+
+### **Before Committing Code**
+
+#### **Pre-Commit Checklist**
+- [ ] All functionality tested thoroughly
+- [ ] Error handling implemented
+- [ ] Performance impact considered
+- [ ] Documentation updated
+- [ ] Knowledge base updated with learnings
+- [ ] User validation completed
+- [ ] Code follows established patterns
+- [ ] No console errors or warnings
+- [ ] Responsive design tested
+- [ ] Cross-browser compatibility verified
+
+### **Code Quality Standards**
+
+#### **Consistency**
+- **Follow established patterns** from knowledge base
+- **Use consistent naming conventions**
+- **Apply uniform styling** across modules
+- **Maintain code structure** standards
+
+#### **Readability**
+- **Clear variable names** that describe purpose
+- **Descriptive function names** that explain action
+- **Appropriate comments** for complex logic
+- **Consistent formatting** and indentation
+
+#### **Maintainability**
+- **Modular code** with single responsibilities
+- **Reusable components** and functions
+- **Clear separation** of concerns
+- **Documented interfaces** and APIs
+
+#### **Performance**
+- **Efficient algorithms** and data structures
+- **Optimized DOM operations** with minimal queries
+- **Appropriate caching** strategies
+- **Memory leak prevention** with proper cleanup
+
+#### **Error Handling**
+- **Comprehensive error management** with `safe()` and `safeAsync()`
+- **Graceful degradation** for edge cases
+- **User-friendly error messages**
+- **Recovery mechanisms** for failed operations
+
+### **Maintenance Schedule**
+
+#### **Weekly Tasks**
+- **Review and update** knowledge base with new learnings
+- **Check for performance** regressions
+- **Validate all modules** are loading correctly
+- **Update documentation** as needed
+
+#### **Monthly Tasks**
+- **Performance audit** and optimization
+- **Code quality review** across all modules
+- **Update dependencies** and security patches
+- **Backup and version** control review
+
+#### **Quarterly Tasks**
+- **Comprehensive documentation** review and updates
+- **Architecture assessment** and improvements
+- **User feedback** analysis and implementation
+- **Future planning** and roadmap updates
+
+#### **Before Releases**
+- **Comprehensive testing** of all functionality
+- **Performance validation** and optimization
+- **User acceptance testing** and validation
+- **Documentation finalization** and updates
+
+### **Quality Gates**
+
+#### **Pre-Implementation Gate**
+- **Test files created** and validated
+- **Approach documented** in knowledge base
+- **User requirements** clearly understood
+- **Technical approach** proven and tested
+
+#### **Post-Implementation Gate**
+- **All functionality** tested and working
+- **Error handling** comprehensive and tested
+- **Performance impact** assessed and acceptable
+- **User validation** completed and approved
+
+#### **Documentation Gate**
+- **Knowledge base updated** with learnings
+- **Code comments** added where needed
+- **User documentation** updated if required
+- **Process documentation** reflects current state
+
+#### **Deployment Gate**
+- **All tests passing** and validated
+- **Performance benchmarks** met
+- **User acceptance** confirmed
+- **Rollback plan** prepared and tested
+
+---
+
+## 🎯 Success Metrics & Validation
+
+### **Feature Success Criteria**
+
+#### **Functionality**
+- **All requirements** implemented correctly
+- **Edge cases** handled properly
+- **Error scenarios** managed gracefully
+- **Data integrity** maintained throughout
+
+#### **User Experience**
+- **Intuitive interface** that's easy to use
+- **Responsive design** that works on all devices
+- **Fast loading** and smooth interactions
+- **Consistent styling** across all components
+
+#### **Performance**
+- **Fast loading times** under 2 seconds
+- **Smooth interactions** with no lag
+- **Efficient memory usage** with no leaks
+- **Scalable architecture** that handles growth
+
+#### **Reliability**
+- **No errors** or crashes during normal use
+- **Graceful error handling** for edge cases
+- **Data persistence** works correctly
+- **Recovery mechanisms** for failed operations
+
+#### **Maintainability**
+- **Code follows** established patterns
+- **Documentation** is complete and accurate
+- **Knowledge base** updated with learnings
+- **Future developers** can understand and extend
+
+### **Validation Process**
+
+#### **Technical Validation**
+1. **Code Review**: All code follows established patterns
+2. **Testing**: All functionality tested thoroughly
+3. **Performance**: Meets performance benchmarks
+4. **Security**: No security vulnerabilities introduced
+5. **Compatibility**: Works across all target browsers
+
+#### **User Validation**
+1. **User Testing**: User confirms feature meets needs
+2. **Usability**: Interface is intuitive and easy to use
+3. **Workflow**: Fits naturally into user's workflow
+4. **Feedback**: User provides positive feedback
+5. **Adoption**: User actually uses the feature
+
+#### **Quality Validation**
+1. **Standards**: Meets all quality standards
+2. **Documentation**: Complete and accurate documentation
+3. **Knowledge Base**: Updated with new learnings
+4. **Maintenance**: Easy to maintain and extend
+5. **Future-Proof**: Designed for long-term success
+
+### **Quality Gates**
+
+#### **Development Gate**
+- **Requirements**: All requirements clearly understood
+- **Approach**: Technical approach proven and tested
+- **Planning**: Implementation plan complete and approved
+- **Resources**: All necessary resources available
+
+#### **Implementation Gate**
+- **Code Quality**: Code follows all established patterns
+- **Testing**: Comprehensive testing completed
+- **Performance**: Performance benchmarks met
+- **Documentation**: Code documented appropriately
+
+#### **User Acceptance Gate**
+- **Functionality**: All features work as specified
+- **User Experience**: Interface is intuitive and responsive
+- **User Feedback**: User confirms satisfaction
+- **User Adoption**: User actually uses the feature
+
+#### **Deployment Gate**
+- **Production Ready**: All tests passing and validated
+- **Performance**: Performance benchmarks met in production
+- **Monitoring**: Performance monitoring in place
+- **Rollback Plan**: Rollback plan prepared and tested
+
+### **Performance Benchmarks**
+
+#### **Loading Performance**
+- **Initial Load**: Under 2 seconds for main application
+- **Module Load**: Under 1 second for individual modules
+- **Data Load**: Under 500ms for data operations
+- **Interaction Response**: Under 100ms for user interactions
+
+#### **Memory Performance**
+- **Memory Usage**: No memory leaks over time
+- **Garbage Collection**: Efficient memory management
+- **Resource Usage**: Minimal resource consumption
+- **Scalability**: Performance maintained with increased data
+
+#### **User Experience Performance**
+- **Responsiveness**: No lag or delays in interactions
+- **Smoothness**: 60fps animations and transitions
+- **Reliability**: No crashes or errors during normal use
+- **Accessibility**: Works for all users regardless of ability
+
+---
+
+## 🧠 Learning & Knowledge Base
 
 ## 🧠 Learning & Knowledge Base
 
@@ -513,6 +1450,22 @@ window.MODULE_VERS = {
   </div>
   ```
 
+#### **Application Layout**
+- **Full-Height Containment**: `html, body { height: 100vh; overflow: hidden }` prevents outer scrollbars
+- **Why it works**: Forces app to fit viewport exactly, no page-level overflow
+- **When to use**: Any application that should fill the entire viewport
+- **Example**:
+  ```css
+  html, body { height: 100vh; overflow: hidden; }
+  .app { height: 100vh; overflow: hidden; }
+  ```
+
+#### **Version Display Management**
+- **Single Source of Truth**: Keep only one version display in sidebar header
+- **Why it works**: Eliminates confusion and duplicate information
+- **When to use**: Any application with version information
+- **Example**: Remove duplicate `.pcfp-version-pill` elements outside main app structure
+
 ### **❌ What Doesn't Work**
 
 #### **CSS Grid Systems**
@@ -559,6 +1512,47 @@ window.MODULE_VERS = {
 - **Flexbox-based Resizing**: Prone to drift and misalignment
 - **Why it fails**: Flex values calculated independently for headers and data columns
 - **Alternative**: Fixed-width columns with hover tooltips
+
+#### **Application Layout**
+- **Default Body Overflow**: `body { margin: 0 }` without `overflow: hidden` creates outer scrollbars
+- **Why it fails**: Content extends beyond viewport, creating page-level scrolling
+- **Alternative**: Use `html, body { height: 100vh; overflow: hidden }`
+- **Example of what doesn't work**:
+  ```css
+  /* This approach fails */
+  body { margin: 0; }
+  .app { min-height: 100vh; }
+  ```
+
+#### **Version Display**
+- **Multiple Version Locations**: Version displays in sidebar header AND bottom of sidebar
+- **Why it fails**: Creates confusion and duplicate information
+- **Alternative**: Single version display in sidebar header only
+- **Example of what doesn't work**:
+  ```html
+  <!-- This approach fails -->
+  <header><h1>2x2 Modules Build v8.5</h1></header>
+  <nav>...</nav>
+  <div class="pcfp-version-pill">Build v8.5</div> <!-- Duplicate! -->
+  ```
+
+#### **Version Management**
+- **Hardcoded Fallback Values**: Version scripts with `|| 'v8.4'` prevent updates
+- **Why it fails**: Fallback values override actual config values
+- **Alternative**: Remove fallbacks or update them with each version change
+- **Example of what doesn't work**:
+  ```javascript
+  // This approach fails
+  const appBuild = window.APP_BUILD || 'v8.4';
+  ```
+- **Script Loading Race Conditions**: Inline scripts run before config.js loads
+- **Why it fails**: `window.APP_BUILD` undefined when script first runs
+- **Alternative**: Add wait logic for config to load
+- **Example of what doesn't work**:
+  ```javascript
+  // This approach fails
+  g.PCFP.version = { app: window.APP_BUILD || 'v8.5' };
+  ```
 - **Example of what doesn't work**:
   ```javascript
   // This approach fails
@@ -792,3 +1786,208 @@ This approach has been **proven to work** across multiple modules and environmen
 8. **Use proven patterns** - Check knowledge base before writing new code
 
 This approach ensures we **never implement unproven solutions** and always have a **systematic way to solve complex problems**! 🚀
+
+---
+
+## 🚀 Quick Reference Cheat Sheet
+
+### **Essential Commands**
+```bash
+# Start development server
+python3 -m http.server 8000
+
+# Hard refresh browser (clear cache)
+Ctrl+F5 (Windows) / Cmd+Shift+R (Mac)
+
+# Check console for errors
+F12 → Console tab
+```
+
+### **File Locations**
+- **Main Config**: `core/config.js`
+- **Router**: `core/kernel.standalone.js`
+- **Module Template**: `core/templates/module-template.html`
+- **Cache Busting**: Update `?v=YYYYMMDDHHMMSS` in HTML files
+
+### **Common Patterns**
+- **Error Handling**: `safe(() => {}, 'context:function')`
+- **Async Operations**: `safeAsync(async () => {}, 'context:function')`
+- **Module Registration**: `window.PCFP.moduleManager.register()`
+- **Event Handling**: `window.PCFP.moduleManager.on()`
+
+### **Testing Checklist**
+- [ ] Create test files for new approaches
+- [ ] Test in multiple browsers
+- [ ] Test responsive behavior
+- [ ] Test error scenarios
+- [ ] Get user validation
+- [ ] Update knowledge base
+
+### **Common CSS Patterns**
+```css
+/* Grid Layout */
+.data-grid {
+  display: grid;
+  grid-template-columns: 400px 120px 120px 120px 120px 120px 120px 120px;
+}
+
+/* Direct Border Application */
+.grid-cell {
+  border-right: 1px solid var(--pcfp-border) !important;
+  border-bottom: 1px solid var(--pcfp-border) !important;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+```
+
+### **Common JavaScript Patterns**
+```javascript
+// Module Registration
+window.PCFP.moduleManager.register('moduleName', {
+  name: 'Module Name',
+  version: 'v1.0',
+  onInitialize: async (params) => {
+    // Initialization logic
+  }
+});
+
+// Error Handling
+safe(() => {
+  // Your code here
+}, 'module:function');
+
+// Dynamic Menu Creation
+const menu = document.createElement('div');
+menu.className = 'pcfp-menu';
+document.body.appendChild(menu);
+```
+
+### **Version Management**
+```javascript
+// In core/config.js
+window.MODULE_VERS = {
+  "moduleName": "v1.0"
+};
+
+// In core/kernel.standalone.js
+'#/moduleName': { 
+  title: 'Module Name v1.0', 
+  src: 'modules/moduleName/index.html' 
+}
+```
+
+### **Cache Busting Format**
+```html
+<link rel="stylesheet" href="../../core/theme.css?v=20250101120000">
+<link rel="stylesheet" href="module.css?v=20250101120000">
+<script src="module.js?v=20250101120000"></script>
+```
+
+### **Quick Debugging**
+```javascript
+// Console logging
+console.log('[DEBUG]', 'Variable:', variable);
+
+// Performance measurement
+const start = performance.now();
+// ... your code ...
+const end = performance.now();
+console.log('Function took:', end - start, 'ms');
+
+// Element inspection
+console.log('Element:', element);
+console.log('Element bounds:', element.getBoundingClientRect());
+```
+
+### **Common Issues & Quick Fixes**
+- **Module not loading**: Check route in `core/kernel.standalone.js`
+- **Styles not updating**: Update cache-busting parameters
+- **JavaScript errors**: Use `safe()` wrapper
+- **Version mismatches**: Update both `config.js` and `kernel.standalone.js`
+- **Grid issues**: Use direct border application
+- **Menu not opening**: Use dynamic creation + `document.body`
+- **Outer scrollbar**: Add `html, body { overflow: hidden }`
+- **Duplicate versions**: Remove `.pcfp-version-pill` outside main structure
+- **Version not updating**: Check fallback values in version scripts
+- **Script loading issues**: Add wait logic for `window.APP_BUILD`
+
+### **Quality Gates**
+- [ ] All functionality tested
+- [ ] Error handling implemented
+- [ ] Performance acceptable
+- [ ] User validation completed
+- [ ] Documentation updated
+- [ ] Knowledge base updated
+
+This comprehensive guide ensures **consistent, high-quality development** across all PCFP modules! 🚀
+
+---
+
+## 🔮 Future Recommendations & Guide Evolution
+
+### **Continuous Improvement Process**
+
+This guide is a **living document** that evolves with our development experience. As we encounter new challenges, patterns, and solutions, we will continuously update and enhance this guide.
+
+### **Recommendation Process**
+
+#### **When New Recommendations Arise**
+1. **Identify the Need**: During development, identify gaps in current guidance
+2. **Propose Solution**: Suggest specific additions or improvements
+3. **User Review**: Present recommendations to you for approval
+4. **Implementation**: Add approved recommendations to the guide
+5. **Validation**: Test new guidance in practice
+
+#### **Types of Recommendations**
+- **New Patterns**: Proven solutions for common problems
+- **Process Improvements**: Better ways to approach development
+- **Tool Integration**: New tools or utilities that improve workflow
+- **Best Practices**: Lessons learned from real development experience
+- **Performance Optimizations**: New techniques for better performance
+- **Quality Enhancements**: Improved testing or validation approaches
+
+### **Current Areas for Future Enhancement**
+
+#### **Potential Future Sections**
+- **API Integration Patterns**: When we add backend integration
+- **Mobile Development**: If we expand to mobile applications
+- **Advanced Testing**: Automated testing and CI/CD processes
+- **Security Guidelines**: Security best practices and patterns
+- **Deployment Procedures**: Production deployment and monitoring
+- **Team Collaboration**: Multi-developer workflows and processes
+
+#### **Potential Enhancements**
+- **Interactive Examples**: Code snippets that can be tested
+- **Video Tutorials**: Screen recordings of common tasks
+- **Automated Tools**: Scripts to automate common development tasks
+- **Integration Guides**: How to integrate with external services
+- **Migration Guides**: How to upgrade or migrate existing code
+
+### **My Commitment**
+
+I will:
+- **Always identify opportunities** for guide improvement during development
+- **Propose specific recommendations** with clear rationale and examples
+- **Present recommendations** to you for review and approval
+- **Implement approved enhancements** promptly and thoroughly
+- **Validate new guidance** in practice before considering it complete
+- **Maintain guide quality** and consistency as it grows
+
+### **Feedback Loop**
+
+- **During Development**: Identify gaps and propose solutions
+- **After Implementation**: Document what worked and what didn't
+- **Regular Review**: Periodically assess guide completeness and usefulness
+- **User Feedback**: Incorporate your feedback and suggestions
+- **Continuous Learning**: Update guide based on new experiences
+
+This ensures our guide remains **comprehensive, practical, and valuable** as our project and team grow! 🚀
