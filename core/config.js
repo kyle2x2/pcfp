@@ -1,6 +1,24 @@
-// Single source of truth for versions
-// Main application version - displayed in left sidebar, changes with every iteration
-window.APP_BUILD = "v8.1-cursor";
+// PCFP v8.2 - BuilderTrend Competitor Foundation
+// API-First Architecture with Enhanced Performance & Flexibility
+
+// Single source of truth for app metadata - API-ready structure
+export const APP_META = {
+  build: "v8.2",
+  appName: "PCFP - Project Construction Financial Planner",
+  copyright: "© 2x2 Construction",
+  version: "8.2.0",
+  apiVersion: "v1",
+  description: "Modern construction project management platform - BuilderTrend alternative",
+  features: {
+    apiReady: true,
+    modular: true,
+    scalable: true,
+    performanceOptimized: true
+  }
+};
+
+// Legacy support - will be removed in future versions
+window.APP_BUILD = APP_META.build;
 
 // Individual module versions - each module has its own version
 // All modules are independent, including payment-planner
@@ -18,4 +36,25 @@ window.MODULE_VERS = {
   "bills": "v1.0",           // All other modules are v1.0
   "budget": "v1.0",          // All other modules are v1.0
   "invoices": "v1.0"         // All other modules are v1.0
+};
+
+// API Configuration - Future-ready for Python backend
+export const API_CONFIG = {
+  baseUrl: '/api/v1',
+  timeout: 30000,
+  retryAttempts: 3,
+  endpoints: {
+    projects: '/projects',
+    profiles: '/profiles',
+    modules: '/modules',
+    auth: '/auth'
+  }
+};
+
+// Performance Configuration
+export const PERFORMANCE_CONFIG = {
+  cacheEnabled: true,
+  lazyLoading: true,
+  debounceDelay: 300,
+  maxConcurrentRequests: 5
 };

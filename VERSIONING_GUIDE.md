@@ -1,4 +1,4 @@
-# Versioning System Guide - Cursor Branch
+# Versioning System Guide - BuilderTrend Competitor (v8.2)
 
 ## Overview
 
@@ -15,7 +15,7 @@ This is the single source of truth for all versioning:
 
 ```javascript
 // Main application version - displayed in left sidebar, changes with every iteration
-window.APP_BUILD = "v8.1";
+window.APP_BUILD = "v8.2";
 
 // Individual module versions - each module has its own version
 // All modules are independent, including payment-planner
@@ -53,7 +53,7 @@ window.MODULE_VERS = {
 ### All Modules (Including Payment Planner)
 - **Version**: All modules are independent
 - **Updates**: Only change when the specific module code is modified
-- **Example**: Payment-planner is v1.0, Schedule is v1.0, main app is v8.1
+- **Example**: Payment-planner is v1.0, Schedule is v1.0, main app is v8.2
 
 ## How to Update Versions
 
@@ -90,7 +90,7 @@ The following files were updated to implement this versioning system:
 
 The centralized versioning system can be tested by:
 
-- Checking that left sidebar shows "Build v8.1"
+- Checking that left sidebar shows "Build v8.2"
 - Verifying payment-planner shows "v1.0" in module header (independent)
 - Confirming all other modules show "v1.0" in module headers
 - Ensuring all version displays pull from `core/config.js` only

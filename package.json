@@ -1,14 +1,18 @@
 {
-  "name": "pcfp-cursor-branch",
-  "version": "8.1.0",
-  "description": "PCFP Application - Cursor Branch with Enhanced Architecture",
+  "name": "pcfp-builder-trend-competitor",
+  "version": "8.2.0",
+  "description": "PCFP - Modern Construction Project Management Platform - BuilderTrend Alternative",
   "main": "index.html",
   "scripts": {
     "start": "python3 -m http.server 8000",
+    "dev": "python3 -m http.server 8000",
     "lint": "eslint core/**/*.js modules/**/*.js",
     "lint:fix": "eslint core/**/*.js modules/**/*.js --fix",
     "test": "echo 'No tests configured yet'",
-    "build": "echo 'No build process needed for static files'"
+    "build": "echo 'No build process needed for static files'",
+    "performance": "echo 'Performance monitoring available in browser console'",
+    "debug": "echo 'Debug helpers available: window.PCFP.events.debug()'",
+    "cache-stats": "echo 'Cache statistics available in browser console'"
   },
   "devDependencies": {
     "eslint": "^8.0.0"
@@ -17,15 +21,32 @@
     "construction",
     "project-management",
     "payment-planner",
-    "modular-architecture"
+    "modular-architecture",
+    "builder-trend-alternative",
+    "construction-software",
+    "api-first",
+    "performance-optimized"
   ],
-  "author": "PCFP Team",
+  "author": "2x2 Construction",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-repo/pcfp.git"
+    "url": "https://github.com/2x2-construction/pcfp.git"
   },
   "engines": {
     "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "homepage": "https://github.com/2x2-construction/pcfp#readme",
+  "bugs": {
+    "url": "https://github.com/2x2-construction/pcfp/issues"
+  },
+  "funding": {
+    "type": "individual",
+    "url": "https://2x2construction.com"
   }
 }
