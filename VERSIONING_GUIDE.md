@@ -105,8 +105,8 @@ The following files were updated to implement this versioning system:
 - `core/version_shim.js` - Version display and cache busting (sidebar disabled)
 - `index.html` - Sidebar version display and page title
 
-**Removed/Disabled:**
-- `core/module_header_version.js` - **DISABLED** (was causing conflicts)
+**Removed:**
+- `core/module_header_version.js` - **COMPLETELY REMOVED** from index.html (was causing conflicts)
 - `core/version.js` - Deleted (redundant)
 - `core/module_versions.js` - Deleted (redundant)
 

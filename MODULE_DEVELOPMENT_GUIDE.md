@@ -4,6 +4,8 @@
 
 This guide covers how to develop modules using the enhanced PCFP v8.4 architecture with standardized patterns, performance monitoring, and API-ready design.
 
+**✅ Versioning System**: Stable and centralized as of v8.4 - follow VERSIONING_GUIDE.md for all version updates.
+
 ## 📋 Module Development Checklist
 
 ### **Before Starting**
