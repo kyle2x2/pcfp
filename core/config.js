@@ -1,6 +1,12 @@
-// Single source of truth for versions
-// Main application version - displayed in left sidebar, changes with every iteration
-window.APP_BUILD = "v8.1";
+// Single source of truth for app metadata
+export const APP_META = {
+  build: "v8.1-gpt",
+  appName: "2x2 Modules",
+  copyright: "© 2x2 Construction",
+};
+
+// Legacy support - will be removed in future versions
+window.APP_BUILD = APP_META.build;
 
 // Individual module versions - each module has its own version
 // All modules are independent, including payment-planner

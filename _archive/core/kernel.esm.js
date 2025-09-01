@@ -1,3 +1,7 @@
+// ARCHIVED: This file has been moved to _archive/core/kernel.esm.js
+// The application now uses core/kernel.standalone.js for file:// compatibility
+// This file is kept for reference but should not be imported or used
+
 // core/kernel.js (v6.1.5 core-proof router fix)
 import { createStore } from './store/store.js';
 import { createEvents } from './store/events.js';

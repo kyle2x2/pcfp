@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>2x2 App — v8.1</title>
+<title>2x2 App — <script>document.write(window.APP_BUILD || 'v8.1-gpt')</script></title>
 <link rel="stylesheet" href="core/theme.css?v=20250831223240">
 <link rel="icon" href="assets/favicon.svg">
 <style>
@@ -29,13 +29,13 @@
   <script>
     (function(g){
       g.PCFP = g.PCFP || {};
-      g.PCFP.version = { app: window.APP_BUILD || 'v8.1', build: '20250831214933Z' };
+                  g.PCFP.version = { app: window.APP_BUILD || 'v8.1-gpt', build: '20250831214933Z' };
       function setPill(){
         var pill = document.querySelector('[data-app-version]');
         if(pill) pill.textContent = g.PCFP.version.app;
         // Mega-visible banner for this build (temporary)
         var b = document.createElement('div');
-        b.textContent = 'RUNNING ' + (window.APP_BUILD || 'v8.1') + ' (cache-busted)';
+                      b.textContent = 'RUNNING ' + (window.APP_BUILD || 'v8.1-gpt') + ' (cache-busted)';
         b.style.position='fixed'; b.style.top='10px'; b.style.left='10px';
         b.style.background='#b08d2f'; b.style.color='#000'; b.style.padding='6px 10px';
         b.style.zIndex='100000'; b.style.borderRadius='6px';
@@ -98,14 +98,14 @@
   <script src="components/gantt/index.js?v=20250831223240"?v=20250831214933></script>
   <script src="components/kebab/index.js?v=20250831223240"?v=20250831214933></script>
 
-<div class="pcfp-version-pill">Build <b><span data-app-version>v8.1</span></b></div>
+<div class="pcfp-version-pill">Build <b><span data-app-version><script>document.write(window.APP_BUILD || 'v8.1-gpt')</script></span></b></div>
   <script src="core/verify/v73_integrity.js?v=20250831223240"?v=20250831214933></script>
   <script src="core/boot_check.js?v=20250831223240"?v=20250831214933></script>
-  <script src="core/bus.js?v=20250831223240"?v=20250831214933></script>
+
   <script src="core/router.js?v=20250831223240"?v=20250831214933></script>
   <script src="core/contracts/migrations.js?v=20250831223240"?v=20250831214933></script>
   <script src="core/projects.js?v=20250831223240"?v=20250831214933></script>
-  <script src="core/profile_repo.js?v=20250831223240"?v=20250831214933></script>
+
   <script src="core/log.js?v=20250831223240"?v=20250831214933></script>
   <script src="core/lifecycle.js?v=20250831223240"?v=20250831214933></script>
   <script src="core/integrity_banner.js?v=20250831223240"?v=20250831214933></script>
