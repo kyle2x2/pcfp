@@ -3,7 +3,7 @@
 (function() {
   function updateModuleVersion() {
   try {
-    const appVer = (window.APP_BUILD) || 'v8.2';
+    const appVer = (window.APP_BUILD) || 'v8.3';
     const MV = window.MODULE_VERS || {};
     // Find active module key
     let key = document.body.getAttribute('data-active-module');

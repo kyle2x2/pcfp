@@ -1,4 +1,4 @@
-# Versioning System Guide - BuilderTrend Competitor (v8.2)
+# Versioning System Guide - BuilderTrend Competitor (v8.3)
 
 ## Overview
 

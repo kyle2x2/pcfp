@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{{MODULE_NAME}} - PCFP v{{MODULE_VERSION}}</title>
+
+<!-- Standard module styling -->
+<link rel="stylesheet" href="../../core/theme.css?v={{CACHE_BUST}}">
+<link rel="stylesheet" href="module.css?v={{CACHE_BUST}}">
+
+<!-- Module metadata -->
+<script>
+  window.MODULE_META = {
+    name: "{{MODULE_NAME}}",
+    version: "{{MODULE_VERSION}}",
+    key: "{{MODULE_KEY}}",
+    description: "{{MODULE_DESCRIPTION}}",
+    icon: "{{MODULE_ICON}}"
+  };
+</script>
+</head>
+<body>
+<header class="module-header">
+  <div class="module-brand">
+    <div class="module-badge">{{MODULE_ICON}} {{MODULE_NAME}}</div>
+    <h1>{{MODULE_TITLE}}</h1>
+  </div>
+  <div class="module-toolbar">
+    <button class="btn" id="btnSave" title="Save data">Save</button>
+    <button class="btn" id="btnExport" title="Export data">Export</button>
+    <button class="btn" id="btnShare" title="Share module state">Share</button>
+  </div>
+</header>
+
+<div class="module-container">
+  <!-- Module content goes here -->
+  <div class="module-content">
+    <div class="placeholder">
+      <h2>{{MODULE_NAME}} Module</h2>
+      <p>This module is under development.</p>
+      <div class="module-stats">
+        <div class="stat">
+          <span class="label">Version:</span>
+          <span class="value">{{MODULE_VERSION}}</span>
+        </div>
+        <div class="stat">
+          <span class="label">Status:</span>
+          <span class="value">In Development</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Standard module scripts -->
+<script src="../../core/services/errors.js?v={{CACHE_BUST}}"></script>
+<script src="module.js?v={{CACHE_BUST}}"></script>
+
+<!-- Module initialization -->
+<script>
+  // Standard module initialization
+  (function() {
+    const { safe, createErrorBoundary } = window.__pcfpCore || {};
+    
+    // Create error boundary for this module
+    const errorBoundary = createErrorBoundary ? createErrorBoundary('{{MODULE_KEY}}') : null;
+    
+    // Initialize module when DOM is ready
+    function initModule() {
+      safe(() => {
+        console.log(`[PCFP] Initializing {{MODULE_NAME}} module v{{MODULE_VERSION}}`);
+        
+        // Emit module ready event
+        if (window.PCFP && window.PCFP.events) {
+          window.PCFP.events.emit('module:ready', {
+            module: '{{MODULE_KEY}}',
+            version: '{{MODULE_VERSION}}',
+            timestamp: Date.now()
+          });
+        }
+        
+        // Initialize module-specific functionality
+        if (window.init{{MODULE_KEY}}Module) {
+          window.init{{MODULE_KEY}}Module();
+        }
+      }, 'module:init');
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initModule);
+    } else {
+      initModule();
+    }
+  })();
+</script>
+</body>
+</html>
