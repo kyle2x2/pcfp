@@ -1,16 +1,17 @@
 
 // Auto-updates module header with per-module version. Robust against hard-coded spans.
 (function() {
+  function updateModuleVersion() {
   try {
-    const appVer = (window.PCFP_VERSION && window.PCFP_VERSION.app) || 'v7.4f';
-    const MV = window.PCFP_MODULE_VERSIONS || {};
+    const appVer = (window.APP_BUILD) || 'v8.1';
+    const MV = window.MODULE_VERS || {};
     // Find active module key
     let key = document.body.getAttribute('data-active-module');
     if (!key) {
       const hash = (location.hash || '').replace(/^#\/?/, '');
       if (hash) key = hash.split(/[?#]/)[0];
     }
-    if (!key) key = 'payment-planner';
+    if (!key) key = 'payments';
 
     // Sidebar global badge
     const gEl = document.getElementById('global-build-version');
@@ -56,4 +57,15 @@
   } catch(e) {
     console.warn('module_header_version hotfix error', e);
   }
+  }
+  
+  // Run when DOM is ready
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    updateModuleVersion();
+  } else {
+    document.addEventListener('DOMContentLoaded', updateModuleVersion);
+  }
+  
+  // Also run on hash change
+  window.addEventListener('hashchange', updateModuleVersion);
 })();

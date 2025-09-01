@@ -1,1 +1,0 @@
-window.PCFP_VERSION = { app:'v7.4f' };

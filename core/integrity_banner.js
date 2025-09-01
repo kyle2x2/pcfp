@@ -18,16 +18,15 @@
   }
   function onReady(fn){ if(document.readyState!=='loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
   onReady(function(){
-    var v = (g.PCFP && g.PCFP.version) ? (g.PCFP.version.app+' • '+g.PCFP.version.build) : 'unknown';
+    const appBuild = window.APP_BUILD || 'v8.1';
+    var v = appBuild + ' • ' + (g.PCFP && g.PCFP.version ? g.PCFP.version.build : 'unknown');
     show('Integrity: Bus + Router + Contracts v2 loaded ('+ v +')');
     // Also stamp version pill if present
     var pill = document.querySelector('[data-app-version]');
-    if(pill && g.PCFP && g.PCFP.version){
-      pill.textContent = 'Build ' + g.PCFP.version.app;
+    if(pill){
+      pill.textContent = 'Build ' + appBuild;
     }
     // Dev console breadcrumb
-    if(g.PCFP && g.PCFP.version){
-      console.info('PCFP integrity:', g.PCFP.version);
-    }
+    console.info('PCFP integrity:', { app: appBuild, build: g.PCFP && g.PCFP.version ? g.PCFP.version.build : 'unknown' });
   });
 })(window);

@@ -3,7 +3,7 @@
 // - Updates sidebar "Build v..." and module header version chip based on window.APP_BUILD / window.MODULE_VERS
 (function(){
   try {
-    const build = window.APP_BUILD || 'v?';
+    const build = window.APP_BUILD || 'v8.1';
     const vers = window.MODULE_VERS || {};
     // Cache-bust static assets when running from file:// to avoid stale JS
     if (location.protocol === 'file:') {
@@ -38,10 +38,11 @@
         }
       }
 
-      // Module header version
-      // Determine current route key from hash: '#/payments'
+      // Module header version - DISABLED: handled by module_header_version.js
+      // This was causing conflicts with individual module versions
+      /*
       const hash = (location.hash||'').replace(/^#\//,'').split(/[/?#]/)[0] || 'payments';
-      const version = vers[hash] || 'v1.0';
+      const version = vers[hash] || 'v1.1';
       // look for <strong id="module-title">..</strong><span class="version">..</span>
       let titleNode = document.querySelector('#module-title') || document.querySelector('.module-title');
       if (titleNode){
@@ -54,8 +55,11 @@
         }
         chip.textContent = version;
       }
+      */
       // expose helper
       window.dumpVersions = function(){
+        const hash = (location.hash||'').replace(/^#\//,'').split(/[/?#]/)[0] || 'payments';
+        const version = vers[hash] || 'v1.1';
         console.log('APP_BUILD=', build, 'ROUTE=', hash, 'MODULE_VERSION=', version, 'MAP=', vers);
       };
     }
