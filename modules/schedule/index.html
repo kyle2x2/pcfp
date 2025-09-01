@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Schedule - PCFP v1.1</title>
-<link rel="stylesheet" href="../../core/theme.css?v=20250901185015">
-<link rel="stylesheet" href="module.css?v=20250901185015">
+<title>Schedule - PCFP v1.2</title>
+<link rel="stylesheet" href="../../core/theme.css?v=20250901185018">
+<link rel="stylesheet" href="module.css?v=20250901185018">
 </head>
 <body>
 <header class="module-header">
@@ -59,20 +59,21 @@
           <div class="calendar-placeholder">
             <h3>Calendar View</h3>
             <p>FullCalendar.js integration coming in v1.2</p>
+            <p>External libraries disabled for iframe compatibility</p>
           </div>
         </div>
         
         <div id="kanbanView" class="view-content">
           <div class="kanban-placeholder">
             <h3>Kanban View</h3>
-            <p>SortableJS integration coming in v1.2</p>
+            <p>SortableJS integration coming in v1.3</p>
           </div>
         </div>
         
         <div id="ganttView" class="view-content">
           <div class="gantt-placeholder">
             <h3>Gantt View</h3>
-            <p>Frappe Gantt integration coming in v1.3</p>
+            <p>Frappe Gantt integration coming in v1.4</p>
           </div>
         </div>
       </div>
@@ -89,6 +90,97 @@
   </div>
 </div>
 
-<script src="module.js?v=20250901185015"></script>
+<!-- Task Modal for Professional Editing -->
+<div id="taskModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">Add New Task</h2>
+      <span class="close">&times;</span>
+    </div>
+    <div class="modal-body">
+      <form id="taskForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="taskTitle">Task Title *</label>
+            <input type="text" id="taskTitle" name="title" required>
+          </div>
+          <div class="form-group">
+            <label for="taskAssignee">Assignee</label>
+            <input type="text" id="taskAssignee" name="assignee">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="taskDescription">Description</label>
+          <textarea id="taskDescription" name="description" rows="3"></textarea>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="taskStartDate">Start Date *</label>
+            <input type="date" id="taskStartDate" name="startDate" required>
+          </div>
+          <div class="form-group">
+            <label for="taskEndDate">End Date *</label>
+            <input type="date" id="taskEndDate" name="endDate" required>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="taskStatus">Status</label>
+            <select id="taskStatus" name="status">
+              <option value="not-started">Not Started</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="taskPriority">Priority</label>
+            <select id="taskPriority" name="priority">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+              <option value="critical">Critical</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="taskProgress">Progress (%)</label>
+            <input type="number" id="taskProgress" name="progress" min="0" max="100" value="0">
+          </div>
+          <div class="form-group">
+            <label for="taskBudget">Budget ($)</label>
+            <input type="number" id="taskBudget" name="budget" min="0" step="0.01" value="0">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="taskPhase">Construction Phase</label>
+          <select id="taskPhase" name="phase">
+            <option value="Pre-Construction">Pre-Construction</option>
+            <option value="Foundation">Foundation</option>
+            <option value="Framing">Framing</option>
+            <option value="Mechanical">Mechanical</option>
+            <option value="Electrical">Electrical</option>
+            <option value="Plumbing">Plumbing</option>
+            <option value="Interior">Interior</option>
+            <option value="Exterior">Exterior</option>
+            <option value="Finishing">Finishing</option>
+            <option value="Punch List">Punch List</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" id="btnCancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btnSaveTask">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<script src="module.js?v=20250901185018"></script>
 </body>
 </html>

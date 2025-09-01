@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Schedule Test - PCFP v1.2</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; }
+  .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+  .success { color: green; }
+  .error { color: red; }
+  .info { color: blue; }
+</style>
+</head>
+<body>
+<h1>Schedule Module Test</h1>
+
+<div class="test-section">
+  <h2>Library Loading Test</h2>
+  <div id="library-test"></div>
+</div>
+
+<div class="test-section">
+  <h2>AG Grid Test</h2>
+  <div id="ag-grid-test" class="ag-theme-alpine" style="height: 300px; width: 100%;"></div>
+</div>
+
+<div class="test-section">
+  <h2>FullCalendar Test</h2>
+  <div id="fullcalendar-test" style="height: 300px;"></div>
+</div>
+
+<!-- AG Grid CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@29.3.5/styles/ag-grid.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@29.3.5/styles/ag-theme-alpine.css">
+
+<!-- FullCalendar.js CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css">
+
+<!-- AG Grid JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@29.3.5/dist/ag-grid-community.min.js"></script>
+
+<!-- FullCalendar.js JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const testResults = document.getElementById('library-test');
+  
+  // Test library loading
+  let agGridLoaded = typeof agGrid !== 'undefined';
+  let fullCalendarLoaded = typeof FullCalendar !== 'undefined';
+  
+  testResults.innerHTML = `
+    <p class="${agGridLoaded ? 'success' : 'error'}">
+      AG Grid: ${agGridLoaded ? '✓ Loaded' : '✗ Failed to load'}
+    </p>
+    <p class="${fullCalendarLoaded ? 'success' : 'error'}">
+      FullCalendar: ${fullCalendarLoaded ? '✓ Loaded' : '✗ Failed to load'}
+    </p>
+  `;
+  
+  // Test AG Grid
+  if (agGridLoaded) {
+    try {
+      const gridDiv = document.getElementById('ag-grid-test');
+      const gridOptions = {
+        columnDefs: [
+          { headerName: 'Name', field: 'name' },
+          { headerName: 'Value', field: 'value' }
+        ],
+        rowData: [
+          { name: 'Test 1', value: 'Value 1' },
+          { name: 'Test 2', value: 'Value 2' }
+        ]
+      };
+      
+      agGrid.createGrid(gridDiv, gridOptions);
+      testResults.innerHTML += '<p class="success">AG Grid: ✓ Initialized successfully</p>';
+    } catch (error) {
+      testResults.innerHTML += `<p class="error">AG Grid: ✗ Error - ${error.message}</p>`;
+    }
+  }
+  
+  // Test FullCalendar
+  if (fullCalendarLoaded) {
+    try {
+      const calendarEl = document.getElementById('fullcalendar-test');
+      const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        events: [
+          { title: 'Test Event', start: '2024-01-15' }
+        ]
+      });
+      calendar.render();
+      testResults.innerHTML += '<p class="success">FullCalendar: ✓ Initialized successfully</p>';
+    } catch (error) {
+      testResults.innerHTML += `<p class="error">FullCalendar: ✗ Error - ${error.message}</p>`;
+    }
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Schedule Debug - PCFP v1.2</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+  .debug-section { margin: 20px 0; padding: 20px; border: 1px solid #ddd; background: white; border-radius: 8px; }
+  .success { color: #10b981; font-weight: bold; }
+  .error { color: #ef4444; font-weight: bold; }
+  .info { color: #3b82f6; font-weight: bold; }
+  .warning { color: #f59e0b; font-weight: bold; }
+  pre { background: #f8f9fa; padding: 10px; border-radius: 4px; overflow-x: auto; }
+  .test-button { background: #C6A247; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin: 5px; }
+  .test-button:hover { background: #a88a3a; }
+</style>
+</head>
+<body>
+<h1>Schedule Module Debug - PCFP v1.2</h1>
+
+<div class="debug-section">
+  <h2>🔍 Environment Check</h2>
+  <div id="environment-check"></div>
+</div>
+
+<div class="debug-section">
+  <h2>📚 Library Loading Test</h2>
+  <div id="library-test"></div>
+  <button class="test-button" onclick="testLibraries()">Test Libraries</button>
+</div>
+
+<div class="debug-section">
+  <h2>🎯 AG Grid Test</h2>
+  <div id="ag-grid-test" class="ag-theme-alpine" style="height: 200px; width: 100%; border: 1px solid #ddd;"></div>
+  <button class="test-button" onclick="testAGGrid()">Test AG Grid</button>
+</div>
+
+<div class="debug-section">
+  <h2>📅 FullCalendar Test</h2>
+  <div id="fullcalendar-test" style="height: 200px; border: 1px solid #ddd;"></div>
+  <button class="test-button" onclick="testFullCalendar()">Test FullCalendar</button>
+</div>
+
+<div class="debug-section">
+  <h2>🔧 Console Logs</h2>
+  <div id="console-logs"></div>
+  <button class="test-button" onclick="clearLogs()">Clear Logs</button>
+</div>
+
+<!-- AG Grid CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@29.3.5/styles/ag-grid.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@29.3.5/styles/ag-theme-alpine.css">
+
+<!-- FullCalendar.js CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css">
+
+<!-- AG Grid JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/ag-grid-community@29.3.5/dist/ag-grid-community.min.js"></script>
+
+<!-- FullCalendar.js JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+
+<script>
+// Console logging
+const originalLog = console.log;
+const originalError = console.error;
+const originalWarn = console.warn;
+
+function addLog(type, message) {
+  const logsDiv = document.getElementById('console-logs');
+  const timestamp = new Date().toLocaleTimeString();
+  const logEntry = document.createElement('div');
+  logEntry.innerHTML = `<span class="${type}">[${timestamp}] ${type.toUpperCase()}:</span> ${message}`;
+  logsDiv.appendChild(logEntry);
+  logsDiv.scrollTop = logsDiv.scrollHeight;
+}
+
+console.log = function(...args) {
+  originalLog.apply(console, args);
+  addLog('info', args.join(' '));
+};
+
+console.error = function(...args) {
+  originalError.apply(console, args);
+  addLog('error', args.join(' '));
+};
+
+console.warn = function(...args) {
+  originalWarn.apply(console, args);
+  addLog('warning', args.join(' '));
+};
+
+// Environment check
+function checkEnvironment() {
+  const envDiv = document.getElementById('environment-check');
+  const userAgent = navigator.userAgent;
+  const isLocalhost = window.location.hostname === 'localhost';
+  const protocol = window.location.protocol;
+  
+  envDiv.innerHTML = `
+    <p><strong>URL:</strong> ${window.location.href}</p>
+    <p><strong>Protocol:</strong> ${protocol}</p>
+    <p><strong>Hostname:</strong> ${window.location.hostname}</p>
+    <p><strong>Is Localhost:</strong> ${isLocalhost ? 'Yes' : 'No'}</p>
+    <p><strong>User Agent:</strong> ${userAgent}</p>
+    <p><strong>Document Ready State:</strong> ${document.readyState}</p>
+  `;
+}
+
+// Library loading test
+function testLibraries() {
+  const libDiv = document.getElementById('library-test');
+  
+  const agGridLoaded = typeof agGrid !== 'undefined';
+  const fullCalendarLoaded = typeof FullCalendar !== 'undefined';
+  
+  libDiv.innerHTML = `
+    <p class="${agGridLoaded ? 'success' : 'error'}">
+      AG Grid: ${agGridLoaded ? '✓ Loaded successfully' : '✗ Failed to load'}
+    </p>
+    <p class="${fullCalendarLoaded ? 'success' : 'error'}">
+      FullCalendar: ${fullCalendarLoaded ? '✓ Loaded successfully' : '✗ Failed to load'}
+    </p>
+  `;
+  
+  if (!agGridLoaded) {
+    console.error('AG Grid library not available');
+  }
+  if (!fullCalendarLoaded) {
+    console.error('FullCalendar library not available');
+  }
+}
+
+// AG Grid test
+function testAGGrid() {
+  const gridDiv = document.getElementById('ag-grid-test');
+  
+  if (typeof agGrid === 'undefined') {
+    console.error('AG Grid not loaded');
+    return;
+  }
+  
+  try {
+    const gridOptions = {
+      columnDefs: [
+        { headerName: 'Test Column', field: 'test' }
+      ],
+      rowData: [
+        { test: 'Test Data' }
+      ]
+    };
+    
+    agGrid.createGrid(gridDiv, gridOptions);
+    console.log('AG Grid test successful');
+  } catch (error) {
+    console.error('AG Grid test failed:', error);
+  }
+}
+
+// FullCalendar test
+function testFullCalendar() {
+  const calendarEl = document.getElementById('fullcalendar-test');
+  
+  if (typeof FullCalendar === 'undefined') {
+    console.error('FullCalendar not loaded');
+    return;
+  }
+  
+  try {
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      events: [
+        { title: 'Test Event', start: '2024-01-15' }
+      ]
+    });
+    calendar.render();
+    console.log('FullCalendar test successful');
+  } catch (error) {
+    console.error('FullCalendar test failed:', error);
+  }
+}
+
+function clearLogs() {
+  document.getElementById('console-logs').innerHTML = '';
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('Debug page loaded');
+  checkEnvironment();
+  testLibraries();
+});
+</script>
+</body>
+</html>
