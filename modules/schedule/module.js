@@ -261,6 +261,17 @@
         closeAllActionMenus();
       }
     });
+    
+    // Progress slider functionality
+    const progressSlider = document.getElementById('taskProgress');
+    const progressValue = document.querySelector('.progress-value');
+    
+    if (progressSlider && progressValue) {
+      progressSlider.addEventListener('input', (e) => {
+        const value = e.target.value;
+        progressValue.textContent = `${value}%`;
+      });
+    }
   }
   
   function switchView(view) {
@@ -641,6 +652,14 @@
     document.getElementById('taskStatus').value = taskData.status;
     document.getElementById('taskPriority').value = taskData.priority;
     
+    // Set progress slider and value
+    const progressSlider = document.getElementById('taskProgress');
+    const progressValue = document.querySelector('.progress-value');
+    if (progressSlider && progressValue) {
+      progressSlider.value = taskData.progress || 0;
+      progressValue.textContent = `${taskData.progress || 0}%`;
+    }
+    
     // Update modal title
     const modalTitle = document.getElementById('modalTitle');
     if (action === 'insert-above') {
@@ -649,6 +668,8 @@
       modalTitle.textContent = 'Insert Task Below';
     } else if (action === 'duplicate') {
       modalTitle.textContent = 'Duplicate Task';
+    } else if (action === 'edit') {
+      modalTitle.textContent = 'Edit Task';
     } else {
       modalTitle.textContent = 'Add New Task';
     }
@@ -680,7 +701,7 @@
       endDate: document.getElementById('taskEndDate').value,
       status: document.getElementById('taskStatus').value,
       priority: document.getElementById('taskPriority').value,
-      progress: window.currentModalAction?.taskData?.progress || 0,
+      progress: parseInt(document.getElementById('taskProgress').value) || 0,
       phase: window.currentModalAction?.taskData?.phase || 'Pre-Construction',
       color: window.currentModalAction?.taskData?.color || '#C6A247',
       reminder: window.currentModalAction?.taskData?.reminder || 'none',

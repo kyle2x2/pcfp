@@ -135,27 +135,35 @@
   display: block;
 }
 
+/* CSS Custom Properties for Border Control */
+:root {
+  --border-width: 1px;
+  --border-style: solid;
+  --border-color: var(--pcfp-border);
+  --status-border-width: 1px;
+  --status-border-color: var(--pcfp-border);
+}
+
 /* CSS Grid System - Professional Data Grid */
 .data-grid {
   display: grid;
   grid-template-columns: 
-    300px  /* Task - resizable */
-    150px  /* Assignee - auto-sized */
-    120px  /* Start Date - fixed */
-    120px  /* End Date - fixed */
-    100px  /* Status - auto-sized */
-    100px  /* Progress - fixed */
-    120px  /* Priority - fixed (wider for full text) */
-    100px  /* Phase - auto-sized */
-    140px; /* Actions - fixed (wider for buttons) */
+    400px  /* Task - much wider to push actions to edge */
+    150px  /* Assignee */
+    120px  /* Start Date */
+    120px  /* End Date */
+    120px  /* Status */
+    100px  /* Progress */
+    120px  /* Priority */
+    100px  /* Phase */
+    120px; /* Actions - wider to reach edge */
   gap: 0;
-  border: 1px solid var(--pcfp-border);
+  border: var(--border-width) var(--border-style) var(--border-color);
   border-radius: 8px;
-  overflow: hidden;
   background: var(--pcfp-white);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  min-width: max-content; /* Ensure grid doesn't shrink below content */
-  max-width: none; /* Allow grid to expand as needed */
+  min-width: max-content;
+  max-width: none;
 }
 
 /* Grid Container with Horizontal Scroll */
@@ -210,17 +218,33 @@
 
 .grid-row .grid-cell {
   padding: 15px 10px;
-  border-right: 1px solid var(--pcfp-border);
-  border-bottom: 1px solid var(--pcfp-border);
   display: flex;
   align-items: center;
   overflow: hidden;
-  word-wrap: break-word;
-  word-break: break-word;
   box-sizing: border-box;
-  min-width: max-content; /* Ensure cells don't shrink below content */
-  max-width: 100%; /* Prevent overflow beyond allocated space */
-  position: relative; /* For absolute positioning of content */
+  position: relative;
+  
+  /* DIRECT BORDER APPLICATION */
+  border-right: 1px solid var(--pcfp-border) !important;
+  border-bottom: 1px solid var(--pcfp-border) !important;
+}
+
+.grid-header .grid-cell {
+  background: var(--pcfp-panel);
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--pcfp-text-muted);
+  border-bottom: 2px solid var(--pcfp-border) !important;
+}
+
+/* Remove border from last column */
+.grid-cell:last-child {
+  border-right: none !important;
+}
+
+.grid-header .grid-cell:last-child {
+  border-right: none !important;
 }
 
 .grid-row .grid-cell:last-child {
@@ -229,6 +253,11 @@
 
 .grid-row:hover .grid-cell {
   background: var(--pcfp-panel);
+}
+
+.grid-row:hover .grid-cell[data-col="status"] {
+  background: var(--pcfp-panel) !important;
+  border-right: var(--status-border-width) var(--border-style) var(--status-border-color) !important;
 }
 
 /* Column Title */
@@ -344,19 +373,37 @@
   position: relative;
 }
 
-/* Three-Dot Action Menu Button */
+/* Actions Column - Force Minimum Width */
+.grid-cell[data-col="actions"] {
+  min-width: 60px !important;
+  max-width: 80px !important;
+  width: 80px !important;
+  justify-content: center;
+  padding: 8px 4px !important;
+}
+
+.grid-header .grid-cell[data-col="actions"] {
+  min-width: 60px !important;
+  max-width: 80px !important;
+  width: 80px !important;
+  justify-content: center;
+  padding: 8px 4px !important;
+}
+
+/* Three-Dot Button - Compact Size */
 .action-menu-btn {
   background: var(--pcfp-white);
   border: 1px solid var(--pcfp-border);
   cursor: pointer;
-  padding: 6px;
-  border-radius: 6px;
+  padding: 4px;
+  border-radius: 4px;
   transition: background-color 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 28px;
-  height: 28px;
+  min-width: 24px;
+  height: 24px;
+  width: 24px;
 }
 
 .action-menu-btn:hover {
@@ -490,16 +537,86 @@
   color: var(--pcfp-text-muted);
 }
 
-/* Status Badge Styling for AG Grid */
-.status-badge {
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  display: inline-block;
-  min-width: 80px;
+/* Status Column - Centered */
+.grid-cell[data-col="status"] {
   text-align: center;
+  justify-content: center;
+}
+
+.grid-header .grid-cell[data-col="status"] {
+  text-align: center;
+  justify-content: center;
+}
+
+/* Centered Columns */
+.grid-cell[data-col="startDate"],
+.grid-cell[data-col="endDate"],
+.grid-cell[data-col="progress"],
+.grid-cell[data-col="priority"] {
+  text-align: center;
+  justify-content: center;
+}
+
+.grid-header .grid-cell[data-col="startDate"],
+.grid-header .grid-cell[data-col="endDate"],
+.grid-header .grid-cell[data-col="progress"],
+.grid-header .grid-cell[data-col="priority"] {
+  text-align: center;
+  justify-content: center;
+}
+
+/* Actions Column - Centered and Positioned */
+.grid-cell[data-col="actions"] {
+  justify-content: center;
+  padding: 15px 5px !important;
+}
+
+.grid-header .grid-cell[data-col="actions"] {
+  justify-content: center;
+  padding: 15px 5px !important;
+}
+
+/* Progress Bar Container - Center Alignment */
+.progress-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+/* Progress Bar - Center Alignment */
+.progress-bar {
+  width: 100% !important;
+  max-width: 80px !important;
+  height: 8px !important;
+  background: var(--pcfp-panel) !important;
+  border-radius: 4px !important;
+  overflow: hidden !important;
+  margin: 0 auto !important;
+}
+
+/* Progress Text - Center Alignment */
+.progress-text {
+  font-size: 11px !important;
+  color: var(--pcfp-text-muted) !important;
+  text-align: center !important;
+  margin-top: 4px !important;
+  width: 100% !important;
+}
+
+/* Status Badge - Compact and Centered */
+.status-badge {
+  padding: 4px 8px !important;
+  border-radius: 12px !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  display: inline-block !important;
+  min-width: 70px !important;
+  text-align: center !important;
+  margin: 0 auto !important;
+  white-space: nowrap !important;
 }
 
 .status-completed {
@@ -517,7 +634,47 @@
   color: var(--pcfp-white);
 }
 
-/* Progress Bar Styling for AG Grid */
+/* Progress Slider in Modal */
+.progress-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-top: 5px;
+}
+
+.progress-slider {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--pcfp-border);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.progress-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--pcfp-gold);
+  cursor: pointer;
+  border: 2px solid var(--pcfp-white);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.progress-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--pcfp-gold);
+  cursor: pointer;
+  border: 2px solid var(--pcfp-white);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Progress Bar Styling for Grid */
 .progress-bar {
   width: 100%;
   height: 8px;

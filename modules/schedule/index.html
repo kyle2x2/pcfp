@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Schedule - PCFP v1.2</title>
-<link rel="stylesheet" href="../../core/theme.css?v=20250901221000">
-<link rel="stylesheet" href="module.css?v=20250901221000">
+<link rel="stylesheet" href="../../core/theme.css?v=20250901234000">
+<link rel="stylesheet" href="module.css?v=20250901234000">
 </head>
 <body>
 <header class="module-header">
@@ -170,7 +170,10 @@
         
         <div class="form-group">
           <label for="taskProgress">Progress (%)</label>
-          <input type="number" id="taskProgress" name="progress" min="0" max="100" value="0">
+          <div class="progress-slider-container">
+            <input type="range" id="taskProgress" name="progress" min="0" max="100" value="0" class="progress-slider">
+            <span class="progress-value">0%</span>
+          </div>
         </div>
         
         <div class="form-group">
@@ -197,6 +200,6 @@
   </div>
 </div>
 
-<script src="module.js?v=20250901221000"></script>
+<script src="module.js?v=20250901234000"></script>
 </body>
 </html>

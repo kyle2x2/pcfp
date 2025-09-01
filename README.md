@@ -92,6 +92,26 @@ PCFP uses a sophisticated dual-versioning system:
 - **Clear Separation**: Build version ≠ Module versions
 - **✅ Stable**: Versioning system is now stable and conflict-free
 
+## 📚 Documentation
+
+### **Development Guides**
+- **[PCFP Development Guide](PCFP_DEVELOPMENT_GUIDE.md)** - Comprehensive guide covering:
+  - Module development patterns and architecture
+  - Feature development SOP (Standard Operating Procedure)
+  - Debugging strategy with test-first approach
+  - Version management system
+  - Learning & knowledge base (what works/what doesn't)
+  - Proven implementations for common problems
+
+### **Module-Specific Documentation**
+- **[Schedule Roadmap](SCHEDULE_ROADMAP.md)** - Detailed roadmap for the Schedule module development
+
+### **Development Process**
+- **Test-First Approach**: Always create isolated test files before implementing in main code
+- **Knowledge Documentation**: Document what works and what doesn't work for future reference
+- **User Validation**: Get user feedback on approaches before implementation
+- **Proven Solutions Only**: Only implement solutions that have been tested and validated
+
 ## 🛠️ Development
 
 ### **Prerequisites**
