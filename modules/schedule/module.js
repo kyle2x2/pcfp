@@ -1,4 +1,4 @@
-// modules/schedule/module.js - Schedule Module v1.4 (Calendar functionality working)
+// modules/schedule/module.js - Schedule Module v1.5 (Gantt Charts with DHTMLX)
 // Construction project scheduling and timeline management
 
 (function() {
@@ -251,6 +251,9 @@
     // Modal event listeners
     setupModalEventListeners();
     
+    // Gantt event listeners
+    setupGanttEventListeners();
+    
     // Initialize calendar if calendar view is active
     if (currentView === 'calendar') {
       setupCalendarView();
@@ -349,6 +352,11 @@
     if (view === 'calendar') {
       setupCalendarView();
     }
+    
+    // Initialize Gantt if needed
+    if (view === 'gantt') {
+      setupGanttView();
+    }
   }
   
   function showAddTaskModal(startDate = '', endDate = '') {
@@ -416,6 +424,12 @@
     populateTaskList();
     updateTaskSummary();
     saveScheduleData();
+    
+    // Update Gantt if it's active
+    if (currentView === 'gantt' && ganttInstance) {
+      loadTasksIntoGantt();
+    }
+    
     showNotification('Task saved successfully', 'success');
   }
   
@@ -816,7 +830,7 @@
   window.duplicateTask = duplicateTask;
   
   // ========================================
-  // CALENDAR FUNCTIONALITY - Schedule v1.3
+  // CALENDAR FUNCTIONALITY - Schedule v1.5
   // ========================================
   
   // Calendar state
@@ -1077,6 +1091,143 @@
     if (currentView === 'calendar') {
       initCalendar();
     }
+  }
+  
+  // DHTMLX Gantt Integration
+  let ganttInstance = null;
+  
+  function setupGanttView() {
+    if (currentView === 'gantt' && !ganttInstance) {
+      initGantt();
+    }
+  }
+  
+  function initGantt() {
+    // Configure DHTMLX Gantt
+    gantt.config.date_format = "%Y-%m-%d";
+    gantt.config.scale_unit = "week";
+    gantt.config.date_scale = "%M %Y";
+    gantt.config.subscales = [
+      { unit: "day", step: 1, date: "%j" }
+    ];
+    
+    // Custom task styling based on status
+    gantt.templates.task_class = function(start, end, task) {
+      return `status-${task.status}`;
+    };
+    
+    // Custom tooltip
+    gantt.templates.tooltip_text = function(start, end, task) {
+      return `<b>Task:</b> ${task.text}<br/>
+              <b>Status:</b> ${task.status}<br/>
+              <b>Assignee:</b> ${task.assignee}<br/>
+              <b>Phase:</b> ${task.phase}<br/>
+              <b>Progress:</b> ${Math.round(task.progress * 100)}%`;
+    };
+    
+    // Event handlers
+    gantt.attachEvent("onTaskClick", function(id, e) {
+      const task = gantt.getTask(id);
+      showTaskDetails(task.id);
+      return true;
+    });
+    
+    gantt.attachEvent("onAfterTaskUpdate", function(id, task) {
+      console.log('Gantt task updated:', task);
+      updateTaskFromGantt(id, task);
+    });
+    
+    gantt.attachEvent("onAfterLinkAdd", function(id, link) {
+      console.log('Gantt link added:', link);
+    });
+    
+    // Initialize the gantt
+    gantt.init("gantt_here");
+    
+    // Load tasks into gantt
+    loadTasksIntoGantt();
+    
+    ganttInstance = true;
+  }
+  
+  function loadTasksIntoGantt() {
+    const ganttTasks = {
+      data: tasks.map(task => ({
+        id: task.id,
+        text: task.title,
+        start_date: task.startDate,
+        end_date: task.endDate,
+        progress: task.progress / 100,
+        status: task.status,
+        assignee: task.assignee,
+        phase: task.phase,
+        priority: task.priority,
+        description: task.description
+      })),
+      links: []
+    };
+    
+    gantt.parse(ganttTasks);
+  }
+  
+  function updateTaskFromGantt(id, task) {
+    const taskIndex = tasks.findIndex(t => t.id === id);
+    if (taskIndex !== -1) {
+      tasks[taskIndex] = {
+        ...tasks[taskIndex],
+        startDate: task.start_date,
+        endDate: task.end_date,
+        progress: Math.round(task.progress * 100)
+      };
+      
+      // Update other views
+      populateTaskList();
+      updateTaskSummary();
+      saveScheduleData();
+      
+      // Update calendar if it's active
+      if (currentView === 'calendar') {
+        initCalendar();
+      }
+    }
+  }
+  
+  // Gantt event listeners
+  function setupGanttEventListeners() {
+    document.getElementById('btnAddGanttTask')?.addEventListener('click', () => {
+      showAddTaskModal();
+    });
+    
+    document.getElementById('btnExportGanttPDF')?.addEventListener('click', () => {
+      exportGanttToPDF();
+    });
+    
+    document.getElementById('btnExportGanttExcel')?.addEventListener('click', () => {
+      exportGanttToExcel();
+    });
+  }
+  
+  function exportGanttToPDF() {
+    gantt.exportToPDF({
+      name: "pcfp_schedule.pdf",
+      header: "<h1>PCFP Schedule</h1>",
+      footer: "<h3>Generated on " + new Date().toLocaleDateString() + "</h3>"
+    });
+  }
+  
+  function exportGanttToExcel() {
+    gantt.exportToExcel({
+      name: "pcfp_schedule.xlsx",
+      columns: [
+        { name: "text", label: "Task", width: 200 },
+        { name: "start_date", label: "Start Date", width: 100 },
+        { name: "end_date", label: "End Date", width: 100 },
+        { name: "progress", label: "Progress", width: 100 },
+        { name: "status", label: "Status", width: 100 },
+        { name: "assignee", label: "Assignee", width: 100 },
+        { name: "phase", label: "Phase", width: 100 }
+      ]
+    });
   }
   
   // Expose calendar functions globally

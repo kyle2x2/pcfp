@@ -1377,3 +1377,181 @@
     grid-template-columns: 60px 1fr;
   }
 }
+
+/* DHTMLX Gantt Integration - PCFP White/Gold Theme */
+
+.gantt-container {
+  background: var(--pcfp-white);
+  border: 1px solid var(--pcfp-border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.gantt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: var(--pcfp-white);
+  border-bottom: 2px solid var(--pcfp-gold);
+}
+
+.gantt-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.gantt-chart {
+  height: 500px;
+  width: 100%;
+  background: var(--pcfp-white);
+}
+
+/* Override DHTMLX default styles with PCFP theme */
+.gantt_grid_scale .gantt_grid_head_cell {
+  background: var(--pcfp-gold) !important;
+  color: var(--pcfp-white) !important;
+  border-right: 1px solid var(--pcfp-gold-medium) !important;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.gantt_grid_data .gantt_row {
+  background: var(--pcfp-white) !important;
+  border-bottom: 1px solid var(--pcfp-border) !important;
+  transition: background-color 0.2s;
+}
+
+.gantt_grid_data .gantt_row:hover {
+  background: var(--pcfp-panel) !important;
+}
+
+.gantt_grid_data .gantt_row:nth-child(even) {
+  background: var(--pcfp-panel-light) !important;
+}
+
+.gantt_grid_data .gantt_row:nth-child(even):hover {
+  background: var(--pcfp-panel) !important;
+}
+
+.gantt_grid_data .gantt_cell {
+  color: var(--pcfp-text) !important;
+  border-right: 1px solid var(--pcfp-border) !important;
+  font-size: 13px;
+  padding: 8px 12px;
+}
+
+.gantt_task_line {
+  background: var(--pcfp-gold) !important;
+  border: 1px solid var(--pcfp-gold-medium) !important;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.gantt_task_progress {
+  background: var(--pcfp-gold-light) !important;
+  border-radius: 4px;
+}
+
+.gantt_task_line.gantt_project {
+  background: var(--pcfp-gold) !important;
+  border: 2px solid var(--pcfp-gold-medium) !important;
+}
+
+.gantt_task_line.gantt_milestone {
+  background: var(--pcfp-gold) !important;
+  border: 2px solid var(--pcfp-gold-medium) !important;
+  border-radius: 50%;
+}
+
+/* Status-based colors */
+.gantt_task_line.status-completed {
+  background: var(--pcfp-success) !important;
+  border-color: var(--pcfp-success-medium) !important;
+}
+
+.gantt_task_line.status-in-progress {
+  background: var(--pcfp-gold) !important;
+  border-color: var(--pcfp-gold-medium) !important;
+}
+
+.gantt_task_line.status-not-started {
+  background: var(--pcfp-panel-light) !important;
+  border-color: var(--pcfp-gold) !important;
+  color: var(--pcfp-text) !important;
+}
+
+.gantt_task_line.status-critical {
+  background: var(--pcfp-error) !important;
+  border-color: var(--pcfp-error-medium) !important;
+}
+
+.gantt_scale_cell {
+  background: var(--pcfp-panel-light) !important;
+  color: var(--pcfp-text) !important;
+  border-right: 1px solid var(--pcfp-border) !important;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.gantt_scale_line {
+  background: var(--pcfp-gold) !important;
+  border-bottom: 1px solid var(--pcfp-gold-medium) !important;
+}
+
+.gantt_task_content {
+  color: var(--pcfp-white) !important;
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.gantt_task_line.status-not-started .gantt_task_content {
+  color: var(--pcfp-text) !important;
+}
+
+/* Gantt tooltips */
+.gantt_tooltip {
+  background: var(--pcfp-text) !important;
+  color: var(--pcfp-white) !important;
+  border: 1px solid var(--pcfp-border) !important;
+  border-radius: 6px !important;
+  padding: 8px 12px !important;
+  font-size: 12px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+}
+
+/* Gantt links/dependencies */
+.gantt_link_arrow {
+  fill: var(--pcfp-gold) !important;
+  stroke: var(--pcfp-gold-medium) !important;
+  stroke-width: 2 !important;
+}
+
+.gantt_link_line {
+  stroke: var(--pcfp-gold) !important;
+  stroke-width: 2 !important;
+}
+
+/* Gantt responsive design */
+@media (max-width: 768px) {
+  .gantt-header {
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px;
+  }
+  
+  .gantt-controls {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .gantt-chart {
+    height: 400px;
+  }
+  
+  .gantt_grid_data .gantt_cell {
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}

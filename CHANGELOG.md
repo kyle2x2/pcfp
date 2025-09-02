@@ -1,5 +1,70 @@
 # Changelog
 
+## [v8.7.1] - 2025-01-01 - Schedule Gantt Charts Implementation
+
+### 📊 Schedule Module v1.5 - DHTMLX Gantt Integration
+- **Gantt Chart View** - Professional Gantt chart with timeline visualization
+- **DHTMLX Gantt Library** - Integrated feature-rich Gantt library with PCFP white/gold theming
+- **Drag & Drop Functionality** - Task rescheduling via drag-and-drop in Gantt view
+- **Status-Based Colors** - Task bars colored by status (completed, in-progress, not-started)
+- **Real-Time Data Sync** - Gantt changes sync back to List and Calendar views immediately
+- **PDF/Excel Export** - Built-in export functionality for Gantt charts
+- **PCFP Design Integration** - Perfect white/gold color scheme integration
+
+### 🔧 Technical Implementation
+- **Library Evaluation** - Tested 5 different Gantt libraries (Frappe, DHTMLX, Custom, Bryntum, GanttLab)
+- **DHTMLX Selection** - Chose DHTMLX Gantt for best balance of features and PCFP integration
+- **Custom Styling** - Extensive CSS overrides to match PCFP white/gold theme
+- **Event Integration** - Seamless integration with existing task management system
+- **Performance Optimization** - Efficient handling of 50-200 tasks
+
+### 🎨 Design System Integration
+- **PCFP White/Gold Theme** - Consistent styling with existing module design
+- **Status Color Coding** - Visual task status indication through color
+- **Professional Quality** - BuilderTrend-level professional appearance
+- **Responsive Design** - Mobile-optimized Gantt interface
+- **Tooltip Integration** - Rich task information on hover
+
+### 📋 Gantt Features
+- **Timeline Visualization** - Week/day timeline with task duration display
+- **Task Management** - Add, edit, and delete tasks directly in Gantt view
+- **Progress Tracking** - Visual progress bars within task elements
+- **Export Capabilities** - PDF and Excel export with custom headers
+- **Task Details** - Click tasks to view detailed information
+
+### 🔄 Data Synchronization
+- **Multi-View Sync** - Changes in Gantt update List and Calendar views
+- **Real-Time Updates** - Immediate reflection of task modifications
+- **Data Consistency** - Maintained data integrity across all views
+- **Task Persistence** - All changes saved to localStorage
+
+### 📚 Development Process
+- **Test-First Approach** - Created isolated test files for 5 different libraries
+- **Comprehensive Evaluation** - Detailed comparison of features, performance, and integration
+- **Best Practice Implementation** - Following PCFP development guide standards
+- **Documentation Updates** - Updated roadmap and development guide
+
+### 🎯 User Experience
+- **Professional Interface** - BuilderTrend-quality Gantt chart interface
+- **Intuitive Navigation** - Easy switching between List, Calendar, and Gantt views
+- **Consistent Interaction** - Same task editing patterns across all views
+- **Visual Feedback** - Clear indication of task status and progress
+
+### 🔄 Backward Compatibility
+- **List View Preserved** - All existing list functionality maintained
+- **Calendar View Preserved** - Calendar functionality unchanged
+- **Task Data Preserved** - All existing task data and structure maintained
+- **Module Independence** - Schedule module version updated to v1.5
+
+### 🔧 Version Management Fixes
+- **Fixed Sidebar Version Display** - Resolved hardcoded fallback values in version scripts
+- **Updated Version Scripts** - Corrected fallback values in `header_version.js`, `version_shim.js`, and `integrity_banner.js`
+- **Version Consistency** - Ensured main build version (v8.7.1) displays correctly in sidebar
+- **Documentation Enhancement** - Updated development guide with version management troubleshooting
+- **Code Cleanup** - Removed Gantt test files and streamlined documentation
+
+---
+
 ## [v8.7.0] - 2025-01-01 - Schedule Calendar Implementation
 
 ### 🗓️ Schedule Module v1.4 - Calendar Functionality

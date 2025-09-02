@@ -3,9 +3,10 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Schedule - PCFP v1.3</title>
+<title>Schedule - PCFP v1.5</title>
 <link rel="stylesheet" href="../../core/theme.css?v=20250101130300">
 <link rel="stylesheet" href="module.css?v=20250101130300">
+<link rel="stylesheet" href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css">
 </head>
 <body>
 <header class="module-header">
@@ -113,9 +114,15 @@
           </div>
           
           <div id="ganttView" class="view-content">
-            <div class="gantt-placeholder">
-              <h3>Gantt View</h3>
-              <p>Frappe Gantt integration coming in v1.4</p>
+            <div class="gantt-container">
+              <div class="gantt-header">
+                <div class="gantt-controls">
+                  <button class="btn" id="btnAddGanttTask">Add Task</button>
+                  <button class="btn" id="btnExportGanttPDF">Export PDF</button>
+                  <button class="btn" id="btnExportGanttExcel">Export Excel</button>
+                </div>
+              </div>
+              <div id="gantt_here" class="gantt-chart"></div>
             </div>
           </div>
         </div>
@@ -224,6 +231,7 @@
   </div>
 </div>
 
+<script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
 <script src="module.js?v=20250101130300"></script>
 </body>
 </html>

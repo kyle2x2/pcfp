@@ -545,6 +545,7 @@ window.MODULE_VERS = {
 - Keep module versions independent of main app version
 - **NEW**: Check for hardcoded fallback values in version-related files
 - **NEW**: Ensure proper script loading order (config.js must load before version scripts)
+- **NEW**: Update fallback values in `header_version.js`, `version_shim.js`, and `integrity_banner.js`
 
 #### **❌ DON'T:**
 - Don't hardcode versions in individual module files
@@ -553,6 +554,7 @@ window.MODULE_VERS = {
 - Don't let module versions get out of sync between config.js and kernel.standalone.js
 - **NEW**: Don't rely on fallback values in version scripts
 - **NEW**: Don't assume scripts load in the correct order
+- **NEW**: Don't forget to update the three version script files
 
 ### **🔍 Version Update Troubleshooting**
 
@@ -561,9 +563,9 @@ window.MODULE_VERS = {
 **Issue**: Left sidebar shows old version despite updating config.js
 **Root Cause**: Hardcoded fallback values in version scripts
 **Solution**: Update fallback values in these files:
-- `core/integrity_banner.js` - line 20: `'v8.6.0'` → `'v8.7.0'`
-- `core/version_shim.js` - line 5: `'v8.6.0'` → `'v8.7.0'`
-- `core/header_version.js` - lines 20, 29: `'v8.6.0'` → `'v8.7.0'`
+- `core/integrity_banner.js` - line 20: `'v8.6.0'` → `'v8.7.1'`
+- `core/version_shim.js` - line 5: `'v8.6.0'` → `'v8.7.1'`
+- `core/header_version.js` - lines 20, 29: `'v8.6.0'` → `'v8.7.1'`
 
 **Issue**: Version scripts run before config.js loads
 **Root Cause**: Script loading race condition
@@ -591,9 +593,29 @@ function setPill(){
 1. ✅ Update `core/config.js` - `window.APP_BUILD` and `window.MODULE_VERS`
 2. ✅ Update `core/kernel.standalone.js` - route titles
 3. ✅ Update `index.html` - title and cache-busting parameters
-4. ✅ Update fallback values in version scripts (if any)
+4. ✅ Update fallback values in version scripts:
+   - `core/header_version.js` - lines 20, 29
+   - `core/version_shim.js` - line 5
+   - `core/integrity_banner.js` - line 20
 5. ✅ Test with hard refresh (Ctrl+F5)
 6. ✅ Verify all version displays are correct
+
+#### **🎯 Lessons Learned from v8.7.1**
+
+**Version Management Discovery**: During the Schedule v1.5 implementation, we discovered that hardcoded fallback values in version scripts were preventing the main build version from updating in the UI.
+
+**Key Learnings**:
+1. **Multiple Version Scripts**: Three files contain hardcoded fallback values that override `window.APP_BUILD`
+2. **Fallback Values**: `|| 'v8.7.0'` fallbacks prevent actual config values from being used
+3. **Script Loading Order**: Version scripts may run before `config.js` loads
+4. **UI Display**: Left sidebar version comes from `header_version.js`, not just `config.js`
+
+**Files Requiring Updates**:
+- `core/header_version.js` - Controls sidebar version display
+- `core/version_shim.js` - Version shim with fallback
+- `core/integrity_banner.js` - Integrity banner version
+
+**Best Practice**: Always check these three files when version updates don't appear in the UI.
 
 ---
 
@@ -1121,12 +1143,14 @@ test-strategy-c-approach.html
 - **Temporary patches**: Version-specific patch files (e.g., `v72_patch.js`)
 - **Development comments**: TODO, FIXME, HACK comments
 - **Test code**: Isolated test files and debugging functions
+- **Test directories**: Remove entire test directories after implementation
 
 #### **✅ Remove After Feature Completion**
 - **Debug functions**: Performance monitoring and debugging helpers
 - **Temporary variables**: Variables used only for debugging
 - **Commented code**: Large blocks of commented-out code
 - **Legacy fallbacks**: Old fallback values and deprecated features
+- **Test files**: Isolated test files used for library evaluation
 
 #### **✅ Remove When No Longer Needed**
 - **Version patches**: When the main code has been updated
@@ -1738,6 +1762,21 @@ console.log('Function took:', end - start, 'ms');
   test-calendar-option-b-absolute-positioning.html
   test-calendar-option-c-canvas.html
   ```
+- **Cleanup**: Remove test files after implementation is complete
+
+#### **Version Management**
+- **Multiple File Updates**: Update `core/config.js`, `core/kernel.standalone.js`, AND version scripts
+- **Why it works**: Version scripts have hardcoded fallbacks that override config values
+- **When to use**: Any time version numbers don't update in the UI
+- **Example**:
+  ```javascript
+  // Update these files for version changes:
+  // core/config.js - window.APP_BUILD and window.MODULE_VERS
+  // core/kernel.standalone.js - route titles
+  // core/header_version.js - fallback values
+  // core/version_shim.js - fallback values  
+  // core/integrity_banner.js - fallback values
+  ```
 
 ### **❌ What Doesn't Work**
 
@@ -1854,6 +1893,20 @@ console.log('Function took:', end - start, 'ms');
   <header><h1>2x2 Modules Build v8.6.0</h1></header>
   <nav>...</nav>
   <div class="pcfp-version-pill">Build v8.6.0</div> <!-- Duplicate! -->
+  ```
+
+#### **Version Management**
+- **Multiple File Updates**: Update `core/config.js`, `core/kernel.standalone.js`, AND version scripts
+- **Why it works**: Version scripts have hardcoded fallbacks that override config values
+- **When to use**: Any time version numbers don't update in the UI
+- **Example**:
+  ```javascript
+  // Update these files for version changes:
+  // core/config.js - window.APP_BUILD and window.MODULE_VERS
+  // core/kernel.standalone.js - route titles
+  // core/header_version.js - fallback values
+  // core/version_shim.js - fallback values  
+  // core/integrity_banner.js - fallback values
   ```
 
 #### **Version Management**
@@ -2290,6 +2343,11 @@ window.MODULE_VERS = {
   title: 'Module Name v1.0', 
   src: 'modules/moduleName/index.html' 
 }
+
+// Also update fallback values in:
+// core/header_version.js - lines 20, 29
+// core/version_shim.js - line 5  
+// core/integrity_banner.js - line 20
 ```
 
 ### **Cache Busting Format**
@@ -2307,6 +2365,8 @@ window.MODULE_VERS = {
 - [ ] **Update version numbers** consistently across files
 - [ ] **Update cache-busting** parameters after changes
 - [ ] **Document any legacy code** with removal timeline
+- [ ] **Remove test files** after implementation is complete
+- [ ] **Remove test directories** after feature completion
 
 ### **Module Status Management**
 ```javascript
@@ -2344,6 +2404,7 @@ console.log('Element bounds:', element.getBoundingClientRect());
 - **Duplicate versions**: Remove `.pcfp-version-pill` outside main structure
 - **Version not updating**: Check fallback values in version scripts
 - **Script loading issues**: Add wait logic for `window.APP_BUILD`
+- **Sidebar version stuck**: Update hardcoded fallbacks in `header_version.js`, `version_shim.js`, `integrity_banner.js`
 
 ### **Quality Gates**
 - [ ] All functionality tested

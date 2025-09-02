@@ -3,10 +3,10 @@
 
 // Single source of truth for app metadata - API-ready structure
 export const APP_META = {
-  build: "v8.6.1",
+  build: "v8.7.1",
   appName: "PCFP - Project Construction Financial Planner",
   copyright: "© 2x2 Construction",
-  version: "8.6.1",
+  version: "8.7.1",
   apiVersion: "v1",
   description: "Modern construction project management platform - BuilderTrend alternative",
   features: {
@@ -26,7 +26,7 @@ window.APP_BUILD = APP_META.build;
         // All modules are independent, including payment-planner
         window.MODULE_VERS = {
           "payments": "v7.5",        // Payment-planner is now v7.5
-          "schedule": "v1.3",        // Schedule is v1.3 (Professional List & Calendar)
+          "schedule": "v1.5",        // Schedule is v1.5 (Professional List, Calendar & Gantt)
           "logs": "v1.0",            // All other modules are v1.0
           "todos": "v1.0",           // All other modules are v1.0
           "changes": "v1.0",         // All other modules are v1.0

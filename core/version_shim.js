@@ -3,7 +3,7 @@
 // - Updates sidebar "Build v..." and module header version chip based on window.APP_BUILD / window.MODULE_VERS
 (function(){
   try {
-    const build = window.APP_BUILD || 'v8.7.0';
+    const build = window.APP_BUILD || 'v8.7.1';
     const vers = window.MODULE_VERS || {};
     // Cache-bust static assets when running from file:// to avoid stale JS
     if (location.protocol === 'file:') {
