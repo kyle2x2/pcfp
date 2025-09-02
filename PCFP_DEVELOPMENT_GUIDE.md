@@ -1,4 +1,4 @@
-# PCFP Development Guide v8.5.1
+# PCFP Development Guide v8.5.2
 
 ## 🎯 Table of Contents
 
@@ -10,12 +10,13 @@
 6. **[Common Development Tasks](#-common-development-tasks)** - Quick reference for frequent operations
 7. **[Performance Best Practices](#-performance-best-practices)** - Optimization and efficiency guidelines
 8. **[Testing & Quality Assurance](#-testing--quality-assurance)** - Quality standards and validation
-9. **[Troubleshooting Guide](#-troubleshooting-guide)** - Common issues and solutions
-10. **[Code Review & Maintenance Process](#-code-review--maintenance-process)** - Quality standards and maintenance
-11. **[Success Metrics & Validation](#-success-metrics--validation)** - Defining completion criteria
-12. **[Learning & Knowledge Base](#-learning--knowledge-base)** - What works and what doesn't
-13. **[Proven Implementations](#-proven-implementations)** - Working solutions for common problems
-14. **[Quick Reference Cheat Sheet](#-quick-reference-cheat-sheet)** - Daily practical reference
+9. **[Code Cleanup Standards](#-code-cleanup-standards)** - Debug code removal and legacy management
+10. **[Troubleshooting Guide](#-troubleshooting-guide)** - Common issues and solutions
+11. **[Code Review & Maintenance Process](#-code-review--maintenance-process)** - Quality standards and maintenance
+12. **[Success Metrics & Validation](#-success-metrics--validation)** - Defining completion criteria
+13. **[Learning & Knowledge Base](#-learning--knowledge-base)** - What works and what doesn't
+14. **[Proven Implementations](#-proven-implementations)** - Working solutions for common problems
+15. **[Quick Reference Cheat Sheet](#-quick-reference-cheat-sheet)** - Daily practical reference
 
 ## ⭐ Most Frequently Used Sections
 
@@ -1080,6 +1081,96 @@ test-strategy-c-approach.html
 
 ---
 
+## 🧹 Code Cleanup Standards
+
+### **When to Remove Debug Code**
+
+#### **✅ Remove Before Production**
+- **Console logs**: All `console.log()`, `console.warn()`, `console.error()` statements
+- **Temporary patches**: Version-specific patch files (e.g., `v72_patch.js`)
+- **Development comments**: TODO, FIXME, HACK comments
+- **Test code**: Isolated test files and debugging functions
+
+#### **✅ Remove After Feature Completion**
+- **Debug functions**: Performance monitoring and debugging helpers
+- **Temporary variables**: Variables used only for debugging
+- **Commented code**: Large blocks of commented-out code
+- **Legacy fallbacks**: Old fallback values and deprecated features
+
+#### **✅ Remove When No Longer Needed**
+- **Version patches**: When the main code has been updated
+- **Legacy support**: When backward compatibility is no longer required
+- **Deprecated features**: When new implementations are stable
+- **Temporary workarounds**: When proper solutions are implemented
+
+### **Legacy Code Management**
+
+#### **Documentation Requirements**
+```javascript
+// Legacy support - will be removed in future versions
+window.APP_BUILD = APP_META.build;
+
+// DEPRECATED: This approach will be removed in v9.0
+// Use new API instead: window.PCFP.moduleManager.register()
+```
+
+#### **Removal Timeline**
+- **Short-term**: 1-2 versions (temporary patches)
+- **Medium-term**: 3-5 versions (legacy features)
+- **Long-term**: 6+ versions (major architectural changes)
+
+#### **Migration Planning**
+1. **Identify dependencies**: What code depends on the legacy feature
+2. **Create migration path**: How to transition to new implementation
+3. **Update documentation**: Remove references to deprecated features
+4. **Test thoroughly**: Ensure migration doesn't break functionality
+
+### **Module Status Tracking**
+
+#### **Status Categories**
+```javascript
+window.MODULE_STATUS = {
+  "payments": "active",      // Fully functional
+  "schedule": "active",      // Fully functional
+  "budget": "placeholder",   // Coming soon
+  "bills": "placeholder",    // Coming soon
+  "documents": "placeholder" // Coming soon
+};
+```
+
+#### **Status Definitions**
+- **`active`**: Fully functional module with complete features
+- **`placeholder`**: Module exists but shows "Coming Soon" page
+- **`development`**: Module in active development
+- **`deprecated`**: Module marked for removal
+- **`archived`**: Module removed but code preserved
+
+#### **Status Management**
+- **Update status** when module development state changes
+- **Document progress** in module-specific README files
+- **Track dependencies** between modules
+- **Plan roadmap** for placeholder module development
+
+### **Code Quality Standards**
+
+#### **Before Commit Checklist**
+- [ ] **No console logs** in production code
+- [ ] **No TODO/FIXME** comments without timeline
+- [ ] **No commented code** blocks larger than 5 lines
+- [ ] **No deprecated features** without migration plan
+- [ ] **No temporary patches** without removal timeline
+- [ ] **Documentation updated** for any changes
+- [ ] **Module status updated** if applicable
+
+#### **Code Review Standards**
+- **Check for debug code** before approving
+- **Verify version consistency** across files
+- **Review for deprecated features** and migration plans
+- **Ensure documentation** is updated
+- **Validate module status** is current
+
+---
+
 ## 🚨 Troubleshooting Guide
 
 ### **Common Issues & Solutions**
@@ -1890,6 +1981,24 @@ window.MODULE_VERS = {
 <link rel="stylesheet" href="../../core/theme.css?v=20250101120000">
 <link rel="stylesheet" href="module.css?v=20250101120000">
 <script src="module.js?v=20250101120000"></script>
+```
+
+### **Code Cleanup Checklist**
+- [ ] **Remove console logs** from production code
+- [ ] **Remove TODO/FIXME** comments or add timeline
+- [ ] **Remove commented code** blocks larger than 5 lines
+- [ ] **Update module status** in `core/config.js`
+- [ ] **Update version numbers** consistently across files
+- [ ] **Update cache-busting** parameters after changes
+- [ ] **Document any legacy code** with removal timeline
+
+### **Module Status Management**
+```javascript
+// Check module status
+const status = window.MODULE_STATUS['moduleName'];
+
+// Update status when module changes
+window.MODULE_STATUS['moduleName'] = 'active'; // or 'placeholder', 'development'
 ```
 
 ### **Quick Debugging**

@@ -29,7 +29,6 @@
   
   // Initialize when DOM is ready
   function init() {
-    console.log('[PCFP] Schedule module v1.2 initializing...');
     
     // Load data
     loadScheduleData();
@@ -41,7 +40,6 @@
     // Set up event listeners
     setupEventListeners();
     
-    console.log('[PCFP] Schedule module v1.2 ready');
   }
   
   function loadScheduleData() {
@@ -518,7 +516,6 @@
   }
   
   function toggleActionMenu(taskId) {
-    console.log('toggleActionMenu called with taskId:', taskId);
     
     // Close any existing menu
     closeMenu();
@@ -526,7 +523,6 @@
     // Find the button that was clicked
     const button = document.querySelector(`button[onclick*="toggleActionMenu('${taskId}')"]`);
     if (!button) {
-      console.error('Button not found for taskId:', taskId);
       return;
     }
     
@@ -552,8 +548,6 @@
     menu.style.top = (rect.bottom + window.scrollY + 6) + 'px';
     menu.style.left = Math.max(12, rect.right + window.scrollX - 180) + 'px';
     
-    console.log('Menu should now be visible');
-    
     // Add click outside listener (like payment planner)
     setTimeout(() => document.addEventListener('click', onDoc));
   }
@@ -566,7 +560,6 @@
     // Find the button that triggered this menu
     const button = menu.previousElementSibling;
     if (!button) {
-      console.error('Button not found for menu positioning');
       return;
     }
     
@@ -761,6 +754,4 @@
   window.insertTaskAbove = insertTaskAbove;
   window.insertTaskBelow = insertTaskBelow;
   window.duplicateTask = duplicateTask;
-  
-  console.log('[PCFP] Schedule module.js v1.2 loaded successfully');
 })();

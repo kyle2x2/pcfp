@@ -3,10 +3,10 @@
 
 // Single source of truth for app metadata - API-ready structure
 export const APP_META = {
-  build: "v8.5.1",
+  build: "v8.5.2",
   appName: "PCFP - Project Construction Financial Planner",
   copyright: "© 2x2 Construction",
-  version: "8.5.1",
+  version: "8.5.2",
   apiVersion: "v1",
   description: "Modern construction project management platform - BuilderTrend alternative",
   features: {
@@ -37,8 +37,25 @@ window.APP_BUILD = APP_META.build;
           "pos": "v1.0",             // All other modules are v1.0
           "bills": "v1.0",           // All other modules are v1.0
           "budget": "v1.0",          // All other modules are v1.0
-          "invoices": "v1.0"         // All other modules are v1.0
-        };
+                  "invoices": "v1.0"         // All other modules are v1.0
+      };
+
+// Module Development Status - Track which modules are active vs placeholder
+window.MODULE_STATUS = {
+  "payments": "active",      // Fully functional - Payment Planner
+  "schedule": "active",      // Fully functional - Schedule Management
+  "budget": "placeholder",   // Coming soon - Budget Management
+  "bills": "placeholder",    // Coming soon - Bill Management
+  "documents": "placeholder", // Coming soon - Document Management
+  "bids": "placeholder",     // Coming soon - Bid Management
+  "change-orders": "placeholder", // Coming soon - Change Order Management
+  "to-dos": "placeholder",   // Coming soon - To-Do Management
+  "daily-logs": "placeholder", // Coming soon - Daily Log Management
+  "selections": "placeholder", // Coming soon - Selection Management
+  "specifications": "placeholder", // Coming soon - Specification Management
+  "purchase-orders": "placeholder", // Coming soon - Purchase Order Management
+  "invoices": "placeholder"  // Coming soon - Invoice Management
+};
 
 // API Configuration - Future-ready for Python backend
 export const API_CONFIG = {

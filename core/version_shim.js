@@ -3,7 +3,7 @@
 // - Updates sidebar "Build v..." and module header version chip based on window.APP_BUILD / window.MODULE_VERS
 (function(){
   try {
-    const build = window.APP_BUILD || 'v8.5.1';
+    const build = window.APP_BUILD || 'v8.5.2';
     const vers = window.MODULE_VERS || {};
     // Cache-bust static assets when running from file:// to avoid stale JS
     if (location.protocol === 'file:') {
@@ -17,45 +17,6 @@
 
     // After load, patch badges
     function patchBadges(){
-      // Sidebar build badge - DISABLED: User requested removal
-      // const sidebar = document.querySelector('aside') || document.querySelector('.sidebar');
-      // if (sidebar){
-      //   const allChips = sidebar.querySelectorAll('small, .badge, .chip, .version, .build');
-      //   let buildNode = null;
-      //   for (const n of allChips){
-      //     const t = (n.textContent||'').toLowerCase();
-      //     if (t.includes('build v')) { buildNode = n; break; }
-      //   }
-      //   if (buildNode){ buildNode.textContent = `Build ${build}`; }
-      //   else {
-      //     // create discreet build chip at the top if none exists
-      //     const chip = document.createElement('div');
-      //     chip.className = 'version chip build';
-      //     chip.style.cssText = 'font-size:12px;opacity:.8;margin-left:6px;display:inline-block;';
-      //     chip.textContent = `Build ${build}`;
-      //     const h = sidebar.querySelector('header, .app-name, .logo, h1, h2');
-      //     if (h && h.parentNode) h.parentNode.insertBefore(chip, h.nextSibling);
-      //   }
-      // }
-
-      // Module header version - DISABLED: handled by module_header_version.js
-      // This was causing conflicts with individual module versions
-      /*
-      const hash = (location.hash||'').replace(/^#\//,'').split(/[/?#]/)[0] || 'payments';
-      const version = vers[hash] || 'v1.1';
-      // look for <strong id="module-title">..</strong><span class="version">..</span>
-      let titleNode = document.querySelector('#module-title') || document.querySelector('.module-title');
-      if (titleNode){
-        let chip = titleNode.nextElementSibling;
-        if (!chip || !/version|chip/.test(chip.className||'')){
-          chip = document.createElement('span');
-          chip.className = 'version chip';
-          chip.style.cssText = 'margin-left:8px;font-size:12px;opacity:.9;';
-          titleNode.parentNode.insertBefore(chip, titleNode.nextSibling);
-        }
-        chip.textContent = version;
-      }
-      */
       // expose helper
       window.dumpVersions = function(){
         const hash = (location.hash||'').replace(/^#\//,'').split(/[/?#]/)[0] || 'payments';

@@ -21,7 +21,6 @@ $("#btnShareState").addEventListener("click",()=>{
   const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(state))));
   const url = location.origin + location.pathname + "#state="+encoded;
   navigator.clipboard.writeText(url).then(()=>alert("Scenario link copied!")).catch(()=>alert("Copy failed; URL in console."));
-  console.log(url);
 });
 $("#btnMobileToggle").addEventListener("click",()=> setMobile(!document.body.classList.contains("force-mobile")) );
 
