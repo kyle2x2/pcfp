@@ -1,1 +1,1 @@
-(function(){console.log("PCFP boot check: version=8.5.2, build=2025-01-01T13:02:00");})();
+(function(){console.log("PCFP boot check: version=8.6.0, build=2025-01-01T13:03:00");})();

@@ -1,4 +1,4 @@
-# PCFP - Project Construction Financial Planner v8.5.2
+# PCFP - Project Construction Financial Planner v8.6.0
 
 ## 🚀 BuilderTrend Competitor - Modern Construction Project Management
 

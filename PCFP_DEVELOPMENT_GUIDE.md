@@ -1,4 +1,4 @@
-# PCFP Development Guide v8.5.2
+# PCFP Development Guide v8.6.0
 
 ## 🎯 Table of Contents
 
@@ -489,7 +489,7 @@ window.MODULE_VERS = {
 
 #### **Updating Main Application Version**
 1. Edit `core/config.js`
-2. Update `window.APP_BUILD = "v8.5"` (or next version)
+2. Update `window.APP_BUILD = "v8.6.0"` (or next version)
 3. Update `index.html` title and cache-busting parameters
 4. No need to update any module versions (they're all independent)
 
@@ -530,9 +530,9 @@ window.MODULE_VERS = {
 **Issue**: Left sidebar shows old version despite updating config.js
 **Root Cause**: Hardcoded fallback values in version scripts
 **Solution**: Update fallback values in these files:
-- `core/integrity_banner.js` - line 20: `'v8.4'` → `'v8.5'`
-- `core/version_shim.js` - line 5: `'v8.4'` → `'v8.5'`
-- `core/header_version.js` - lines 20, 29: `'v8.4'` → `'v8.5'`
+- `core/integrity_banner.js` - line 20: `'v8.4'` → `'v8.6.0'`
+- `core/version_shim.js` - line 5: `'v8.4'` → `'v8.6.0'`
+- `core/header_version.js` - lines 20, 29: `'v8.4'` → `'v8.6.0'`
 
 **Issue**: Version scripts run before config.js loads
 **Root Cause**: Script loading race condition
@@ -1169,6 +1169,42 @@ window.MODULE_STATUS = {
 - **Ensure documentation** is updated
 - **Validate module status** is current
 
+### **Debug Functions & Development Tools**
+
+#### **Available Debug Functions**
+```javascript
+// Version debugging
+window.dumpVersions(); // Shows current version info
+
+// Module debugging
+window.PCFP.moduleManager.debug(); // Shows module states
+
+// Event debugging  
+window.PCFP.eventBus.debug(); // Shows event performance
+
+// Version debugging
+window.PCFP.versionManager.debug(); // Shows version elements
+
+// Logging system (disabled by default)
+window.PCFP.log.enable(true); // Enable debug logging
+window.PCFP.log.debug('Debug message');
+window.PCFP.log.info('Info message');
+window.PCFP.log.warn('Warning message');
+window.PCFP.log.error('Error message');
+```
+
+#### **When to Use Debug Functions**
+- ✅ **During development** - Enable logging for troubleshooting
+- ✅ **Performance analysis** - Use debug() functions to identify bottlenecks
+- ✅ **Version troubleshooting** - Use dumpVersions() to check version state
+- ✅ **Module debugging** - Use moduleManager.debug() to check module states
+
+#### **Production Guidelines**
+- ❌ **Never enable logging** in production code
+- ❌ **Never call debug functions** in production
+- ❌ **Remove debug calls** before committing
+- ✅ **Keep debug functions available** for development use
+
 ---
 
 ## 🚨 Troubleshooting Guide
@@ -1622,9 +1658,9 @@ console.log('Function took:', end - start, 'ms');
 - **Example of what doesn't work**:
   ```html
   <!-- This approach fails -->
-  <header><h1>2x2 Modules Build v8.5</h1></header>
+  <header><h1>2x2 Modules Build v8.6.0</h1></header>
   <nav>...</nav>
-  <div class="pcfp-version-pill">Build v8.5</div> <!-- Duplicate! -->
+  <div class="pcfp-version-pill">Build v8.6.0</div> <!-- Duplicate! -->
   ```
 
 #### **Version Management**
@@ -1642,7 +1678,7 @@ console.log('Function took:', end - start, 'ms');
 - **Example of what doesn't work**:
   ```javascript
   // This approach fails
-  g.PCFP.version = { app: window.APP_BUILD || 'v8.5' };
+  g.PCFP.version = { app: window.APP_BUILD || 'v8.6.0' };
   ```
 - **Example of what doesn't work**:
   ```javascript
@@ -2090,6 +2126,9 @@ I will:
 - **Implement approved enhancements** promptly and thoroughly
 - **Validate new guidance** in practice before considering it complete
 - **Maintain guide quality** and consistency as it grows
+- **Proactively update changelog** and version numbers with each significant change
+- **Document all changes** in CHANGELOG.md with clear descriptions and impact
+- **Maintain version consistency** across all files during updates
 
 ### **Feedback Loop**
 

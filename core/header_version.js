@@ -18,7 +18,7 @@
         header.insertBefore(span, header.firstChild);
       }
     }
-                const appBuild = window.APP_BUILD || 'v8.5.2';
+                const appBuild = window.APP_BUILD || 'v8.6.0';
     span.textContent = 'Build ' + appBuild;
     // Also replace any stale static "Build vX" occurrences in header
     var walker = doc.createTreeWalker(header, NodeFilter.SHOW_TEXT, null);
@@ -27,7 +27,7 @@
     nodes.forEach(function(n){
       var t = n.nodeValue || '';
       if(/Build\s+v\d+(\.\d+)*[a-zA-Z0-9\-]*/.test(t)){
-                    n.nodeValue = t.replace(/Build\s+v\d+(\.\d+)*[a-zA-Z0-9\-]*/, 'Build ' + (window.APP_BUILD || 'v8.5.2'));
+                    n.nodeValue = t.replace(/Build\s+v\d+(\.\d+)*[a-zA-Z0-9\-]*/, 'Build ' + (window.APP_BUILD || 'v8.6.0'));
       }
     });
   }
