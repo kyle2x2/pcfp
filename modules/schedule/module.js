@@ -1,4 +1,4 @@
-// modules/schedule/module.js - Schedule Module v1.5 (Gantt Charts with DHTMLX)
+// modules/schedule/module.js - Schedule Module v1.5.1 (Gantt Charts & Kanban with DHTMLX & SortableJS)
 // Construction project scheduling and timeline management
 
 (function() {
@@ -357,6 +357,11 @@
     if (view === 'gantt') {
       setupGanttView();
     }
+    
+    // Initialize Kanban if needed
+    if (view === 'kanban') {
+      setupKanbanView();
+    }
   }
   
   function showAddTaskModal(startDate = '', endDate = '') {
@@ -428,6 +433,11 @@
     // Update Gantt if it's active
     if (currentView === 'gantt' && ganttInstance) {
       loadTasksIntoGantt();
+    }
+    
+    // Update Kanban if it's active
+    if (currentView === 'kanban') {
+      renderKanban();
     }
     
     showNotification('Task saved successfully', 'success');
@@ -1228,6 +1238,177 @@
         { name: "phase", label: "Phase", width: 100 }
       ]
     });
+  }
+  
+  // ===== KANBAN VIEW FUNCTIONS =====
+  let currentSort = 'status';
+  let sortableInstances = [];
+  
+  function setupKanbanView() {
+    // Load sorting preference from localStorage
+    const savedSort = localStorage.getItem('pcfp_kanban_sort');
+    if (savedSort) {
+      currentSort = savedSort;
+      updateSortButtons();
+    }
+    
+    renderKanban();
+    setupKanbanEventListeners();
+  }
+  
+  function setupKanbanEventListeners() {
+    // Sort button event listeners
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const sortBy = e.target.dataset.sort;
+        if (sortBy && sortBy !== currentSort) {
+          currentSort = sortBy;
+          localStorage.setItem('pcfp_kanban_sort', currentSort);
+          updateSortButtons();
+          renderKanban();
+        }
+      });
+    });
+  }
+  
+  function updateSortButtons() {
+    document.querySelectorAll('.sort-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.sort === currentSort);
+    });
+  }
+  
+  function getColumnGroups() {
+    const groups = new Map();
+    
+    tasks.forEach(task => {
+      let groupKey = task[currentSort];
+      if (!groupKey) groupKey = 'undefined';
+      
+      if (!groups.has(groupKey)) {
+        groups.set(groupKey, []);
+      }
+      groups.get(groupKey).push(task);
+    });
+    
+    return groups;
+  }
+  
+  function createTaskCard(task) {
+    const statusClass = `status-${task.status}`;
+    const statusText = task.status.replace('-', ' ').toUpperCase();
+    
+    return `
+      <div class="task-card" data-task-id="${task.id}">
+        <div class="task-title">${task.title}</div>
+        ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+        <div class="task-details">
+          <div class="task-assignee">👤 ${task.assignee || 'Unassigned'}</div>
+          <div class="task-dates">📅 ${task.startDate} - ${task.endDate}</div>
+          <div class="task-status ${statusClass}">${statusText}</div>
+          <div class="task-progress">
+            <div class="progress-bar" style="width: ${task.progress}%"></div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  function renderKanban() {
+    const board = document.getElementById('kanbanBoard');
+    if (!board) return;
+    
+    board.innerHTML = '';
+    sortableInstances = [];
+    
+    const groups = getColumnGroups();
+    
+    groups.forEach((tasks, groupKey) => {
+      const column = document.createElement('div');
+      column.className = 'kanban-column';
+      
+      const header = document.createElement('div');
+      header.className = 'column-header';
+      header.innerHTML = `
+        <div class="column-title">${groupKey}</div>
+        <div class="column-count">${tasks.length}</div>
+      `;
+      
+      const content = document.createElement('div');
+      content.className = 'column-content';
+      
+      if (tasks.length === 0) {
+        content.innerHTML = '<div class="empty-column">No tasks in this column</div>';
+      } else {
+        tasks.forEach(task => {
+          content.innerHTML += createTaskCard(task);
+        });
+      }
+      
+      column.appendChild(header);
+      column.appendChild(content);
+      board.appendChild(column);
+      
+      // Initialize Sortable
+      const sortable = Sortable.create(content, {
+        group: 'tasks',
+        animation: 150,
+        ghostClass: 'ghost',
+        chosenClass: 'chosen',
+        onEnd: function(evt) {
+          const taskId = evt.item.dataset.taskId;
+          const newColumn = evt.to.closest('.kanban-column');
+          const newGroupKey = newColumn.querySelector('.column-title').textContent;
+          
+          updateTaskFromKanban(taskId, newGroupKey);
+        }
+      });
+      
+      sortableInstances.push(sortable);
+    });
+  }
+  
+  function updateTaskFromKanban(taskId, newGroupKey) {
+    const taskIndex = tasks.findIndex(t => t.id === taskId);
+    if (taskIndex === -1) return;
+    
+    const task = tasks[taskIndex];
+    let newValue = newGroupKey;
+    
+    // Convert group key back to proper value
+    if (newGroupKey === 'undefined') {
+      newValue = '';
+    } else if (currentSort === 'status') {
+      // Map status display names back to values
+      const statusMap = {
+        'COMPLETED': 'completed',
+        'IN PROGRESS': 'in-progress',
+        'NOT STARTED': 'not-started'
+      };
+      newValue = statusMap[newGroupKey] || newGroupKey.toLowerCase();
+    }
+    
+    // Update task
+    tasks[taskIndex] = {
+      ...task,
+      [currentSort]: newValue
+    };
+    
+    // Update other views
+    populateTaskList();
+    updateTaskSummary();
+    saveScheduleData();
+    
+    // Update Gantt if it's active
+    if (currentView === 'gantt' && ganttInstance) {
+      loadTasksIntoGantt();
+    }
+    
+    // Update calendar if it's active
+    if (currentView === 'calendar') {
+      initCalendar();
+    }
+    
+    showNotification('Task updated successfully', 'success');
   }
   
   // Expose calendar functions globally

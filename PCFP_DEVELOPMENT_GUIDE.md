@@ -600,22 +600,41 @@ function setPill(){
 5. ✅ Test with hard refresh (Ctrl+F5)
 6. ✅ Verify all version displays are correct
 
-#### **🎯 Lessons Learned from v8.7.1**
+#### **🎯 Lessons Learned from v8.7.1 & v8.7.2**
 
-**Version Management Discovery**: During the Schedule v1.5 implementation, we discovered that hardcoded fallback values in version scripts were preventing the main build version from updating in the UI.
+**Version Management Discovery**: During the Schedule v1.5 and v1.5.1 implementations, we discovered that hardcoded fallback values in version scripts were preventing the main build version from updating in the UI.
 
 **Key Learnings**:
 1. **Multiple Version Scripts**: Three files contain hardcoded fallback values that override `window.APP_BUILD`
 2. **Fallback Values**: `|| 'v8.7.0'` fallbacks prevent actual config values from being used
 3. **Script Loading Order**: Version scripts may run before `config.js` loads
 4. **UI Display**: Left sidebar version comes from `header_version.js`, not just `config.js`
+5. **Cache-Busting Critical**: Old cache-busting parameters prevent fresh script loading
+6. **Multiple Fallback Locations**: Check ALL fallback values in version scripts
 
 **Files Requiring Updates**:
-- `core/header_version.js` - Controls sidebar version display
-- `core/version_shim.js` - Version shim with fallback
-- `core/integrity_banner.js` - Integrity banner version
+- `core/header_version.js` - Controls sidebar version display (lines 20, 29)
+- `core/version_shim.js` - Version shim with fallback (line 5)
+- `core/integrity_banner.js` - Integrity banner version (line 20)
 
 **Best Practice**: Always check these three files when version updates don't appear in the UI.
+
+**Kanban Implementation Learnings**:
+1. **Test-First Process**: Create isolated test files for library evaluation
+2. **SortableJS Integration**: Excellent choice for drag-and-drop functionality
+3. **Multi-Sort Options**: Status, Assignee, Priority, Phase sorting
+4. **Real-Time Sync**: Changes sync across all views (List, Calendar, Gantt, Kanban)
+5. **localStorage Preferences**: Save user sorting preferences
+6. **PCFP Design Integration**: Correct gold color (#C6A247) integration
+7. **Mobile Responsive**: Grid layout adapts to mobile screens
+8. **Performance**: Efficient handling of 50-200 tasks with smooth animations
+
+**Kanban Best Practices**:
+- Use SortableJS for smooth drag-and-drop
+- Implement multi-sort options with localStorage persistence
+- Ensure real-time data synchronization across all views
+- Follow PCFP white/gold design system consistently
+- Test with hard refresh after cache-busting updates
 
 ---
 
@@ -1778,6 +1797,64 @@ console.log('Function took:', end - start, 'ms');
   // core/integrity_banner.js - fallback values
   ```
 
+#### **Kanban Implementation**
+- **SortableJS Library**: Excellent choice for drag-and-drop functionality
+- **Why it works**: Smooth animations, cross-browser compatibility, easy integration
+- **When to use**: Any drag-and-drop interface requirements
+- **Example**:
+  ```javascript
+  const sortable = Sortable.create(content, {
+    group: 'tasks',
+    animation: 150,
+    ghostClass: 'ghost',
+    chosenClass: 'chosen',
+    onEnd: function(evt) {
+      // Handle task movement
+    }
+  });
+  ```
+
+#### **Multi-View Data Synchronization**
+- **Real-Time Sync**: Changes in any view update all other views immediately
+- **Why it works**: Single source of truth with event-driven updates
+- **When to use**: Multiple views displaying the same data
+- **Example**:
+  ```javascript
+  function updateAllViews() {
+    populateTaskList();
+    updateTaskSummary();
+    if (currentView === 'gantt') loadTasksIntoGantt();
+    if (currentView === 'kanban') renderKanban();
+    if (currentView === 'calendar') initCalendar();
+  }
+  ```
+
+#### **localStorage Preferences**
+- **User Preferences**: Save sorting options and view preferences
+- **Why it works**: Persists user choices across sessions
+- **When to use**: Any user-configurable interface options
+- **Example**:
+  ```javascript
+  // Save preference
+  localStorage.setItem('pcfp_kanban_sort', 'status');
+  
+  // Load preference
+  const savedSort = localStorage.getItem('pcfp_kanban_sort') || 'status';
+  ```
+
+#### **PCFP Design System Integration**
+- **Consistent Color Scheme**: Use #C6A247 gold throughout all components
+- **Why it works**: Creates cohesive, professional appearance
+- **When to use**: All new UI components and features
+- **Example**:
+  ```css
+  :root {
+    --pcfp-gold: #C6A247;
+    --pcfp-gold-light: #f4e4b7;
+    --pcfp-gold-medium: #a88a3a;
+  }
+  ```
+
 ### **❌ What Doesn't Work**
 
 #### **CSS Grid Systems**
@@ -2356,6 +2433,147 @@ window.MODULE_VERS = {
 <link rel="stylesheet" href="module.css?v=20250101120000">
 <script src="module.js?v=20250101120000"></script>
 ```
+
+### **🎯 Development Velocity Insights**
+
+#### **Modern Development vs Traditional**
+**Traditional Software Development:**
+- BuilderTrend: 20 years, millions of users, hundreds of developers
+- Timeline: 6-12 months for basic features
+- Cost: Millions in development resources
+
+**Modern AI-Assisted Development:**
+- Tools: Cursor AI, modern frameworks, cloud services
+- Timeline: 2-3 weeks for complete demo platform
+- Cost: Developer time + minimal cloud services
+- Quality: Professional, competitive features
+
+#### **Key Success Factors**
+1. **AI-Powered Development**: Cursor AI accelerates coding by 10x
+2. **Modern Frameworks**: Vanilla JS + CSS Grid vs complex frameworks
+3. **Focused Scope**: Demo-first approach vs enterprise feature creep
+4. **Rapid Iteration**: Test-first process with multiple options
+5. **Industry Knowledge**: Construction-specific features vs generic solutions
+
+#### **Development Velocity Metrics**
+- **Initial Learning Curve**: 2-3 weeks to understand tools and process
+- **Module Development**: 2-3 hours for basic modules (Daily Logs, To-Dos)
+- **Complex Modules**: 1-2 days for advanced features (Schedule with Gantt/Kanban)
+- **Full Platform Demo**: 3-4 weeks part-time development
+- **Competitive Analysis**: 20 years vs 1 month for comparable features
+
+#### **Strategic Advantages**
+- **Modern Architecture**: Clean, maintainable code vs legacy systems
+- **AI Integration**: Built-in AI features vs traditional software
+- **Rapid Deployment**: Quick iterations vs long release cycles
+- **Cost Efficiency**: Minimal resources vs large development teams
+- **User-Centric Design**: Focus on user needs vs feature bloat
+
+### **Hidden Fields Management**
+
+#### **Data Model vs UI Display**
+When implementing modules, consider the difference between:
+- **Data Model**: Complete data structure with all possible fields
+- **UI Display**: Progressive disclosure showing most important fields first
+
+#### **Hidden Fields Strategy**
+```javascript
+// Enhanced data model (complete)
+const task = {
+  id: 'task_001',
+  title: 'Site Preparation',
+  description: 'Clear site and prepare for construction',
+  startDate: '2024-01-15',
+  endDate: '2024-01-20',
+  status: 'completed',
+  priority: 'high',
+  assignee: 'John Smith',
+  progress: 100,
+  phase: 'Pre-Construction',
+  // Hidden fields for future use:
+  reminder: 'none',
+  predecessors: [],
+  tags: ['site-work'],
+  notes: 'Site cleared and leveled successfully',
+  files: []
+};
+
+// UI Display (progressive disclosure)
+// List View: title, assignee, dates, status, progress, priority, phase
+// Modal View: All fields including hidden ones
+// Export: Include all fields for complete data export
+```
+
+#### **Hidden Fields Best Practices**
+1. **Include in Data Model**: Add all potential fields to data structure
+2. **Progressive UI**: Show core fields in main view, advanced in modals
+3. **Export Complete**: Always export all fields for data portability
+4. **Document Purpose**: Note which fields are for future features
+5. **Roadmap Planning**: Add hidden field features to module roadmap
+
+### **Module Development Prioritization**
+
+#### **Quick Win Modules (2-3 hours each)**
+1. **Daily Logs** - Essential construction feature, simple implementation
+2. **To-Dos** - Universal task management, connects to Schedule
+3. **Documents** - File management, foundation for other modules
+4. **Budget** - Basic financial tracking, connects to Payment Planner
+
+#### **Medium Complexity Modules (1-2 days each)**
+1. **Bills** - Invoice management with payment tracking
+2. **Change Orders** - Document management with approval workflow
+3. **Invoices** - Client billing with payment integration
+4. **Purchase Orders** - Procurement management
+
+#### **Advanced Modules (3-5 days each)**
+1. **Bids** - Complex bidding workflow with multiple vendors
+2. **Specifications** - Detailed technical documentation
+3. **Selections** - Client choice management with tracking
+
+#### **Development Strategy**
+- **Phase 1**: Quick wins for momentum and demo value
+- **Phase 2**: Medium complexity for core business features
+- **Phase 3**: Advanced features for competitive differentiation
+- **Phase 4**: Polish and integration across all modules
+
+### **Competitive Analysis Framework**
+
+#### **Traditional Software Disadvantages**
+- **Legacy Code**: Technical debt from 20 years of development
+- **Feature Bloat**: Too many features, complex UI
+- **Slow Updates**: Long development cycles
+- **High Costs**: Large teams, expensive maintenance
+
+#### **Modern Development Advantages**
+- **Clean Architecture**: Modern patterns, maintainable code
+- **Focused Features**: Essential features, clean UI
+- **Rapid Iteration**: Quick feedback and updates
+- **Cost Efficiency**: Minimal resources, maximum output
+
+#### **Market Positioning**
+- **Traditional**: Network effects, customer base, brand recognition
+- **Modern**: Better UX, faster development, AI integration, lower costs
+
+### **Development Timeline Planning**
+
+#### **Part-Time Development (Evenings/Weekends)**
+- **Week 1**: Daily Logs + To-Dos (6-8 hours)
+- **Week 2**: Documents + Budget (6-8 hours)
+- **Week 3**: Bills + Change Orders (8-10 hours)
+- **Week 4**: Polish + Integration (4-6 hours)
+
+#### **Full-Time Development**
+- **Week 1**: All quick win modules (Daily Logs, To-Dos, Documents, Budget)
+- **Week 2**: Medium complexity modules (Bills, Change Orders, Invoices)
+- **Week 3**: Advanced modules (Bids, Specifications, Selections)
+- **Week 4**: Polish, integration, and competitive features
+
+#### **Success Metrics**
+- **Module Completion**: All 12 modules functional
+- **Feature Parity**: 80% of BuilderTrend's core features
+- **Development Time**: 1 month vs 20 years
+- **Cost Efficiency**: 1 developer vs hundreds
+- **Quality**: Professional, modern, user-friendly
 
 ### **Code Cleanup Checklist**
 - [ ] **Remove console logs** from production code

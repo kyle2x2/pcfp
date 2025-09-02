@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Schedule - PCFP v1.5</title>
-<link rel="stylesheet" href="../../core/theme.css?v=20250101130300">
-<link rel="stylesheet" href="module.css?v=20250101130300">
+<title>Schedule - PCFP v1.5.1</title>
+<link rel="stylesheet" href="../../core/theme.css?v=20250101130400">
+<link rel="stylesheet" href="module.css?v=20250101130400">
 <link rel="stylesheet" href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css">
 </head>
 <body>
@@ -107,9 +107,19 @@
           </div>
           
           <div id="kanbanView" class="view-content">
-            <div class="kanban-placeholder">
-              <h3>Kanban View</h3>
-              <p>SortableJS integration coming in v1.3</p>
+            <div class="kanban-container">
+              <div class="kanban-header">
+                <div class="kanban-title">Kanban Board</div>
+                <div class="sort-controls">
+                  <button class="sort-btn active" data-sort="status">Status</button>
+                  <button class="sort-btn" data-sort="assignee">Assignee</button>
+                  <button class="sort-btn" data-sort="priority">Priority</button>
+                  <button class="sort-btn" data-sort="phase">Phase</button>
+                </div>
+              </div>
+              <div class="kanban-board" id="kanbanBoard">
+                <!-- Kanban columns will be generated dynamically -->
+              </div>
             </div>
           </div>
           
@@ -232,6 +242,7 @@
 </div>
 
 <script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
-<script src="module.js?v=20250101130300"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script src="module.js?v=20250101130400"></script>
 </body>
 </html>

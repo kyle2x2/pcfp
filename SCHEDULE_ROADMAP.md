@@ -3,16 +3,17 @@
 ## 📅 Overview
 The Schedule module is designed as a comprehensive project scheduling and timeline management tool for construction projects. This roadmap outlines the development phases from basic List View (v1.1) to advanced Gantt scheduling (v1.4).
 
-## 🎯 Current Status: v1.5 - Gantt Charts ✅ COMPLETE
+## 🎯 Current Status: v1.5.1 - Kanban View ✅ COMPLETE
 - **Professional List View** - Custom CSS Grid with fixed columns
 - **Calendar View** - Month/Week/Day calendar with task integration
 - **Gantt Charts** - DHTMLX Gantt integration with drag-and-drop
+- **Kanban Board** - SortableJS integration with multi-sort options
 - **Enhanced Task Model** - Extended data structure with construction phases
 - **Professional Modal** - BuilderTrend-quality task editing interface
 - **PCFP White/Gold Design** - Consistent styling throughout
 - **Mobile Responsive** - Optimized for all device sizes
 - **Three-Dot Action Menu** - Professional action menu with multiple options
-- **Real-Time Data Sync** - Changes sync across List, Calendar, and Gantt views
+- **Real-Time Data Sync** - Changes sync across List, Calendar, Gantt, and Kanban views
 - **Export Functionality** - PDF and Excel export capabilities
 
 ## 🚀 Version Roadmap
@@ -252,6 +253,17 @@ The Schedule module is designed as a comprehensive project scheduling and timeli
 - Real-time synchronization with List and Calendar views
 - PCFP white/gold styling integration
 
+#### **Kanban View** (v1.5.1) - SORTABLEJS IMPLEMENTED ✅
+- Drag-and-drop task management between columns
+- Multi-sort options: Status, Assignee, Priority, Phase
+- Column headers with task counts
+- Task cards with title, description, assignee, dates, status, progress
+- Empty column placeholders
+- Sorting preferences saved in localStorage
+- Real-time synchronization with List, Calendar, and Gantt views
+- PCFP white/gold styling integration
+- Mobile-responsive design
+
 ## 🔧 Implementation Strategy
 
 ### **Professional Quality Approach** ✅ COMPLETED
@@ -293,7 +305,39 @@ The Schedule module is designed as a comprehensive project scheduling and timeli
 - v1.2.4: ✅ Professional List View (COMPLETE)
 - v1.3: ✅ Calendar View (COMPLETE)
 - v1.4: ✅ Gantt Charts (COMPLETE)
-- v1.5: 🔧 Integration & Polish (CURRENT DEVELOPMENT)
+- v1.5.1: ✅ Kanban View (COMPLETE)
+- v1.6: 🔧 Advanced Features & Polish (NEXT PHASE)
+
+## 🔍 **Data Model Insights & Hidden Fields**
+
+### **Enhanced Data Model Discovery**
+During Schedule v1.5.1 implementation, we discovered that the task data model includes several fields that are **not displayed in the List view** but are available in the data structure and export:
+
+#### **Hidden Fields in Current Data Model:**
+- **`reminder`** - Task reminder settings ('none', '1day', '1week')
+- **`predecessors`** - Array of task IDs that must be completed first
+- **`tags`** - Array of custom tags for task categorization
+- **`notes`** - Rich text notes with additional task details
+- **`files`** - Array of file attachments (documents, photos)
+
+#### **Why These Fields Are Hidden:**
+1. **UI Space Management** - Adding more columns would make the list unwieldy
+2. **Progressive Disclosure** - Advanced features available in task modal
+3. **Focus on Core Data** - List view prioritizes essential fields (title, assignee, dates, status, progress)
+4. **Export Completeness** - All fields are included in data export for portability
+
+#### **Future Implementation Strategy:**
+- **v1.6**: Add optional columns for dependencies, reminders, tags
+- **v1.7**: Implement reminder notification system
+- **v1.8**: Add file attachment management
+- **v1.9**: Visual dependency lines in Gantt and Kanban views
+
+### **Data Model Best Practices**
+- **Complete Data Structure**: Include all potential fields in data model
+- **Progressive UI**: Show core fields in main view, advanced in modals
+- **Export Complete**: Always export all fields for data portability
+- **Document Purpose**: Note which fields are for future features
+- **Roadmap Planning**: Add hidden field features to module roadmap
 
 ## ⚠️ Risk Mitigation & Contingency Plans
 
@@ -348,11 +392,11 @@ When implementing each version, follow the **VERSIONING_GUIDE.md**:
 
 ---
 
-**Document Version**: 1.5  
+**Document Version**: 1.5.1  
 **Last Updated**: January 1, 2025  
-**Current Implementation**: Schedule v1.5 (Gantt Charts) ✅  
-**Next Milestone**: Schedule v1.5 (Integration & Polish) 🔧  
-**Next Review**: After v1.5 completion
+**Current Implementation**: Schedule v1.5.1 (Kanban View) ✅  
+**Next Milestone**: Schedule v1.6 (Advanced Features) 🔧  
+**Next Review**: After v1.6 planning
 
 ## 🎉 v1.5 Implementation Summary
 
