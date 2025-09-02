@@ -146,24 +146,13 @@
 
 /* CSS Grid System - Professional Data Grid */
 .data-grid {
-  display: grid;
-  grid-template-columns: 
-    400px  /* Task - much wider to push actions to edge */
-    150px  /* Assignee */
-    120px  /* Start Date */
-    120px  /* End Date */
-    120px  /* Status */
-    100px  /* Progress */
-    120px  /* Priority */
-    100px  /* Phase */
-    120px; /* Actions - wider to reach edge */
-  gap: 0;
-  border: var(--border-width) var(--border-style) var(--border-color);
-  border-radius: 8px;
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
   background: var(--pcfp-white);
+  border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  min-width: max-content;
-  max-width: none;
+  overflow: hidden;
 }
 
 /* Grid Container with Horizontal Scroll */
@@ -175,67 +164,72 @@
   position: relative;
 }
 
-/* Ensure grid cells don't overflow their allocated space */
-.data-grid .grid-cell {
-  overflow: hidden !important;
-  max-width: 100% !important;
-  box-sizing: border-box !important;
-}
-
+/* Grid Header Row */
 .grid-header {
-  display: contents;
+  display: table-row;
 }
 
 .grid-header .grid-cell {
+  display: table-cell;
   background: var(--pcfp-panel);
   padding: 15px 10px;
-  border-right: 1px solid var(--pcfp-border);
+  border-right: 1px solid var(--pcfp-border) !important;
+  border-bottom: 2px solid var(--pcfp-border) !important;
   font-weight: 600;
   font-size: 12px;
   text-transform: uppercase;
   color: var(--pcfp-text-muted);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  min-width: max-content; /* Ensure header cells don't shrink */
-  position: relative; /* For absolute positioning of resizer */
+  vertical-align: middle;
+  white-space: nowrap;
 }
 
 .grid-header .grid-cell:last-child {
-  border-right: none;
+  border-right: none !important;
 }
 
+/* Grid Body */
 .grid-body {
-  display: contents;
+  display: table-row-group;
 }
 
+/* Grid Rows */
 .grid-row {
-  display: contents;
+  display: table-row;
 }
 
+/* Grid Cells */
 .grid-row .grid-cell {
+  display: table-cell;
   padding: 15px 10px;
-  display: flex;
-  align-items: center;
+  vertical-align: middle;
   overflow: hidden;
   box-sizing: border-box;
-  position: relative;
-  
-  /* DIRECT BORDER APPLICATION */
   border-right: 1px solid var(--pcfp-border) !important;
   border-bottom: 1px solid var(--pcfp-border) !important;
 }
 
-.grid-header .grid-cell {
-  background: var(--pcfp-panel);
-  font-weight: 600;
-  font-size: 12px;
-  text-transform: uppercase;
-  color: var(--pcfp-text-muted);
-  border-bottom: 2px solid var(--pcfp-border) !important;
+.grid-row .grid-cell:last-child {
+  border-right: none !important;
+}
+
+/* Column widths - sized for longest content */
+.grid-cell[data-col="title"] { width: 400px; }
+.grid-cell[data-col="assignee"] { width: 180px; } /* Increased for longer names */
+.grid-cell[data-col="startDate"] { width: 120px; }
+.grid-cell[data-col="duration"] { width: 80px; }
+.grid-cell[data-col="endDate"] { width: 120px; }
+.grid-cell[data-col="status"] { width: 120px; }
+.grid-cell[data-col="progress"] { width: 100px; }
+.grid-cell[data-col="priority"] { width: 120px; }
+.grid-cell[data-col="phase"] { width: 140px; } /* Increased for "Pre-Construction" */
+.grid-cell[data-col="actions"] { width: 120px; }
+
+/* Prevent text wrapping in specific columns */
+.grid-cell[data-col="assignee"],
+.grid-cell[data-col="phase"] {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 /* Remove border from last column */
@@ -258,6 +252,19 @@
 .grid-row:hover .grid-cell[data-col="status"] {
   background: var(--pcfp-panel) !important;
   border-right: var(--status-border-width) var(--border-style) var(--status-border-color) !important;
+}
+
+/* Column-specific styling */
+.grid-cell[data-col="status"],
+.grid-cell[data-col="progress"],
+.grid-cell[data-col="priority"] {
+  text-align: center !important;
+}
+
+.grid-header .grid-cell[data-col="status"],
+.grid-header .grid-cell[data-col="progress"],
+.grid-header .grid-cell[data-col="priority"] {
+  text-align: center !important;
 }
 
 /* Column Title */
@@ -1070,5 +1077,303 @@
   
   .task-grid-row .task-col:last-child {
     border-bottom: none;
+  }
+}
+
+/* ========================================
+   CALENDAR VIEW STYLES - Schedule v1.3
+   ======================================== */
+
+/* Calendar Container */
+.calendar-container {
+  background: var(--pcfp-white);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Calendar Header */
+.calendar-header {
+  background: var(--pcfp-gold);
+  color: var(--pcfp-white);
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calendar-nav {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.calendar-nav-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: var(--pcfp-white);
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.calendar-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.calendar-nav-btn.active {
+  background: rgba(255, 255, 255, 0.4);
+  font-weight: 600;
+}
+
+.calendar-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+/* Calendar Views */
+.calendar-view {
+  display: none;
+  padding: 20px;
+}
+
+.calendar-view.active {
+  display: block;
+}
+
+/* Month View */
+.month-view {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--pcfp-border);
+}
+
+.month-day-header {
+  background: var(--pcfp-panel);
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--pcfp-text);
+}
+
+.month-day {
+  min-height: 100px;
+  padding: 8px;
+  background: var(--pcfp-white);
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.month-day:hover {
+  background: var(--pcfp-panel);
+}
+
+.month-day.today {
+  background: #fef3c7;
+}
+
+.month-day.other-month {
+  background: #f8fafc;
+  color: var(--pcfp-text-muted);
+}
+
+.month-day-number {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: var(--pcfp-text);
+}
+
+.month-task {
+  background: var(--pcfp-gold);
+  color: var(--pcfp-white);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.month-task:hover {
+  background: var(--pcfp-gold-medium);
+}
+
+.month-task.completed {
+  background: var(--pcfp-success);
+}
+
+.month-task.in-progress {
+  background: var(--pcfp-gold);
+}
+
+.month-task.not-started {
+  background: var(--pcfp-text-muted);
+}
+
+.month-task.critical {
+  border: 2px solid var(--pcfp-error);
+}
+
+/* Week View */
+.week-view {
+  display: grid;
+  grid-template-columns: 80px repeat(7, 1fr);
+  gap: 1px;
+  background: var(--pcfp-border);
+}
+
+.week-time-header {
+  background: var(--pcfp-panel);
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--pcfp-text);
+}
+
+.week-time-slot {
+  height: 60px;
+  background: var(--pcfp-white);
+  border-bottom: 1px solid var(--pcfp-border);
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.week-time-slot:hover {
+  background: var(--pcfp-panel);
+}
+
+.week-task {
+  position: absolute;
+  background: var(--pcfp-gold);
+  color: var(--pcfp-white);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 10;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.week-task:hover {
+  background: var(--pcfp-gold-medium);
+}
+
+.week-task.completed {
+  background: var(--pcfp-success);
+}
+
+.week-task.in-progress {
+  background: var(--pcfp-gold);
+}
+
+.week-task.not-started {
+  background: var(--pcfp-text-muted);
+}
+
+.week-task.critical {
+  border: 2px solid var(--pcfp-error);
+}
+
+/* Day View */
+.day-view {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 1px;
+  background: var(--pcfp-border);
+}
+
+.day-time-slot {
+  height: 60px;
+  background: var(--pcfp-white);
+  border-bottom: 1px solid var(--pcfp-border);
+  position: relative;
+  padding: 8px;
+  transition: background-color 0.2s;
+}
+
+.day-time-slot:hover {
+  background: var(--pcfp-panel);
+}
+
+.day-task {
+  position: absolute;
+  background: var(--pcfp-gold);
+  color: var(--pcfp-white);
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 10;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.day-task:hover {
+  background: var(--pcfp-gold-medium);
+}
+
+.day-task.completed {
+  background: var(--pcfp-success);
+}
+
+.day-task.in-progress {
+  background: var(--pcfp-gold);
+}
+
+.day-task.not-started {
+  background: var(--pcfp-text-muted);
+}
+
+.day-task.critical {
+  border: 2px solid var(--pcfp-error);
+}
+
+/* Calendar Responsive Design */
+@media (max-width: 768px) {
+  .calendar-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .calendar-nav {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  
+  .month-view {
+    grid-template-columns: repeat(7, 1fr);
+    font-size: 12px;
+  }
+  
+  .month-day {
+    min-height: 80px;
+    padding: 4px;
+  }
+  
+  .month-task {
+    font-size: 10px;
+    padding: 1px 4px;
+  }
+  
+  .week-view {
+    grid-template-columns: 60px repeat(7, 1fr);
+  }
+  
+  .day-view {
+    grid-template-columns: 60px 1fr;
   }
 }

@@ -18,7 +18,7 @@
   }
   function onReady(fn){ if(document.readyState!=='loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
   onReady(function(){
-                const appBuild = window.APP_BUILD || 'v8.6.0';
+                const appBuild = window.APP_BUILD || 'v8.7.0';
     var v = appBuild + ' • ' + (g.PCFP && g.PCFP.version ? g.PCFP.version.build : 'unknown');
     show('Integrity: Bus + Router + Contracts v2 loaded ('+ v +')');
     // Also stamp version pill if present

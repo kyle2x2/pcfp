@@ -1,4 +1,4 @@
-# PCFP Development Guide v8.6.0
+# PCFP Development Guide v8.7.0
 
 ## 🎯 Table of Contents
 
@@ -258,6 +258,37 @@ Assistant creates a comprehensive plan including:
 - User may request final adjustments
 - Both parties agree on exact implementation
 
+#### **Step 8: Mockup Creation (NEW STANDARD)**
+- Assistant creates a visual mockup showing the integration
+- Mockup demonstrates how the feature will look in existing UI
+- Shows elements being removed and added
+- Includes implementation plan and data flow
+- User reviews and approves the mockup before implementation
+
+##### **Mockup Requirements:**
+- **Visual Integration**: Show how feature integrates with existing UI
+- **Element Changes**: Clearly mark what's being removed/added
+- **Data Flow**: Demonstrate how existing data will be used
+- **Implementation Plan**: Include step-by-step implementation details
+- **PCFP Styling**: Use consistent white/gold color scheme
+- **Responsive Design**: Show how it works in the module frame
+
+##### **Example Mockup Structure:**
+```html
+<!-- Mockup showing calendar integration -->
+<div class="schedule-module">
+  <!-- Existing structure -->
+  <div class="module-header">...</div>
+  <div class="schedule-header">
+    <!-- REMOVED: redundant buttons -->
+    <!-- ADDED: calendar navigation -->
+  </div>
+  <div class="schedule-content">
+    <!-- NEW: calendar views replacing placeholder -->
+  </div>
+</div>
+```
+
 ### **🚀 Phase 4: Implementation**
 
 #### **Step 8: Development**
@@ -489,7 +520,7 @@ window.MODULE_VERS = {
 
 #### **Updating Main Application Version**
 1. Edit `core/config.js`
-2. Update `window.APP_BUILD = "v8.6.0"` (or next version)
+2. Update `window.APP_BUILD = "v8.7.0"` (or next version)
 3. Update `index.html` title and cache-busting parameters
 4. No need to update any module versions (they're all independent)
 
@@ -502,7 +533,7 @@ window.MODULE_VERS = {
    "schedule": "v1.3"
    
    // In kernel.standalone.js
-   '#/schedule': { title: 'Schedule v1.3', src: 'modules/schedule/index.html' }
+   '#/schedule': { title: 'Schedule v1.4', src: 'modules/schedule/index.html' }
    ```
 
 ### **CRITICAL: Preventing Version Display Issues**
@@ -530,9 +561,9 @@ window.MODULE_VERS = {
 **Issue**: Left sidebar shows old version despite updating config.js
 **Root Cause**: Hardcoded fallback values in version scripts
 **Solution**: Update fallback values in these files:
-- `core/integrity_banner.js` - line 20: `'v8.4'` → `'v8.6.0'`
-- `core/version_shim.js` - line 5: `'v8.4'` → `'v8.6.0'`
-- `core/header_version.js` - lines 20, 29: `'v8.4'` → `'v8.6.0'`
+- `core/integrity_banner.js` - line 20: `'v8.6.0'` → `'v8.7.0'`
+- `core/version_shim.js` - line 5: `'v8.6.0'` → `'v8.7.0'`
+- `core/header_version.js` - lines 20, 29: `'v8.6.0'` → `'v8.7.0'`
 
 **Issue**: Version scripts run before config.js loads
 **Root Cause**: Script loading race condition
@@ -1577,21 +1608,136 @@ console.log('Function took:', end - start, 'ms');
   </div>
   ```
 
-#### **Application Layout**
-- **Full-Height Containment**: `html, body { height: 100vh; overflow: hidden }` prevents outer scrollbars
-- **Why it works**: Forces app to fit viewport exactly, no page-level overflow
-- **When to use**: Any application that should fill the entire viewport
+#### **Table Layout Systems**
+- **Table-Based Grids**: `display: table`, `table-row`, `table-cell` for reliable data alignment
+- **Why it works**: Native table behavior ensures perfect column alignment
+- **When to use**: Data tables with multiple columns that must align perfectly
 - **Example**:
   ```css
-  html, body { height: 100vh; overflow: hidden; }
-  .app { height: 100vh; overflow: hidden; }
+  .data-grid {
+    display: table;
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .grid-header {
+    display: table-row;
+  }
+  .grid-cell {
+    display: table-cell;
+    padding: 15px 10px;
+    border-right: 1px solid var(--pcfp-border);
+  }
   ```
 
-#### **Version Display Management**
-- **Single Source of Truth**: Keep only one version display in sidebar header
-- **Why it works**: Eliminates confusion and duplicate information
-- **When to use**: Any application with version information
-- **Example**: Remove duplicate `.pcfp-version-pill` elements outside main app structure
+#### **Column Width Management**
+- **Fixed Widths**: Explicit width definitions prevent text wrapping
+- **Why it works**: Prevents layout shifts and ensures consistent appearance
+- **When to use**: Any data table with varying content lengths
+- **Example**:
+  ```css
+  .grid-cell[data-col="assignee"] { width: 180px; }
+  .grid-cell[data-col="phase"] { width: 140px; }
+  .grid-cell[data-col="assignee"],
+  .grid-cell[data-col="phase"] {
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  ```
+
+#### **Duration Field Synchronization**
+- **Bidirectional Calculation**: Start date + duration = end date, or end date - start date = duration
+- **Why it works**: Provides flexibility for users while maintaining data consistency
+- **When to use**: Any date range input where duration matters
+- **Example**:
+  ```javascript
+  function calculateEndDate(startDate, duration) {
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + duration - 1);
+    return endDate.toISOString().split('T')[0];
+  }
+  
+  function calculateDuration(startDate, endDate) {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+  }
+  ```
+
+#### **Calendar Task Merging**
+- **Hybrid Approach**: Individual task items for month view, absolute positioning for week/day views
+- **Why it works**: Month view needs simple list items, week/day views need spanning blocks
+- **When to use**: Calendar views with tasks that span multiple days
+- **Example**:
+  ```javascript
+  // Month view: Individual task items
+  const taskElements = dayTasks.map(task => 
+    `<div class="task-item ${task.status}">${task.title}</div>`
+  ).join('');
+  
+  // Week view: Merged blocks with absolute positioning
+  const taskBlock = document.createElement('div');
+  taskBlock.style.cssText = `
+    position: absolute;
+    left: ${left}%;
+    top: ${top}px;
+    width: ${width}%;
+    height: ${height}px;
+  `;
+  ```
+
+#### **JavaScript Scope Management**
+- **IIFE Pattern**: Keep all related functions inside the same IIFE scope
+- **Why it works**: Prevents scope issues where functions can't access variables
+- **When to use**: Complex modules with multiple interdependent functions
+- **Example**:
+  ```javascript
+  (function() {
+    let tasks = [];
+    let currentView = 'list';
+    
+    // All functions can access tasks and currentView
+    function renderCalendar() {
+      // Can access tasks array
+    }
+    
+    function setupCalendarView() {
+      // Can access currentView
+    }
+    
+    // Expose only what's needed globally
+    window.showTaskDetails = showTaskDetails;
+  })();
+  ```
+
+#### **Calendar Implementation Strategy**
+- **Simple First**: Start with basic task display before complex merging
+- **Why it works**: Easier to debug, more reliable, consistent user experience
+- **When to use**: Calendar views, task scheduling, any multi-view feature
+- **Example**:
+  ```javascript
+  // Simple approach: Tasks appear in each time slot they span
+  const dayTasks = getTasksForDate(currentDate);
+  const taskElements = dayTasks.map(task => 
+    `<div class="task-block ${task.status}">${task.title}</div>`
+  ).join('');
+  
+  // Complex approach: Merged blocks with precise positioning
+  // (Avoid until simple approach is working perfectly)
+  ```
+
+#### **Test-First Development**
+- **Isolated Test Files**: Create separate HTML files for testing different approaches
+- **Why it works**: Prevents breaking existing code and allows comparison of solutions
+- **When to use**: Complex features, multiple implementation options, debugging
+- **Example**:
+  ```bash
+  # Create test files for different approaches
+  test-calendar-option-a-css-grid.html
+  test-calendar-option-b-absolute-positioning.html
+  test-calendar-option-c-canvas.html
+  ```
 
 ### **❌ What Doesn't Work**
 
@@ -1609,6 +1755,53 @@ console.log('Function took:', end - start, 'ms');
     content: '';
     border-right: 1px solid var(--pcfp-border);
   }
+  ```
+
+#### **CSS Grid with Display: Contents**
+- **Grid Alignment Issues**: `display: contents` breaks CSS Grid column alignment
+- **Why it fails**: Contents display removes elements from grid flow, causing misalignment
+- **Alternative**: Use table-based layout for reliable data alignment
+- **Example of what doesn't work**:
+  ```css
+  /* This approach fails - causes column misalignment */
+  .grid-header {
+    display: contents;
+  }
+  .grid-row {
+    display: contents;
+  }
+  .grid-cell {
+    display: grid;
+    grid-template-columns: 400px 150px 120px;
+  }
+  ```
+
+#### **External Library Dependencies**
+- **CDN Libraries in Iframes**: FullCalendar.js and other external libraries fail in iframe environments
+- **Why it fails**: Cross-origin restrictions and iframe security policies
+- **Alternative**: Build custom implementations or use iframe-compatible solutions
+- **Example of what doesn't work**:
+  ```html
+  <!-- This approach fails in iframe environments -->
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+  ```
+
+#### **Complex Calendar Merging**
+- **CSS Grid Spanning**: `grid-column: span X` and `grid-row: span Y` are overcomplicated for simple task merging
+- **Canvas Rendering**: HTML5 Canvas is unnecessary complexity for basic calendar task display
+- **Absolute Positioning with Complex Math**: Precise pixel calculations with `getBoundingClientRect()` are fragile
+- **Why they fail**: Over-engineering simple problems, browser compatibility issues, maintenance complexity
+- **Alternative**: Use simple hybrid approach - individual items for month view, basic absolute positioning for week/day
+- **Example of what doesn't work**:
+  ```javascript
+  // Overcomplicated CSS Grid approach
+  taskBlock.style.cssText = `
+    grid-row: ${startRow} / ${endRow + 1};
+    grid-column: ${startCol} / ${endCol + 1};
+  `;
+  
+  // Overcomplicated Canvas approach
+  ctx.fillRect(position.x, position.y, position.width, position.height);
   ```
 
 #### **JavaScript Patterns**
@@ -1711,6 +1904,93 @@ console.log('Function took:', end - start, 'ms');
 3. **Document what fails** in the "What Doesn't Work" section
 4. **Explain why** each approach succeeds or fails
 5. **Provide alternatives** for failed approaches
+
+### **📅 Calendar Integration - Schedule v1.3**
+
+#### **✅ What Works**
+
+##### **Mockup-First Development Approach**
+- **Visual Mockup Creation**: Create detailed HTML mockups showing integration before implementation
+- **Why it works**: User can see exactly how the feature will look and function before any code changes
+- **When to use**: Complex UI integrations, major feature additions, interface changes
+- **Example**: `calendar-integration-preview.html` showing calendar integration into existing Schedule module
+
+##### **Mockup Requirements:**
+- **Visual Integration**: Show how feature integrates with existing UI structure
+- **Element Changes**: Clearly mark what's being removed/added/modified
+- **Data Flow**: Demonstrate how existing data will be used in new feature
+- **Implementation Plan**: Include step-by-step implementation details
+- **PCFP Styling**: Use consistent white/gold color scheme throughout
+- **Responsive Design**: Show how it works within module frame constraints
+
+##### **Calendar Integration Strategy**
+- **Remove Redundant Elements**: Delete non-functional navigation buttons
+- **Replace Placeholder Content**: Replace "coming soon" messages with actual functionality
+- **Maintain Existing Structure**: Keep module header, view selector, and task summary intact
+- **Add Calendar Navigation**: Integrate Month/Week/Day toggle within calendar header
+- **Data Transfer**: Use all existing task data from list view to populate calendar
+
+##### **Calendar View Implementation**
+- **Month View**: Grid layout with individual task items per day
+- **Week View**: Hourly breakdown with merged task blocks using absolute positioning
+- **Day View**: Detailed hourly view with task positioning
+- **Task Merging**: Use `processedTasks` Set to prevent duplicate rendering
+- **Responsive Design**: Works within existing module frame without external dependencies
+
+#### **❌ What Doesn't Work**
+
+##### **External Library Dependencies**
+- **FullCalendar.js in Iframes**: Fails due to cross-origin restrictions
+- **Why it fails**: Iframe security policies prevent external library loading
+- **Alternative**: Build custom calendar implementation using vanilla JavaScript
+
+##### **Complex Calendar Merging**
+- **CSS Grid Spanning**: `grid-column: span X` overcomplicated for simple task merging
+- **Canvas Rendering**: Unnecessary complexity for basic calendar task display
+- **Why they fail**: Over-engineering simple problems, maintenance complexity
+- **Alternative**: Simple hybrid approach - individual items for month, basic absolute positioning for week/day
+
+#### **🎯 Implementation Plan**
+
+1. **Remove Redundant Elements**
+   - Delete `time-scale-selector` div and its buttons (Day, Week, Month, Quarter, Year)
+   - Remove placeholder content: "Calendar View - FullCalendar.js integration coming in v1.2"
+
+2. **Replace Placeholder Content**
+   - Replace `calendar-placeholder` with actual calendar views
+   - Add calendar header with Month/Week/Day navigation
+   - Implement calendar container with proper PCFP styling
+
+3. **Add Calendar Navigation**
+   - Integrate Month/Week/Day toggle buttons in calendar header
+   - Add navigation arrows (‹ ›) for date navigation
+   - Display current month/year title
+
+4. **Data Integration**
+   - Connect existing task data from `localStorage` to calendar rendering
+   - Transfer all task properties: title, dates, status, priority, assignee, phase
+   - Maintain task summary functionality
+
+5. **Styling Integration**
+   - Apply PCFP design system (white/gold color scheme)
+   - Ensure responsive design within module frame
+   - Maintain consistency with existing UI elements
+
+6. **Testing & Validation**
+   - Verify all calendar views work with existing task data
+   - Test navigation between Month/Week/Day views
+   - Ensure task data displays correctly in all views
+
+#### **📋 Success Criteria**
+
+- [ ] Calendar views appear when "Calendar" is clicked in main navigation
+- [ ] Redundant time-scale buttons are completely removed
+- [ ] All existing task data populates calendar views correctly
+- [ ] Month/Week/Day navigation works seamlessly
+- [ ] PCFP styling is consistent throughout
+- [ ] No external dependencies required
+- [ ] Responsive design works within module frame
+- [ ] Task summary remains functional
 
 ---
 

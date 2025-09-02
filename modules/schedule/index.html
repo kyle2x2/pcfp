@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Schedule - PCFP v1.2</title>
-<link rel="stylesheet" href="../../core/theme.css?v=20250901234000">
-<link rel="stylesheet" href="module.css?v=20250901234000">
+<title>Schedule - PCFP v1.3</title>
+<link rel="stylesheet" href="../../core/theme.css?v=20250101130300">
+<link rel="stylesheet" href="module.css?v=20250101130300">
 </head>
 <body>
 <header class="module-header">
@@ -25,13 +25,9 @@
             <button class="btn" data-view="kanban">Kanban</button>
             <button class="btn" data-view="gantt">Gantt</button>
           </div>
-          <div class="time-scale-selector">
-            <button class="btn" data-scale="day">Day</button>
-            <button class="btn" data-scale="week">Week</button>
-            <button class="btn active" data-scale="month">Month</button>
-            <button class="btn" data-scale="quarter">Quarter</button>
-            <button class="btn" data-scale="year">Year</button>
-          </div>
+          
+          <!-- REMOVED: time-scale-selector (Day, Week, Month, Quarter, Year buttons) -->
+          
           <div class="schedule-actions">
             <button class="btn btn-primary" id="btnAddTask">+ Add Task</button>
           </div>
@@ -51,22 +47,25 @@
                 <div class="grid-cell" data-col="startDate" data-col-index="2">
                   <span class="col-title">Start Date</span>
                 </div>
-                <div class="grid-cell" data-col="endDate" data-col-index="3">
+                <div class="grid-cell" data-col="duration" data-col-index="3">
+                  <span class="col-title">Duration</span>
+                </div>
+                <div class="grid-cell" data-col="endDate" data-col-index="4">
                   <span class="col-title">End Date</span>
                 </div>
-                <div class="grid-cell" data-col="status" data-col-index="4">
+                <div class="grid-cell" data-col="status" data-col-index="5">
                   <span class="col-title">Status</span>
                 </div>
-                <div class="grid-cell" data-col="progress" data-col-index="5">
+                <div class="grid-cell" data-col="progress" data-col-index="6">
                   <span class="col-title">Progress</span>
                 </div>
-                <div class="grid-cell" data-col="priority" data-col-index="6">
+                <div class="grid-cell" data-col="priority" data-col-index="7">
                   <span class="col-title">Priority</span>
                 </div>
-                <div class="grid-cell" data-col="phase" data-col-index="7">
+                <div class="grid-cell" data-col="phase" data-col-index="8">
                   <span class="col-title">Phase</span>
                 </div>
-                <div class="grid-cell" data-col="actions" data-col-index="8">
+                <div class="grid-cell" data-col="actions" data-col-index="9">
                   <span class="col-title">Actions</span>
                 </div>
               </div>
@@ -78,10 +77,31 @@
           </div>
           
           <div id="calendarView" class="view-content">
-            <div class="calendar-placeholder">
-              <h3>Calendar View</h3>
-              <p>FullCalendar.js integration coming in v1.2</p>
-              <p>External libraries disabled for iframe compatibility</p>
+            <div class="calendar-container">
+              <!-- Calendar Header with Navigation -->
+              <div class="calendar-header">
+                <div class="calendar-nav">
+                  <button class="calendar-nav-btn" id="btnPrevMonth">‹</button>
+                  <button class="calendar-nav-btn active" data-calendar-view="month">Month</button>
+                  <button class="calendar-nav-btn" data-calendar-view="week">Week</button>
+                  <button class="calendar-nav-btn" data-calendar-view="day">Day</button>
+                  <button class="calendar-nav-btn" id="btnNextMonth">›</button>
+                </div>
+                <div class="calendar-title" id="calendarTitle">January 2025</div>
+              </div>
+              
+              <!-- Calendar Views -->
+              <div class="calendar-view active" id="monthView">
+                <!-- Month View will be populated here -->
+              </div>
+              
+              <div class="calendar-view" id="weekView">
+                <!-- Week View will be populated here -->
+              </div>
+              
+              <div class="calendar-view" id="dayView">
+                <!-- Day View will be populated here -->
+              </div>
             </div>
           </div>
           
@@ -143,8 +163,12 @@
             <input type="date" id="taskStartDate" name="startDate" required>
           </div>
           <div class="form-group">
+            <label for="taskDuration">Duration (Days) *</label>
+            <input type="number" id="taskDuration" name="duration" min="1" value="1" required>
+          </div>
+          <div class="form-group">
             <label for="taskEndDate">End Date *</label>
-            <input type="date" id="taskEndDate" name="endDate" required>
+            <input type="date" id="taskEndDate" name="endDate" required readonly>
           </div>
         </div>
         
@@ -200,6 +224,6 @@
   </div>
 </div>
 
-<script src="module.js?v=20250901234000"></script>
+<script src="module.js?v=20250101130300"></script>
 </body>
 </html>

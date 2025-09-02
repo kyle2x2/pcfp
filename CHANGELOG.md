@@ -1,6 +1,39 @@
 # Changelog
 
-# Changelog
+## [v8.7.0] - 2025-01-01 - Schedule Calendar Implementation
+
+### 🗓️ Schedule Module v1.4 - Calendar Functionality
+- **Calendar Views Working** - Month, Week, and Day views now display tasks properly
+- **JavaScript Scope Fix** - Fixed calendar functions scope issues by moving them inside main IIFE
+- **Simplified Task Display** - Implemented consistent task display across all calendar views
+- **Task Integration** - Calendar views now show existing tasks (Site Preparation, Foundation Work, Framing)
+- **Navigation Working** - Month/Week/Day toggle buttons and arrow navigation functional
+- **Task Details** - Clicking on tasks shows details in alert (placeholder for future enhancement)
+
+### 🔧 Technical Improvements
+- **Scope Management** - Properly organized calendar functions within module scope
+- **Code Cleanup** - Removed unused merged task positioning functions
+- **Consistent Rendering** - All calendar views use same task display approach
+- **Error Prevention** - Fixed functions accessing undefined variables issue
+
+### 📚 Development Lessons
+- **JavaScript Scope Management** - Documented IIFE pattern for complex modules
+- **Calendar Implementation Strategy** - Added "Simple First" approach guidelines
+- **Test-First Development** - Enhanced documentation with isolated test file approach
+- **What Works/Doesn't Work** - Updated development guide with calendar-specific learnings
+
+### 🎯 User Experience
+- **Month View** - Tasks display as colored blocks in calendar days
+- **Week View** - Tasks appear in time slots for each day they span
+- **Day View** - Tasks show in time slots for the selected day
+- **Consistent Interface** - All views maintain same visual style and interaction patterns
+
+### 🔄 Backward Compatibility
+- **List View Unchanged** - Existing list functionality preserved
+- **Task Data Preserved** - All existing task data and functionality maintained
+- **Module Independence** - Schedule module version updated independently
+
+---
 
 ## [v8.6.0] - 2025-01-01 - Code Quality & Documentation Consolidation
 

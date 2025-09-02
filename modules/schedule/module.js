@@ -1,4 +1,4 @@
-// modules/schedule/module.js - Schedule Module v1.2 (Simplified for iframe compatibility)
+// modules/schedule/module.js - Schedule Module v1.4 (Calendar functionality working)
 // Construction project scheduling and timeline management
 
 (function() {
@@ -14,6 +14,7 @@
     description: '',
     startDate: '',
     endDate: '',
+    duration: 1,
     status: 'not-started',
     priority: 'medium',
     assignee: '',
@@ -110,39 +111,43 @@
     const taskGridBody = document.getElementById('taskGridBody');
     if (!taskGridBody) return;
     
-    taskGridBody.innerHTML = tasks.map(task => `
-      <div class="grid-row" data-task-id="${task.id}">
-        <div class="grid-cell" data-col="title">
-          <div style="display: flex; flex-direction: column; width: 100%;">
-            <div class="task-title" data-full-text="${task.title}" title="${task.title}">${task.title}</div>
-            <div class="task-description" data-full-text="${task.description}" title="${task.description}">${task.description}</div>
-          </div>
-        </div>
-        <div class="grid-cell" data-col="assignee">${task.assignee}</div>
-        <div class="grid-cell" data-col="startDate">${formatDate(task.startDate)}</div>
-        <div class="grid-cell" data-col="endDate">${formatDate(task.endDate)}</div>
-        <div class="grid-cell" data-col="status">
-          <span class="status-badge status-${task.status}">${task.status}</span>
-        </div>
-        <div class="grid-cell" data-col="progress">
-          <div style="display: flex; flex-direction: column; width: 100%;">
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: ${task.progress}%"></div>
+    taskGridBody.innerHTML = tasks.map(task => {
+      const duration = calculateDuration(task.startDate, task.endDate);
+      return `
+        <div class="grid-row" data-task-id="${task.id}">
+          <div class="grid-cell" data-col="title">
+            <div style="display: flex; flex-direction: column; width: 100%;">
+              <div class="task-title" data-full-text="${task.title}" title="${task.title}">${task.title}</div>
+              <div class="task-description" data-full-text="${task.description}" title="${task.description}">${task.description}</div>
             </div>
-            <span class="progress-text">${task.progress}%</span>
+          </div>
+          <div class="grid-cell" data-col="assignee">${task.assignee}</div>
+          <div class="grid-cell" data-col="startDate">${formatDate(task.startDate)}</div>
+          <div class="grid-cell" data-col="duration">${duration} days</div>
+          <div class="grid-cell" data-col="endDate">${formatDate(task.endDate)}</div>
+          <div class="grid-cell" data-col="status">
+            <span class="status-badge status-${task.status}">${task.status}</span>
+          </div>
+          <div class="grid-cell" data-col="progress">
+            <div style="display: flex; flex-direction: column; width: 100%;">
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${task.progress}%"></div>
+              </div>
+              <span class="progress-text">${task.progress}%</span>
+            </div>
+          </div>
+          <div class="grid-cell" data-col="priority">
+            <span style="color: ${getPriorityColor(task.priority)}; font-weight: 600;">${task.priority}</span>
+          </div>
+          <div class="grid-cell" data-col="phase">${task.phase}</div>
+          <div class="grid-cell" data-col="actions">
+            <button class="action-menu-btn" onclick="toggleActionMenu('${task.id}')">
+              <span class="three-dots">⋯</span>
+            </button>
           </div>
         </div>
-        <div class="grid-cell" data-col="priority">
-          <span style="color: ${getPriorityColor(task.priority)}; font-weight: 600;">${task.priority}</span>
-        </div>
-        <div class="grid-cell" data-col="phase">${task.phase}</div>
-        <div class="grid-cell" data-col="actions">
-          <button class="action-menu-btn" onclick="toggleActionMenu('${task.id}')">
-            <span class="three-dots">⋯</span>
-          </button>
-        </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
     
     // Auto-size columns based on content
     setTimeout(() => {
@@ -158,6 +163,32 @@
       'critical': '#ef4444'
     };
     return priorityColors[priority] || '#64748b';
+  }
+  
+  // Duration calculation functions
+  function calculateDuration(startDate, endDate) {
+    if (!startDate || !endDate) return 0;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return diffDays;
+  }
+  
+  function calculateEndDate(startDate, duration) {
+    if (!startDate || !duration) return '';
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + duration - 1);
+    return endDate.toISOString().split('T')[0];
+  }
+  
+  function calculateDurationFromDates(startDate, endDate) {
+    if (!startDate || !endDate) return 1;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    return diffDays;
   }
   
   function updateTaskSummary() {
@@ -208,14 +239,6 @@
       });
     });
     
-    // Time scale selector
-    document.querySelectorAll('[data-scale]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const scale = e.target.dataset.scale;
-        switchTimeScale(scale);
-      });
-    });
-    
     // Add task button
     document.getElementById('btnAddTask')?.addEventListener('click', () => showAddTaskModal());
     
@@ -227,6 +250,11 @@
     
     // Modal event listeners
     setupModalEventListeners();
+    
+    // Initialize calendar if calendar view is active
+    if (currentView === 'calendar') {
+      setupCalendarView();
+    }
   }
   
   function setupModalEventListeners() {
@@ -238,6 +266,38 @@
     closeBtn?.addEventListener('click', closeModal);
     cancelBtn?.addEventListener('click', closeModal);
     saveBtn?.addEventListener('click', saveTaskFromModal);
+    
+    // Duration field synchronization
+    const startDateInput = document.getElementById('taskStartDate');
+    const durationInput = document.getElementById('taskDuration');
+    const endDateInput = document.getElementById('taskEndDate');
+    
+    // When start date or duration changes, update end date
+    startDateInput?.addEventListener('change', () => {
+      const startDate = startDateInput.value;
+      const duration = parseInt(durationInput.value) || 1;
+      if (startDate && duration) {
+        endDateInput.value = calculateEndDate(startDate, duration);
+      }
+    });
+    
+    durationInput?.addEventListener('change', () => {
+      const startDate = startDateInput.value;
+      const duration = parseInt(durationInput.value) || 1;
+      if (startDate && duration) {
+        endDateInput.value = calculateEndDate(startDate, duration);
+      }
+    });
+    
+    // When end date changes, update duration
+    endDateInput?.addEventListener('change', () => {
+      const startDate = startDateInput.value;
+      const endDate = endDateInput.value;
+      if (startDate && endDate) {
+        const duration = calculateDurationFromDates(startDate, endDate);
+        durationInput.value = duration;
+      }
+    });
     
     // Close modal when clicking outside
     window.addEventListener('click', (e) => {
@@ -284,15 +344,11 @@
     document.querySelectorAll('.view-content').forEach(content => {
       content.classList.toggle('active', content.id === view + 'View');
     });
-  }
-  
-  function switchTimeScale(scale) {
-    currentTimeScale = scale;
     
-    // Update active states
-    document.querySelectorAll('[data-scale]').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.scale === scale);
-    });
+    // Initialize calendar if needed
+    if (view === 'calendar') {
+      setupCalendarView();
+    }
   }
   
   function showAddTaskModal(startDate = '', endDate = '') {
@@ -653,6 +709,10 @@
       progressValue.textContent = `${taskData.progress || 0}%`;
     }
     
+    // Calculate and set duration
+    const duration = calculateDurationFromDates(taskData.startDate, taskData.endDate);
+    document.getElementById('taskDuration').value = duration;
+    
     // Update modal title
     const modalTitle = document.getElementById('modalTitle');
     if (action === 'insert-above') {
@@ -747,11 +807,278 @@
     init();
   }
   
-  // Global functions for task actions - Expose after all functions are defined
+    // Global functions for task actions - Expose after all functions are defined
   window.editTask = editTask;
   window.deleteTask = deleteTask;
   window.toggleActionMenu = toggleActionMenu;
   window.insertTaskAbove = insertTaskAbove;
   window.insertTaskBelow = insertTaskBelow;
   window.duplicateTask = duplicateTask;
+  
+  // ========================================
+  // CALENDAR FUNCTIONALITY - Schedule v1.3
+  // ========================================
+  
+  // Calendar state
+  let currentCalendarView = 'month';
+  let currentCalendarDate = new Date();
+  
+  // Calendar initialization
+  function initCalendar() {
+    renderCalendar();
+    setupCalendarEventListeners();
+  }
+  
+  // Setup calendar event listeners
+  function setupCalendarEventListeners() {
+    // Calendar view toggle buttons
+    document.querySelectorAll('[data-calendar-view]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const view = e.target.dataset.calendarView;
+        setCalendarView(view);
+      });
+    });
+    
+    // Navigation buttons
+    document.getElementById('btnPrevMonth').addEventListener('click', () => {
+      navigateCalendar(-1);
+    });
+    
+    document.getElementById('btnNextMonth').addEventListener('click', () => {
+      navigateCalendar(1);
+    });
+  }
+  
+  // Set calendar view (month/week/day)
+  function setCalendarView(view) {
+    currentCalendarView = view;
+    
+    // Update button states
+    document.querySelectorAll('[data-calendar-view]').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    document.querySelector(`[data-calendar-view="${view}"]`).classList.add('active');
+    
+    // Hide all calendar views
+    document.querySelectorAll('.calendar-view').forEach(viewEl => {
+      viewEl.classList.remove('active');
+    });
+    
+    // Show selected view
+    document.getElementById(view + 'View').classList.add('active');
+    
+    // Render the view
+    renderCalendar();
+  }
+  
+  // Navigate calendar (previous/next)
+  function navigateCalendar(direction) {
+    if (currentCalendarView === 'month') {
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() + direction);
+    } else if (currentCalendarView === 'week') {
+      currentCalendarDate.setDate(currentCalendarDate.getDate() + (direction * 7));
+    } else if (currentCalendarView === 'day') {
+      currentCalendarDate.setDate(currentCalendarDate.getDate() + direction);
+    }
+    
+    renderCalendar();
+  }
+  
+  // Render calendar based on current view
+  function renderCalendar() {
+    updateCalendarTitle();
+    
+    if (currentCalendarView === 'month') {
+      renderMonthView();
+    } else if (currentCalendarView === 'week') {
+      renderWeekView();
+    } else if (currentCalendarView === 'day') {
+      renderDayView();
+    }
+  }
+  
+  // Update calendar title
+  function updateCalendarTitle() {
+    const titleEl = document.getElementById('calendarTitle');
+    
+    if (currentCalendarView === 'month') {
+      titleEl.textContent = currentCalendarDate.toLocaleDateString('en-US', { 
+        month: 'long', 
+        year: 'numeric' 
+      });
+    } else if (currentCalendarView === 'week') {
+      const startOfWeek = new Date(currentCalendarDate);
+      startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+      titleEl.textContent = `Week of ${startOfWeek.toLocaleDateString()}`;
+    } else if (currentCalendarView === 'day') {
+      titleEl.textContent = currentCalendarDate.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+      });
+    }
+  }
+  
+  // Render month view
+  function renderMonthView() {
+    const monthView = document.getElementById('monthView');
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+    
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const startDate = new Date(firstDay);
+    startDate.setDate(startDate.getDate() - firstDay.getDay());
+    
+    const endDate = new Date(lastDay);
+    endDate.setDate(endDate.getDate() + (6 - lastDay.getDay()));
+    
+    // Day headers
+    const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+      .map(day => `<div class="month-day-header">${day}</div>`)
+      .join('');
+    
+    // Generate days
+    const days = [];
+    const current = new Date(startDate);
+    const today = new Date();
+    
+    while (current <= endDate) {
+      const isToday = current.toDateString() === today.toDateString();
+      const isOtherMonth = current.getMonth() !== month;
+      const dayTasks = getTasksForDate(current);
+      
+      const dayClass = `month-day${isToday ? ' today' : ''}${isOtherMonth ? ' other-month' : ''}`;
+      
+      const taskElements = dayTasks.map(task => 
+        `<div class="month-task ${task.status} ${task.priority === 'critical' ? 'critical' : ''}" 
+             onclick="showTaskDetails('${task.id}')" 
+             title="${task.title} - ${task.assignee} - ${task.progress}%">
+             ${task.title}
+         </div>`
+      ).join('');
+      
+      days.push(`
+        <div class="${dayClass}">
+          <div class="month-day-number">${current.getDate()}</div>
+          ${taskElements}
+        </div>
+      `);
+      
+      current.setDate(current.getDate() + 1);
+    }
+    
+    monthView.innerHTML = `<div class="month-view">${dayHeaders}${days.join('')}</div>`;
+  }
+  
+  // Render week view
+  function renderWeekView() {
+    const weekView = document.getElementById('weekView');
+    const startOfWeek = new Date(currentCalendarDate);
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    
+    // Time slots
+    const timeSlots = ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+    
+    // Generate time header
+    const timeHeader = `<div class="week-time-header">Time</div>`;
+    
+    // Generate day headers
+    const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+      .map(day => `<div class="week-time-header">${day}</div>`)
+      .join('');
+    
+    // Generate time rows with tasks
+    const timeRows = [];
+    const today = new Date();
+    
+    for (let timeSlot of timeSlots) {
+      const row = [];
+      row.push(`<div class="week-time-slot">${timeSlot}</div>`);
+      
+      for (let i = 0; i < 7; i++) {
+        const currentDate = new Date(startOfWeek);
+        currentDate.setDate(startOfWeek.getDate() + i);
+        const isToday = currentDate.toDateString() === today.toDateString();
+        
+        const dayClass = `week-time-slot${isToday ? ' today' : ''}`;
+        
+        // Get tasks for this specific day and time slot
+        const dayTasks = getTasksForDate(currentDate);
+        const taskElements = dayTasks.map(task => 
+          `<div class="week-task ${task.status} ${task.priority === 'critical' ? 'critical' : ''}" 
+               onclick="showTaskDetails('${task.id}')" 
+               title="${task.title} - ${task.assignee} - ${task.progress}%">
+               ${task.title}
+           </div>`
+        ).join('');
+        
+        row.push(`<div class="${dayClass}">${taskElements}</div>`);
+      }
+      
+      timeRows.push(row.join(''));
+    }
+    
+    weekView.innerHTML = `<div class="week-view">${timeHeader}${dayHeaders}${timeRows.join('')}</div>`;
+  }
+  
+  // Render day view
+  function renderDayView() {
+    const dayView = document.getElementById('dayView');
+    const timeSlots = ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+    
+    const timeRows = [];
+    const today = new Date();
+    const isToday = currentCalendarDate.toDateString() === today.toDateString();
+    
+    // Get tasks for the current day
+    const dayTasks = getTasksForDate(currentCalendarDate);
+    
+    for (let timeSlot of timeSlots) {
+      const taskElements = dayTasks.map(task => 
+        `<div class="day-task ${task.status} ${task.priority === 'critical' ? 'critical' : ''}" 
+             onclick="showTaskDetails('${task.id}')" 
+             title="${task.title} - ${task.assignee} - ${task.progress}%">
+             ${task.title}
+         </div>`
+      ).join('');
+      
+      timeRows.push(`
+        <div class="day-time-slot">${timeSlot}</div>
+        <div class="day-time-slot${isToday ? ' today' : ''}">${taskElements}</div>
+      `);
+    }
+    
+    dayView.innerHTML = `<div class="day-view">${timeRows.join('')}</div>`;
+  }
+  
+  // Get tasks for specific date
+  function getTasksForDate(date) {
+    const dateStr = date.toISOString().split('T')[0];
+    return tasks.filter(task => {
+      const start = new Date(task.startDate);
+      const end = new Date(task.endDate);
+      const check = new Date(dateStr);
+      return check >= start && check <= end;
+    });
+  }
+  
+  // Show task details (placeholder for now)
+  function showTaskDetails(taskId) {
+    const task = tasks.find(t => t.id === taskId);
+    if (task) {
+      alert(`Task: ${task.title}\nAssignee: ${task.assignee}\nStatus: ${task.status}\nPriority: ${task.priority}\nProgress: ${task.progress}%\nPhase: ${task.phase}\nNotes: ${task.notes}`);
+    }
+  }
+  
+  // Initialize calendar when calendar view is selected
+  function setupCalendarView() {
+    if (currentView === 'calendar') {
+      initCalendar();
+    }
+  }
+  
+  // Expose calendar functions globally
+  window.showTaskDetails = showTaskDetails;
 })();
