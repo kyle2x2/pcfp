@@ -1,4 +1,4 @@
-# PCFP Development Guide v8.7.0
+# PCFP Development Guide v8.8.4
 
 ## 🎯 Table of Contents
 
@@ -491,6 +491,56 @@ The application uses a dual versioning system with two distinct version numbers:
 - **User control**: User decides when to "push" versions
 - **Consistency**: All version files updated together
 - **Documentation**: Complete change history in changelog
+
+### **🔧 Version Update Checklist**
+
+**CRITICAL**: Always update ALL version references when making version changes!
+
+#### **Required Files to Update:**
+1. **package.json** - Main application version
+2. **core/config.js** - APP_META.build and APP_META.version
+3. **core/config.js** - MODULE_VERS for specific module
+4. **core/kernel.standalone.js** - Navigation title for module
+5. **core/header_version.js** - Fallback version in script
+6. **core/integrity_banner.js** - Fallback version in script  
+7. **core/version_shim.js** - Fallback version in script
+8. **modules/[module]/module.js** - Module header comment
+9. **modules/[module]/module.css** - Module header comment
+10. **modules/[module]/index.html** - Cache busting parameter
+
+#### **Version Update Process:**
+```bash
+# 1. Update main app version
+package.json: "version": "8.8.4"
+core/config.js: build: "v8.8.4", version: "8.8.4"
+
+# 2. Update module version
+core/config.js: "daily-logs": "v1.8"
+core/kernel.standalone.js: 'Daily Logs v1.8'
+
+# 3. Update fallback versions
+core/header_version.js: 'v8.8.4'
+core/integrity_banner.js: 'v8.8.4'
+core/version_shim.js: 'v8.8.4'
+
+# 4. Update module files
+modules/daily-logs/module.js: "Daily Logs Module v1.8"
+modules/daily-logs/module.css: "Daily Logs Module v1.8"
+modules/daily-logs/index.html: "v=20250101131900"
+```
+
+#### **Verification Steps:**
+- [ ] Main app version displays correctly in sidebar
+- [ ] Module version displays correctly in navigation
+- [ ] Module version displays correctly in module header
+- [ ] Cache busting forces fresh asset loading
+- [ ] All fallback versions are consistent
+
+#### **Common Oversights:**
+- ❌ **kernel.standalone.js** - Navigation titles often forgotten
+- ❌ **Fallback versions** - Script fallbacks not updated
+- ❌ **Cache busting** - HTML cache parameters not updated
+- ❌ **Module comments** - File header comments not updated
 
 ### **Version Configuration**
 
@@ -1706,6 +1756,114 @@ console.log('Function took:', end - start, 'ms');
   menu.style.top = (buttonRect.bottom + 5) + 'px';
   ```
 
+#### **Photo Management Systems**
+- **Canvas-based Image Compression**: HTML5 Canvas for automatic image resizing and compression
+- **Why it works**: Efficient client-side processing, reduces storage requirements by up to 70%
+- **When to use**: Any photo upload system requiring storage optimization
+- **Example**:
+  ```javascript
+  function compressImage(file, maxWidth = 1200, maxHeight = 800, quality = 0.7) {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        const ratio = Math.min(maxWidth / img.width, maxHeight / img.height);
+        canvas.width = img.width * ratio;
+        canvas.height = img.height * ratio;
+        
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(resolve, 'image/jpeg', quality);
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  }
+  ```
+
+#### **Modal Width Solutions**
+- **Flexbox with Viewport Width**: `width: 95vw; max-width: 1400px` for responsive modal sizing
+- **Why it works**: Responsive design that adapts to screen size while maintaining maximum usability
+- **When to use**: Modals requiring significant horizontal space (photo galleries, data grids)
+- **Example**:
+  ```css
+  .modal-content {
+    width: 95vw;
+    max-width: 1400px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .photo-preview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-content: flex-start;
+  }
+  ```
+
+#### **CSS Conflict Resolution**
+- **!important Declarations**: Use `!important` to override conflicting CSS rules
+- **Why it works**: Ensures new styles take precedence over existing conflicting rules
+- **When to use**: When new styles are being overridden by existing CSS
+- **Example**:
+  ```css
+  .photo-preview {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    gap: 15px !important;
+    width: 100% !important;
+  }
+  .photo-container {
+    flex: 0 0 240px !important;
+    max-width: 240px !important;
+    height: 280px !important;
+  }
+  ```
+
+#### **Storage Quota Management**
+- **localStorage Monitoring**: Real-time tracking of storage usage with warnings
+- **Why it works**: Prevents storage quota exceeded errors and provides user feedback
+- **When to use**: Any application using localStorage for data persistence
+- **Example**:
+  ```javascript
+  function checkStorageQuota() {
+    const used = JSON.stringify(localStorage).length;
+    const limit = 8 * 1024 * 1024; // 8MB
+    const percentage = (used / limit) * 100;
+    
+    if (percentage > 80) {
+      showNotification('Storage warning: ' + Math.round(percentage) + '% used', 'warning');
+    }
+  }
+  ```
+
+#### **Cache Busting Best Practices**
+- **Version Parameters**: Update cache busting parameters in all script and CSS references
+- **Why it works**: Forces browser to load fresh assets, ensuring changes are visible
+- **When to use**: After any CSS or JavaScript changes that aren't appearing
+- **Example**:
+  ```html
+  <link rel="stylesheet" href="module.css?v=20250101131900">
+  <script src="module.js?v=20250101131900"></script>
+  ```
+
+#### **Undo/Redo Systems**
+- **Deep Copy Snapshots**: Use structured cloning for reliable operation history
+- **Why it works**: Prevents reference issues and ensures data integrity
+- **When to use**: Any system requiring undo/redo functionality
+- **Example**:
+  ```javascript
+  function saveToHistory() {
+    const snapshot = JSON.parse(JSON.stringify(dailyLogs)); // Deep copy
+    operationHistory.push(snapshot);
+    if (operationHistory.length > 20) {
+      operationHistory.shift(); // Keep only last 20 operations
+    }
+    updateUndoRedoButtons();
+  }
+  ```
 #### **Table-Based Layout Systems**
 - **Table-Based Grids**: `display: table`, `table-row`, `table-cell` for reliable data alignment
 - **Why it works**: Native table behavior ensures perfect column alignment, consistent with Schedule module
@@ -1728,6 +1886,44 @@ console.log('Function took:', end - start, 'ms');
   ```
 - **Advantages over CSS Grid**: Perfect column alignment, reliable border rendering, better browser compatibility
 - **Reference Implementation**: Schedule module uses this pattern for all list views
+
+### **❌ What Doesn't Work**
+
+#### **CSS Grid Border Issues**
+- **Problem**: CSS Grid with `display: contents` interferes with border rendering
+- **Why it fails**: Grid layout overrides border properties
+- **Solution**: Use `!important` declarations or switch to table-based layout
+- **Alternative**: Use Flexbox for simpler layouts
+
+#### **Fixed Modal Widths**
+- **Problem**: Fixed pixel widths (600px, 800px) don't adapt to different screen sizes
+- **Why it fails**: Poor user experience on different devices
+- **Solution**: Use viewport units (`95vw`) with max-width constraints
+- **Alternative**: Responsive breakpoints for different screen sizes
+
+#### **Shallow Copy for Undo/Redo**
+- **Problem**: Object references cause data corruption in operation history
+- **Why it fails**: Changes to current data affect historical snapshots
+- **Solution**: Use `JSON.parse(JSON.stringify())` for deep copying
+- **Alternative**: Use structured cloning API if available
+
+#### **No Cache Busting**
+- **Problem**: Browser caches old CSS/JS files, changes don't appear
+- **Why it fails**: Browser optimization prevents fresh asset loading
+- **Solution**: Update version parameters in all asset references
+- **Alternative**: Use development tools to disable cache
+
+#### **Large Image Uploads**
+- **Problem**: Uncompressed images consume excessive storage and bandwidth
+- **Why it fails**: localStorage has 8MB limit, large files cause performance issues
+- **Solution**: Implement client-side compression before upload
+- **Alternative**: Use external storage with compression
+
+#### **Generic CSS Selectors**
+- **Problem**: Overly broad CSS selectors cause unintended style conflicts
+- **Why it fails**: New styles get overridden by existing rules
+- **Solution**: Use specific selectors and `!important` when necessary
+- **Alternative**: CSS modules or scoped styling
 
 #### **Column Width Management**
 - **Fixed Widths**: Explicit width definitions prevent text wrapping
@@ -2480,8 +2676,27 @@ window.MODULE_VERS = {
 
 // Also update fallback values in:
 // core/header_version.js - lines 20, 29
-// core/version_shim.js - line 5  
+// core/version_shim.js - line 5
 // core/integrity_banner.js - line 20
+```
+
+### **🔧 Version Update Checklist**
+**CRITICAL**: Always update ALL version references!
+
+1. **package.json** - Main app version
+2. **core/config.js** - APP_META.build, APP_META.version, MODULE_VERS
+3. **core/kernel.standalone.js** - Navigation title
+4. **core/header_version.js** - Fallback version (lines 20, 29)
+5. **core/version_shim.js** - Fallback version (line 5)
+6. **core/integrity_banner.js** - Fallback version (line 20)
+7. **modules/[module]/module.js** - Header comment
+8. **modules/[module]/module.css** - Header comment
+9. **modules/[module]/index.html** - Cache busting parameter
+
+**Common Oversights:**
+- ❌ **kernel.standalone.js** - Navigation titles often forgotten
+- ❌ **Fallback versions** - Script fallbacks not updated
+- ❌ **Cache busting** - HTML cache parameters not updated
 ```
 
 ### **Cache Busting Format**

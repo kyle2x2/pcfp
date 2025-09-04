@@ -3,9 +3,9 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Daily Logs - PCFP v1.0</title>
-    <link rel="stylesheet" href="../../core/theme.css?v=20250101130500">
-    <link rel="stylesheet" href="module.css?v=20250101130500">
+    <title>Daily Logs - PCFP v1.2</title>
+    <link rel="stylesheet" href="../../core/theme.css?v=20250101130700">
+    <link rel="stylesheet" href="module.css?v=20250101130700">
 </head>
 <body>
 <header class="module-header">
@@ -14,7 +14,7 @@
     <button class="btn" id="btnExport" title="Export data">Export</button>
   </div>
   <div class="module-version-display">
-    <span class="version-badge">v1.0</span>
+    <span class="version-badge">v1.2</span>
   </div>
 </header>
 
@@ -27,8 +27,53 @@
           <button class="btn" data-view="cards">Cards</button>
         </div>
         
+        <!-- Search and Filter Section -->
+        <div class="search-filter-container">
+          <div class="search-box">
+            <input type="text" id="logSearch" placeholder="Search logs..." class="search-input" title="Search by notes, creator, or date">
+            <button class="search-btn" onclick="clearSearch()" title="Clear search">×</button>
+          </div>
+          <select id="filterBy" class="filter-select" title="Filter by category">
+            <option value="">All Logs</option>
+            <option value="date">By Date</option>
+            <option value="creator">By Creator</option>
+            <option value="weather">By Weather</option>
+            <option value="photos">With Photos</option>
+            <option value="archived">Archived</option>
+          </select>
+          <!-- Date Range Selection -->
+          <div class="date-range-container">
+            <input type="date" id="dateRangeStart" class="date-input" title="Start date">
+            <span class="date-separator">to</span>
+            <input type="date" id="dateRangeEnd" class="date-input" title="End date">
+            <button class="date-range-btn" onclick="applyDateRange()" title="Apply date range">Apply</button>
+            <button class="date-range-btn clear" onclick="clearDateRange()" title="Clear date range">Clear</button>
+          </div>
+        </div>
+        
         <div class="daily-logs-actions">
           <button class="btn btn-primary" id="btnAddLog">+ Add Daily Log</button>
+          <button class="btn btn-secondary" onclick="openDailyLogModal()" style="margin-left: 10px;">Test Modal</button>
+        </div>
+      </div>
+
+      <!-- Mass Action Toolbar -->
+      <div id="massActionToolbar" class="mass-action-toolbar">
+        <span class="selected-count">0 selected</span>
+        <div class="mass-action-buttons">
+          <button class="mass-action-btn danger" onclick="deleteSelectedLogs()">Delete Selected</button>
+          <button class="mass-action-btn" onclick="duplicateSelectedLogs()">Duplicate Selected</button>
+          <button class="mass-action-btn" onclick="exportSelectedLogs()">Export Selected</button>
+          <button class="mass-action-btn" onclick="archiveSelectedLogs()">Archive Selected</button>
+          <button class="mass-action-btn primary" onclick="generateReport()">Generate Report</button>
+          <!-- Date Range Actions -->
+          <button class="mass-action-btn" onclick="exportDateRange()">Export Date Range</button>
+          <button class="mass-action-btn" onclick="archiveDateRange()">Archive Date Range</button>
+        </div>
+        <!-- Undo/Redo Section -->
+        <div class="undo-redo-section">
+          <button class="undo-redo-btn" id="btnUndo" onclick="undoLastOperation()" disabled title="Undo last operation">↶ Undo</button>
+          <button class="undo-redo-btn" id="btnRedo" onclick="redoLastOperation()" disabled title="Redo last operation">↷ Redo</button>
         </div>
       </div>
       
@@ -41,14 +86,14 @@
                 <div class="grid-cell checkbox-cell" data-col="checkbox">
                   <input type="checkbox" id="selectAll" title="Select all">
                 </div>
+                <div class="grid-cell" data-col="project">
+                  <span class="col-title">Project</span>
+                </div>
                 <div class="grid-cell" data-col="date">
                   <span class="col-title">Date</span>
                 </div>
                 <div class="grid-cell" data-col="notes">
                   <span class="col-title">Notes</span>
-                </div>
-                <div class="grid-cell" data-col="photos">
-                  <span class="col-title">Photos</span>
                 </div>
                 <div class="grid-cell" data-col="weather">
                   <span class="col-title">Weather</span>
@@ -75,9 +120,75 @@
         </div>
       </div>
     </div>
+      </div>
   </div>
-</div>
 
-<script src="module.js?v=20250101130500"></script>
+  <!-- Modal for Add/Edit Daily Log -->
+  <div id="dailyLogModal" class="modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Add Daily Log</h3>
+        <button class="close-btn" onclick="closeDailyLogModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="dailyLogForm">
+          <div class="form-group">
+            <label for="projectField">Project *</label>
+            <select id="projectField" required>
+              <option value="">Select a project...</option>
+              <option value="Downtown Office Building">Downtown Office Building</option>
+              <option value="Riverside Condominiums">Riverside Condominiums</option>
+              <option value="Highway Bridge Renovation">Highway Bridge Renovation</option>
+              <option value="Shopping Center Expansion">Shopping Center Expansion</option>
+              <option value="Industrial Warehouse">Industrial Warehouse</option>
+              <option value="Residential Subdivision">Residential Subdivision</option>
+              <option value="Hospital Wing Addition">Hospital Wing Addition</option>
+              <option value="School Gymnasium">School Gymnasium</option>
+              <option value="Parking Garage">Parking Garage</option>
+              <option value="Restaurant Renovation">Restaurant Renovation</option>
+              <option value="Custom Home Build">Custom Home Build</option>
+              <option value="Apartment Complex">Apartment Complex</option>
+              <option value="Retail Store">Retail Store</option>
+              <option value="Office Renovation">Office Renovation</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="dateField">Date *</label>
+            <input type="date" id="dateField" required>
+          </div>
+          <div class="form-group">
+            <label for="notesField">Notes</label>
+            <textarea id="notesField" rows="4" placeholder="Enter daily log notes..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="photoUpload">Photos</label>
+            <input type="file" id="photoUpload" accept="image/*" multiple>
+            <div class="photo-limits">
+              <span class="photo-count" id="photoCount">0 / 10 photos</span>
+              <span class="photo-size-limit">Max 5MB per photo</span>
+            </div>
+            <div id="photoPreview" class="photo-preview"></div>
+          </div>
+          <div class="form-group">
+            <label>Weather Data</label>
+            <div id="weatherDisplay" class="weather-display">
+              <span class="weather-placeholder">Weather data will be loaded for the selected date</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Created</label>
+            <input type="text" id="createdField" readonly class="readonly-field">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeDailyLogModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="document.getElementById('dailyLogForm').dispatchEvent(new Event('submit'))">Save Daily Log</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="module.js?v=20250101131900"></script>
 </body>
 </html>

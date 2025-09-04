@@ -4,7 +4,7 @@
   const routes = {
     '#/payments':        { title: 'Payment Planner v7.5',  src: 'modules/payment-planner/index.html' },
              '#/schedule':        { title: 'Schedule v1.5.1',    src: 'modules/schedule/index.html' },
-    '#/daily-logs':      { title: 'Daily Logs v1.0',       src: 'modules/daily-logs/index.html' },
+    '#/daily-logs':      { title: 'Daily Logs v1.8',       src: 'modules/daily-logs/index.html' },
     '#/to-dos':          { title: 'To‑Dos v1.0',           src: 'modules/to-dos/index.html' },
     '#/change-orders':   { title: 'Change Orders v1.0',    src: 'modules/change-orders/index.html' },
     '#/selections':      { title: 'Selections v1.0',       src: 'modules/selections/index.html' },
