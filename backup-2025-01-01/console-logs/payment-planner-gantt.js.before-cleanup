@@ -36,6 +36,8 @@ export function initializePaymentGantt() {
       updatePaymentTimelineScale(e.detail);
     });
     
+    console.log('[PCFP] Payment Gantt initialized with', paymentTasks.length, 'payment items');
+    
   }, 'payment-planner:gantt:init');
   
   return paymentGantt;
@@ -167,6 +169,7 @@ function updatePaymentCalculations(task) {
 
 function updatePaymentTimelineScale(detail) {
   // Update payment timeline scale based on zoom
+  console.log('Payment timeline zoomed:', detail.direction);
   
   // Update payment summary based on visible timeline
   updatePaymentSummary();
@@ -209,11 +212,13 @@ function getVisiblePayments() {
 // Expose functions for global access
 window.editPayment = function(taskId) {
   // Edit payment functionality
+  console.log('Edit payment:', taskId);
   // Implementation would open edit modal
 };
 
 window.viewPaymentSchedule = function(taskId) {
   // View payment schedule functionality
+  console.log('View payment schedule:', taskId);
   // Implementation would show payment schedule modal
 };
 

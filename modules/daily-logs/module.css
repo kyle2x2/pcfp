@@ -1,4 +1,4 @@
-/* modules/daily-logs/module.css - Daily Logs Module v1.8 Styles */
+/* modules/daily-logs/module.css - Daily Logs Module v1.9 Styles */
 /* PCFP White/Gold Design Scheme - Professional Construction Software Quality */
 
 :root {
@@ -51,11 +51,15 @@
 .module-container {
   height: calc(100vh - 60px);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .module-content {
   height: 100%;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .daily-logs-container {
@@ -65,6 +69,7 @@
   padding: 20px;
   background: var(--pcfp-panel);
   gap: 20px;
+  overflow: hidden;
 }
 
 .daily-logs-header {
@@ -76,11 +81,13 @@
   border-radius: 8px;
   border: 1px solid var(--pcfp-border);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  gap: 20px;
 }
 
 .view-selector {
   display: flex;
   gap: 5px;
+  flex-shrink: 0;
 }
 
 .view-selector .btn {
@@ -108,6 +115,7 @@
 .daily-logs-actions {
   display: flex;
   gap: 10px;
+  flex-shrink: 0;
 }
 
 .btn {
@@ -138,16 +146,20 @@
 .daily-logs-content {
   flex: 1;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .view-content {
   display: none;
   height: 100%;
   overflow: hidden;
+  flex: 1;
 }
 
 .view-content.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ===== SEARCH AND FILTER STYLES ===== */
@@ -157,12 +169,15 @@
   align-items: center;
   gap: 12px;
   flex: 1;
-  max-width: 400px;
+  min-width: 0;
+  margin: 0 20px;
+  max-width: 600px;
 }
 
 .search-box {
   position: relative;
-  flex: 1;
+  flex: 0 0 200px;
+  min-width: 200px;
 }
 
 .search-input {
@@ -174,6 +189,13 @@
   background: var(--pcfp-white);
   color: var(--pcfp-text);
   transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--pcfp-gold);
+  box-shadow: 0 0 0 2px rgba(198, 162, 71, 0.1);
 }
 
 .search-input:focus {
@@ -371,13 +393,13 @@
 }
 
 .mass-action-btn.danger {
-  background: var(--pcfp-error);
-  color: white;
+  color: var(--pcfp-error);
   border-color: var(--pcfp-error);
 }
 
 .mass-action-btn.danger:hover {
-  background: #dc2626;
+  background: var(--pcfp-error);
+  color: var(--pcfp-white);
 }
 
 .mass-action-btn.primary {
@@ -496,9 +518,22 @@
 .grid-container {
   width: 100%;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: auto;
   border-radius: 8px;
   position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+.data-grid {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--pcfp-white);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-height: 0;
 }
 
 /* Data Grid Table */
@@ -543,6 +578,15 @@
 /* Grid Rows */
 .grid-row {
   display: table-row;
+  transition: background-color 0.2s ease;
+}
+
+.grid-row:hover {
+  background: var(--pcfp-panel);
+}
+
+.grid-row:hover .grid-cell {
+  background: var(--pcfp-panel);
 }
 
 /* Grid Cells */
@@ -1333,4 +1377,82 @@
   .photo-thumbnail {
     height: 150px;
   }
+}
+
+/* Pagination Styles */
+.pagination-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: var(--pcfp-white);
+  border-top: 1px solid var(--pcfp-border);
+  margin-top: 10px;
+  border-radius: 0 0 8px 8px;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.pagination-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--pcfp-border);
+  background: var(--pcfp-white);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+  color: var(--pcfp-text);
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--pcfp-gold-light);
+  border-color: var(--pcfp-gold);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: var(--pcfp-text-muted);
+  font-weight: 500;
+}
+
+.items-per-page-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.items-per-page-label {
+  font-size: 14px;
+  color: var(--pcfp-text-muted);
+  font-weight: 500;
+}
+
+.items-per-page-select {
+  padding: 6px 12px;
+  border: 1px solid var(--pcfp-border);
+  background: var(--pcfp-white);
+  border-radius: 4px;
+  font-size: 14px;
+  color: var(--pcfp-text);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.items-per-page-select:hover {
+  border-color: var(--pcfp-gold);
+}
+
+.items-per-page-select:focus {
+  outline: none;
+  border-color: var(--pcfp-gold);
+  box-shadow: 0 0 0 2px rgba(198, 162, 71, 0.1);
 }

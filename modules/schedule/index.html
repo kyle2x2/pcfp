@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Schedule - PCFP v1.5.1</title>
-<link rel="stylesheet" href="../../core/theme.css?v=20250101130400">
-<link rel="stylesheet" href="module.css?v=20250101130400">
+    <title>Schedule - PCFP v1.5.2</title>
+<link rel="stylesheet" href="../../core/theme.css?v=20250101132800">
+<link rel="stylesheet" href="module.css?v=20250101132800">
 <link rel="stylesheet" href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css">
 </head>
 <body>
@@ -36,9 +36,22 @@
         
         <div class="schedule-content">
           <div id="listView" class="view-content active">
+            <!-- Mass Action Toolbar -->
+            <div id="massActionToolbar" class="mass-action-toolbar">
+              <span class="selected-count">0 selected</span>
+              <div class="mass-action-buttons">
+                <button id="btnDeleteSelected" class="mass-action-btn danger">Delete Selected</button>
+                <button id="btnDuplicateSelected" class="mass-action-btn">Duplicate Selected</button>
+                <button id="btnExportSelected" class="mass-action-btn">Export Selected</button>
+              </div>
+            </div>
+            
             <div class="grid-container">
               <div class="data-grid">
               <div class="grid-header">
+                <div class="grid-cell checkbox-cell" data-col="checkbox">
+                  <input type="checkbox" id="selectAll" title="Select all">
+                </div>
                 <div class="grid-cell" data-col="title" data-col-index="0">
                   <span class="col-title">Task</span>
                 </div>
@@ -74,6 +87,12 @@
                 <!-- Tasks will be populated here -->
               </div>
             </div>
+          </div>
+          
+          <!-- Pagination Container -->
+          <div id="paginationContainer" class="pagination-container" style="display: none;">
+            <!-- Pagination controls will be populated here -->
+          </div>
           </div>
           </div>
           

@@ -1,4 +1,4 @@
-# PCFP Development Guide v8.8.4
+# PCFP Development Guide v8.8.10
 
 ## 🎯 Table of Contents
 
@@ -289,6 +289,47 @@ Assistant creates a comprehensive plan including:
 </div>
 ```
 
+---
+
+## 📋 List View Standards
+
+### **🎯 PCFP List View Standard**
+All list views must follow the comprehensive standard defined in `PCFP_LIST_VIEW_STANDARD.md`. This ensures consistency across all modules.
+
+**Key Requirements:**
+- **Pagination**: 10 items per page with Previous/Next navigation + Items per page dropdown (10, 25, 50)
+- **Mass Actions**: Checkbox selection with dynamic toolbar (exactly 3 buttons: Delete, Duplicate, Export)
+- **Performance Monitoring**: Render time, search time, memory usage tracking
+- **Standard Structure**: Consistent HTML, CSS, and JavaScript patterns
+- **Event Listeners**: Simple, direct event listeners (avoid complex dynamic setup)
+
+**Implementation:**
+1. Reference `PCFP_LIST_VIEW_STANDARD.md` for complete specifications
+2. Follow the implementation checklist for each new module
+3. Customize only module-specific data and actions
+4. Maintain design consistency with PCFP white/gold theme
+5. Use simple event listeners: `document.getElementById('btnDeleteSelected')?.addEventListener('click', deleteSelectedItems)`
+
+**Current Status:**
+- ✅ **Daily Logs**: Fully compliant with standard (v1.9)
+- ✅ **Schedule**: Fully compliant with standard (v1.5.2)
+- ⏳ **All Other Modules**: To be implemented when developed
+
+**Quick Reference:**
+- **HTML Structure**: Standard grid container with checkbox column
+- **CSS Classes**: Consistent grid, pagination, and mass action styles
+- **JavaScript Functions**: applyPagination(), updateSelectedCount(), updatePerformanceMetrics()
+- **Performance Thresholds**: >500ms render, >200ms search, >6MB memory
+- **Button Styling**: Danger buttons are red text/border, solid red only on hover
+
+**⚠️ Critical Implementation Notes:**
+- **Event Listeners**: Use simple, direct event listeners in setupEventListeners()
+- **Button Styling**: Danger buttons should NOT be solid red by default
+- **Pagination**: Include items per page dropdown on right side
+- **Mass Actions**: Exactly 3 buttons, no additional buttons allowed
+
+---
+
 ### **🚀 Phase 4: Implementation**
 
 #### **Step 8: Development**
@@ -486,6 +527,25 @@ The application uses a dual versioning system with two distinct version numbers:
 - **Update guide only when instructed**: Explicit user approval required for guide changes
 - **Document learnings**: Add new patterns and solutions to guide after validation
 
+### **🧠 Enhanced Memory System for Guide Reference**
+
+#### **Mandatory Process for All Tasks:**
+1. **🔍 CHECK**: Always reference `PCFP_DEVELOPMENT_GUIDE.md` FIRST
+2. **📋 IDENTIFY**: Find relevant section(s) for the task
+3. **📖 FOLLOW**: Execute exactly as documented
+4. **📝 DOCUMENT**: Update changelog and any new learnings
+
+#### **Version Management Automation:**
+- **Primary**: Structured task approach for all development work
+- **Secondary**: Automated checklist for version management
+- **Tertiary**: Enhanced memory system for guide reference
+
+#### **Prevention Strategy:**
+- ✅ Always reference the guide first
+- ✅ Follow documented procedures exactly
+- ✅ Never forget the version update checklist
+- ✅ Maintain consistency across all tasks
+
 #### **Benefits of Disciplined Version Management**
 - **Focused development**: No time wasted on premature version updates
 - **User control**: User decides when to "push" versions
@@ -541,6 +601,95 @@ modules/daily-logs/index.html: "v=20250101131900"
 - ❌ **Fallback versions** - Script fallbacks not updated
 - ❌ **Cache busting** - HTML cache parameters not updated
 - ❌ **Module comments** - File header comments not updated
+
+### **🚨 Version Display Issues & Solutions**
+
+#### **Critical Issue: Duplicate Version Display**
+**Problem**: Main app version appears both in sidebar AND next to module titles
+**Root Cause**: Multiple scripts targeting generic selectors that affect both main app and module headers
+
+#### **Scripts That Can Cause Version Display Issues:**
+1. **`core/header_version.js`** - Adds build version to headers
+2. **`core/integrity_banner.js`** - Updates `[data-app-version]` elements
+3. **`core/version-manager.js`** - Automatically finds and updates version elements
+
+#### **Prevention Strategy:**
+1. **`header_version.js`**: Only target `aside header` (sidebar), never module headers
+2. **`integrity_banner.js`**: Check for `iframe.module-frame` before updating version elements
+3. **`version-manager.js`**: Avoid generic `.version` class, use specific selectors only
+
+#### **Working Configuration:**
+```javascript
+// header_version.js - ONLY target sidebar
+var header = doc.querySelector('aside header');
+
+// integrity_banner.js - ONLY update if not in module iframe
+if(pill && !document.querySelector('iframe.module-frame')){ 
+  pill.textContent = 'Build ' + appBuild;
+}
+
+// version-manager.js - Specific selectors only
+const selectors = [
+  '[data-app-version]',
+  '.pcfp-version-pill',
+  'title',
+  // '.version',  // REMOVED - too generic
+  '[data-version]'
+];
+```
+
+#### **Version Display Rules:**
+- ✅ **Main App Version**: Only in left sidebar (`aside header`)
+- ✅ **Module Versions**: Only in module headers (e.g., "Daily Logs v1.9")
+- ❌ **Never**: Show main app version next to module titles
+- ❌ **Never**: Use generic selectors that affect both areas
+
+#### **Debugging Version Display Issues:**
+1. Check `core/header_version.js` - ensure it only targets `aside header`
+2. Check `core/integrity_banner.js` - ensure it checks for module iframe
+3. Check `core/version-manager.js` - ensure it uses specific selectors
+4. Verify no generic `.version` class targeting in any script
+
+### **🛡️ Version Display Prevention Checklist**
+
+#### **Before Any Version Update:**
+- [ ] **Check Development Guide**: Reference version management section first
+- [ ] **Review Script Targeting**: Ensure scripts only target intended areas
+- [ ] **Test Both Areas**: Verify version appears only in sidebar, not module headers
+- [ ] **Document Changes**: Update changelog with specific fixes
+
+#### **Critical Script Configurations:**
+```javascript
+// ✅ CORRECT - header_version.js
+var header = doc.querySelector('aside header'); // ONLY sidebar
+if(!header) return; // Safety check
+
+// ✅ CORRECT - integrity_banner.js  
+if(pill && !document.querySelector('iframe.module-frame')){ // Only main app
+  pill.textContent = 'Build ' + appBuild;
+}
+
+// ✅ CORRECT - version-manager.js
+const selectors = [
+  '[data-app-version]',    // Specific attribute
+  '.pcfp-version-pill',    // Specific class
+  'title',                  // Page title only
+  // '.version',           // REMOVED - too generic
+  '[data-version]'          // Specific attribute
+];
+```
+
+#### **❌ NEVER DO:**
+- Use generic `header` selector in version scripts
+- Target `.version` class without specific context
+- Update version elements without checking iframe context
+- Allow scripts to run in both main app and module contexts
+
+#### **✅ ALWAYS DO:**
+- Target `aside header` specifically for main app version
+- Check for `iframe.module-frame` before updating version elements
+- Use specific selectors like `[data-app-version]`
+- Test version display in both sidebar and module headers
 
 ### **Version Configuration**
 
@@ -2581,6 +2730,12 @@ This approach ensures we **never implement unproven solutions** and always have 
 
 ## 🚀 Quick Reference Cheat Sheet
 
+### **🧠 Mandatory Process for All Tasks**
+1. **🔍 CHECK**: Always reference `PCFP_DEVELOPMENT_GUIDE.md` FIRST
+2. **📋 IDENTIFY**: Find relevant section(s) for the task
+3. **📖 FOLLOW**: Execute exactly as documented
+4. **📝 DOCUMENT**: Update changelog and any new learnings
+
 ### **Essential Commands**
 ```bash
 # Start development server
@@ -2678,6 +2833,38 @@ window.MODULE_VERS = {
 // core/header_version.js - lines 20, 29
 // core/version_shim.js - line 5
 // core/integrity_banner.js - line 20
+```
+
+### **🛡️ Version Display Prevention**
+```javascript
+// ✅ CORRECT - header_version.js
+var header = doc.querySelector('aside header'); // ONLY sidebar
+if(!header) return; // Safety check
+
+// ✅ CORRECT - integrity_banner.js  
+if(pill && !document.querySelector('iframe.module-frame')){ // Only main app
+  pill.textContent = 'Build ' + appBuild;
+}
+
+// ✅ CORRECT - version-manager.js
+const selectors = [
+  '[data-app-version]',    // Specific attribute
+  '.pcfp-version-pill',     // Specific class
+  'title',                  // Page title only
+  // '.version',            // REMOVED - too generic
+  '[data-version]'          // Specific attribute
+];
+```
+
+**❌ NEVER DO:**
+- Use generic `header` selector in version scripts
+- Target `.version` class without specific context
+- Update version elements without checking iframe context
+
+**✅ ALWAYS DO:**
+- Target `aside header` specifically for main app version
+- Check for `iframe.module-frame` before updating version elements
+- Test version display in both sidebar and module headers
 ```
 
 ### **🔧 Version Update Checklist**
@@ -2952,6 +3139,7 @@ console.log('Element bounds:', element.getBoundingClientRect());
 - **Sidebar version stuck**: Update hardcoded fallbacks in `header_version.js`, `version_shim.js`, `integrity_banner.js`
 - **Dropdown menu cut off**: Use `position: fixed` instead of `position: absolute` for table layouts
 - **Table layout inconsistency**: Use `display: table`, `table-row`, `table-cell` for list views (not CSS Grid)
+- **Duplicate version display**: Check `header_version.js` targets only `aside header`, `integrity_banner.js` checks for module iframe, `version-manager.js` uses specific selectors
 
 ### **Quality Gates**
 - [ ] All functionality tested
@@ -3027,3 +3215,67 @@ I will:
 - **Continuous Learning**: Update guide based on new experiences
 
 This ensures our guide remains **comprehensive, practical, and valuable** as our project and team grow! 🚀
+
+---
+
+## 📚 Documentation Consolidation & Organization
+
+### **Recent Documentation Improvements**
+
+#### **Consolidated Roadmap System**
+- **Unified Roadmap**: Created comprehensive `PCFP_COMPREHENSIVE_ROADMAP.md` consolidating all module roadmaps
+- **Streamlined Structure**: Single roadmap file instead of multiple scattered files
+- **Better Organization**: Clear sections for completed, in-development, and planned modules
+- **Development Learnings**: Integrated learnings from completed modules into roadmap
+
+#### **Documentation Cleanup**
+- **Removed Redundancy**: Eliminated duplicate information across multiple roadmap files
+- **Improved Navigation**: Clear structure with logical flow and easy reference
+- **Version Consistency**: Ensured all documentation reflects current module versions
+- **Backup Strategy**: Created backup folder for all modified files before cleanup
+
+### **Current Documentation Structure**
+
+#### **Primary Documentation Files**
+1. **PCFP_DEVELOPMENT_GUIDE.md** - The "holy bible" of development practices
+2. **PCFP_COMPREHENSIVE_ROADMAP.md** - Unified module development roadmap
+3. **CHANGELOG.md** - User-focused change history and feature descriptions
+4. **README.md** - Project overview and getting started guide
+
+#### **Backup Documentation**
+- **backup-2025-01-01/** - Local backup of files before cleanup
+  - **test-files/** - Orphaned test files
+  - **console-logs/** - Files with console.log statements before cleanup
+  - **documentation/** - Original roadmap files before consolidation
+
+### **Documentation Maintenance Standards**
+
+#### **Update Frequency**
+- **Development Guide**: Update with new learnings and patterns
+- **Roadmap**: Update when module status changes
+- **Changelog**: Update with each version release
+- **README**: Update with major feature additions
+
+#### **Quality Standards**
+- **Consistency**: All version numbers match across documentation
+- **Completeness**: All changes documented with clear descriptions
+- **Accuracy**: Information reflects current state of codebase
+- **Clarity**: User-friendly language with technical details where needed
+
+### **Documentation Best Practices**
+
+#### **When to Update Documentation**
+- **New Patterns**: Document proven solutions and patterns
+- **Module Completion**: Update roadmap and changelog
+- **Version Changes**: Update all version references
+- **Process Changes**: Update development guide with new procedures
+- **Bug Fixes**: Document solutions in troubleshooting guide
+
+#### **Documentation Review Process**
+1. **Identify Need**: During development, identify documentation gaps
+2. **Propose Updates**: Suggest specific documentation improvements
+3. **User Approval**: Get approval before making changes
+4. **Implementation**: Update documentation with approved changes
+5. **Validation**: Ensure documentation matches current codebase
+
+This documentation system ensures **clear, organized, and maintainable** project documentation! 📚

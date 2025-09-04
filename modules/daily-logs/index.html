@@ -3,18 +3,15 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Daily Logs - PCFP v1.2</title>
-    <link rel="stylesheet" href="../../core/theme.css?v=20250101130700">
-    <link rel="stylesheet" href="module.css?v=20250101130700">
+    <title>Daily Logs - PCFP v1.9</title>
+    <link rel="stylesheet" href="../../core/theme.css?v=20250101133300">
+<link rel="stylesheet" href="module.css?v=20250101133300">
 </head>
 <body>
 <header class="module-header">
   <div class="module-toolbar">
     <button class="btn" id="btnSave" title="Save data">Save</button>
     <button class="btn" id="btnExport" title="Export data">Export</button>
-  </div>
-  <div class="module-version-display">
-    <span class="version-badge">v1.2</span>
   </div>
 </header>
 
@@ -53,7 +50,6 @@
         
         <div class="daily-logs-actions">
           <button class="btn btn-primary" id="btnAddLog">+ Add Daily Log</button>
-          <button class="btn btn-secondary" onclick="openDailyLogModal()" style="margin-left: 10px;">Test Modal</button>
         </div>
       </div>
 
@@ -61,19 +57,9 @@
       <div id="massActionToolbar" class="mass-action-toolbar">
         <span class="selected-count">0 selected</span>
         <div class="mass-action-buttons">
-          <button class="mass-action-btn danger" onclick="deleteSelectedLogs()">Delete Selected</button>
-          <button class="mass-action-btn" onclick="duplicateSelectedLogs()">Duplicate Selected</button>
-          <button class="mass-action-btn" onclick="exportSelectedLogs()">Export Selected</button>
-          <button class="mass-action-btn" onclick="archiveSelectedLogs()">Archive Selected</button>
-          <button class="mass-action-btn primary" onclick="generateReport()">Generate Report</button>
-          <!-- Date Range Actions -->
-          <button class="mass-action-btn" onclick="exportDateRange()">Export Date Range</button>
-          <button class="mass-action-btn" onclick="archiveDateRange()">Archive Date Range</button>
-        </div>
-        <!-- Undo/Redo Section -->
-        <div class="undo-redo-section">
-          <button class="undo-redo-btn" id="btnUndo" onclick="undoLastOperation()" disabled title="Undo last operation">↶ Undo</button>
-          <button class="undo-redo-btn" id="btnRedo" onclick="redoLastOperation()" disabled title="Redo last operation">↷ Redo</button>
+          <button id="btnDeleteSelected" class="mass-action-btn danger">Delete Selected</button>
+          <button id="btnDuplicateSelected" class="mass-action-btn">Duplicate Selected</button>
+          <button id="btnExportSelected" class="mass-action-btn">Export Selected</button>
         </div>
       </div>
       
@@ -109,6 +95,10 @@
                 <!-- Logs will be populated here -->
               </div>
             </div>
+          </div>
+          <!-- Pagination Container -->
+          <div id="paginationContainer" class="pagination-container" style="display: none;">
+            <!-- Pagination controls will be populated here -->
           </div>
         </div>
         
@@ -189,6 +179,6 @@
     </div>
   </div>
 
-  <script src="module.js?v=20250101131900"></script>
+  <script src="module.js?v=20250101133300"></script>
 </body>
 </html>

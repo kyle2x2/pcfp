@@ -1,12 +1,12 @@
-// PCFP v8.8.4 - BuilderTrend Competitor Foundation
+// PCFP v8.8.9 - BuilderTrend Competitor Foundation
 // API-First Architecture with Enhanced Performance & Flexibility
 
 // Single source of truth for app metadata - API-ready structure
 export const APP_META = {
-      build: "v8.8.4",
+      build: "v8.8.10",
   appName: "PCFP - Project Construction Financial Planner",
   copyright: "© 2x2 Construction",
-      version: "8.8.4",
+      version: "8.8.10",
   apiVersion: "v1",
   description: "Modern construction project management platform - BuilderTrend alternative",
   features: {
@@ -26,8 +26,8 @@ window.APP_BUILD = APP_META.build;
         // All modules are independent, including payment-planner
         window.MODULE_VERS = {
           "payments": "v7.5",        // Payment-planner is now v7.5
-          "schedule": "v1.5.1",        // Schedule is v1.5.1 (Professional List, Calendar, Gantt & Kanban)
-          "daily-logs": "v1.8",      // Daily Logs is v1.8 (Advanced Features Complete)
+          "schedule": "v1.5.2",        // Schedule is v1.5.2 (Professional List, Calendar, Gantt & Kanban)
+          "daily-logs": "v1.9",      // Daily Logs is v1.9 (Advanced Features Complete)
           "logs": "v1.0",            // All other modules are v1.0
           "todos": "v1.0",           // All other modules are v1.0
           "changes": "v1.0",         // All other modules are v1.0

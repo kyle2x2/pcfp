@@ -18,12 +18,12 @@
   }
   function onReady(fn){ if(document.readyState!=='loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
   onReady(function(){
-                const appBuild = window.APP_BUILD || 'v8.8.4';
+                const appBuild = window.APP_BUILD || 'v8.8.10';
     var v = appBuild + ' • ' + (g.PCFP && g.PCFP.version ? g.PCFP.version.build : 'unknown');
     show('Integrity: Bus + Router + Contracts v2 loaded ('+ v +')');
-    // Also stamp version pill if present
+    // Also stamp version pill if present - ONLY in main app, not modules
     var pill = document.querySelector('[data-app-version]');
-    if(pill){
+    if(pill && !document.querySelector('iframe.module-frame')){ // Only if not in a module iframe
       pill.textContent = 'Build ' + appBuild;
     }
     // Dev console breadcrumb

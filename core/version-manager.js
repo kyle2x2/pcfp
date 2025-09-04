@@ -43,7 +43,8 @@ export class VersionManager {
       '[data-app-version]',
       '.pcfp-version-pill',
       'title',
-      '.version',
+      // Only target specific version elements, not generic .version class
+      // '.version',  // REMOVED - too generic, affects module headers
       '[data-version]'
     ];
 
@@ -64,7 +65,8 @@ export class VersionManager {
     if (element.tagName === 'TITLE') return 'title';
     if (element.hasAttribute('data-app-version')) return 'data-attribute';
     if (element.classList.contains('pcfp-version-pill')) return 'version-pill';
-    if (element.classList.contains('version')) return 'version-badge';
+    // Only update version badges that are specifically marked
+    if (element.classList.contains('version') && element.hasAttribute('data-app-version')) return 'version-badge';
     return 'generic';
   }
 

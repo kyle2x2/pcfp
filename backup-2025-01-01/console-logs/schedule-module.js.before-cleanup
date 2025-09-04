@@ -1,4 +1,4 @@
-// modules/schedule/module.js - Schedule Module v1.5.2 (Gantt Charts & Kanban with DHTMLX & SortableJS)
+// modules/schedule/module.js - Schedule Module v1.5.1 (Gantt Charts & Kanban with DHTMLX & SortableJS)
 // Construction project scheduling and timeline management
 
 (function() {
@@ -6,19 +6,6 @@
   let currentTimeScale = 'month';
   let tasks = [];
   let editingTaskId = null;
-  
-  // Pagination variables
-  let currentPage = 1;
-  let itemsPerPage = 10;
-  let totalPages = 0;
-  let paginatedTasks = [];
-  
-  // Performance monitoring
-  let performanceMetrics = {
-    renderTime: 0,
-    searchTime: 0,
-    memoryUsage: 0
-  };
   
   // Enhanced task data model for v1.2
   const defaultTask = {
@@ -46,9 +33,6 @@
     
     // Load data
     loadScheduleData();
-    
-    // Apply pagination on initial load
-    applyPagination();
     
     // Set up UI
     populateTaskList();
@@ -127,18 +111,10 @@
     const taskGridBody = document.getElementById('taskGridBody');
     if (!taskGridBody) return;
     
-    const startTime = performance.now();
-    
-    // Use paginated tasks instead of all tasks
-    const tasksToRender = paginatedTasks.length > 0 ? paginatedTasks : tasks;
-    
-    taskGridBody.innerHTML = tasksToRender.map(task => {
+    taskGridBody.innerHTML = tasks.map(task => {
       const duration = calculateDuration(task.startDate, task.endDate);
       return `
         <div class="grid-row" data-task-id="${task.id}">
-          <div class="grid-cell checkbox-cell" data-col="checkbox">
-            <input type="checkbox" class="task-checkbox" data-task-id="${task.id}">
-          </div>
           <div class="grid-cell" data-col="title">
             <div style="display: flex; flex-direction: column; width: 100%;">
               <div class="task-title" data-full-text="${task.title}" title="${task.title}">${task.title}</div>
@@ -172,10 +148,6 @@
         </div>
       `;
     }).join('');
-    
-    // Update performance metrics
-    performanceMetrics.renderTime = performance.now() - startTime;
-    updatePerformanceMetrics();
     
     // Auto-size columns based on content
     setTimeout(() => {
@@ -275,28 +247,6 @@
     
     // Export button
     document.getElementById('btnExport')?.addEventListener('click', exportScheduleData);
-    
-    // Select all checkbox
-    document.getElementById('selectAll')?.addEventListener('change', function() {
-      const checkboxes = document.querySelectorAll('.task-checkbox');
-      checkboxes.forEach(checkbox => {
-        checkbox.checked = this.checked;
-      });
-      updateSelectedCount();
-    });
-
-    // Individual checkboxes
-    document.addEventListener('change', function(e) {
-      if (e.target.classList.contains('task-checkbox')) {
-        updateSelectedCount();
-        updateSelectAllState();
-      }
-    });
-
-    // Mass action buttons
-    document.getElementById('btnDeleteSelected')?.addEventListener('click', deleteSelectedTasks);
-    document.getElementById('btnDuplicateSelected')?.addEventListener('click', duplicateSelectedTasks);
-    document.getElementById('btnExportSelected')?.addEventListener('click', exportSelectedTasks);
     
     // Modal event listeners
     setupModalEventListeners();
@@ -1193,11 +1143,12 @@
     });
     
     gantt.attachEvent("onAfterTaskUpdate", function(id, task) {
+      console.log('Gantt task updated:', task);
       updateTaskFromGantt(id, task);
     });
     
     gantt.attachEvent("onAfterLinkAdd", function(id, link) {
-      // Link added to Gantt
+      console.log('Gantt link added:', link);
     });
     
     // Initialize the gantt
@@ -1462,213 +1413,4 @@
   
   // Expose calendar functions globally
   window.showTaskDetails = showTaskDetails;
-
-  // Pagination functions
-  function applyPagination() {
-    const tasksToPaginate = tasks;
-    totalPages = Math.ceil(tasksToPaginate.length / itemsPerPage);
-    
-    // Ensure current page is valid
-    if (currentPage > totalPages) {
-      currentPage = totalPages || 1;
-    }
-    
-    // Get current page data
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    paginatedTasks = tasksToPaginate.slice(startIndex, endIndex);
-    
-    // Update pagination display
-    updatePaginationDisplay();
-  }
-
-  function updatePaginationDisplay() {
-    const paginationContainer = document.getElementById('paginationContainer');
-    if (!paginationContainer) return;
-    
-    paginationContainer.innerHTML = '';
-    
-    if (totalPages <= 1) {
-      paginationContainer.style.display = 'none';
-      return;
-    }
-    
-    paginationContainer.style.display = 'flex';
-    
-    // Previous button
-    const prevBtn = document.createElement('button');
-    prevBtn.className = 'pagination-btn';
-    prevBtn.disabled = currentPage === 1;
-    prevBtn.textContent = '← Previous';
-    prevBtn.onclick = () => changePage(currentPage - 1);
-    paginationContainer.appendChild(prevBtn);
-    
-    // Page numbers
-    const pageInfo = document.createElement('span');
-    pageInfo.className = 'pagination-info';
-    pageInfo.textContent = `Page ${currentPage} of ${totalPages} (${paginatedTasks.length} items)`;
-    paginationContainer.appendChild(pageInfo);
-    
-    // Next button
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'pagination-btn';
-    nextBtn.disabled = currentPage === totalPages;
-    nextBtn.textContent = 'Next →';
-    nextBtn.onclick = () => changePage(currentPage + 1);
-    paginationContainer.appendChild(nextBtn);
-  }
-
-  function changePage(page) {
-    if (page < 1 || page > totalPages) return;
-    currentPage = page;
-    applyPagination();
-    populateTaskList();
-  }
-
-  // Performance monitoring
-  function updatePerformanceMetrics() {
-    performanceMetrics.memoryUsage = new Blob([JSON.stringify(tasks)]).size;
-    
-    // Log performance warnings
-    if (performanceMetrics.renderTime > 500) {
-      console.warn(`[PCFP] Slow rendering detected: ${performanceMetrics.renderTime.toFixed(2)}ms`);
-    }
-    if (performanceMetrics.searchTime > 200) {
-      console.warn(`[PCFP] Slow search detected: ${performanceMetrics.searchTime.toFixed(2)}ms`);
-    }
-    if (performanceMetrics.memoryUsage > 6 * 1024 * 1024) { // 6MB
-      console.warn(`[PCFP] High memory usage detected: ${(performanceMetrics.memoryUsage / 1024 / 1024).toFixed(2)}MB`);
-    }
-  }
-
-  // Mass action functions
-  function updateSelectedCount() {
-    const selectedCheckboxes = document.querySelectorAll('.task-checkbox:checked');
-    const count = selectedCheckboxes.length;
-    
-    // Show/hide mass action toolbar
-    const massActionToolbar = document.getElementById('massActionToolbar');
-    if (massActionToolbar) {
-      if (count > 0) {
-        massActionToolbar.classList.add('show');
-      } else {
-        massActionToolbar.classList.remove('show');
-      }
-      
-      // Update count display
-      const countDisplay = massActionToolbar.querySelector('.selected-count');
-      if (countDisplay) {
-        countDisplay.textContent = `${count} selected`;
-      }
-    }
-  }
-
-  function updateSelectAllState() {
-    const checkboxes = document.querySelectorAll('.task-checkbox');
-    const checkedCheckboxes = document.querySelectorAll('.task-checkbox:checked');
-    const selectAllCheckbox = document.getElementById('selectAll');
-    
-    if (selectAllCheckbox) {
-      selectAllCheckbox.checked = checkedCheckboxes.length === checkboxes.length;
-      selectAllCheckbox.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < checkboxes.length;
-    }
-  }
-
-  function deleteSelectedTasks() {
-    const selectedCheckboxes = document.querySelectorAll('.task-checkbox:checked');
-    if (selectedCheckboxes.length === 0) return;
-    
-    if (confirm(`Are you sure you want to delete ${selectedCheckboxes.length} selected task(s)?`)) {
-      const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.dataset.taskId);
-      tasks = tasks.filter(task => !selectedIds.includes(task.id));
-      
-      // Save and re-render
-      saveScheduleData();
-      applyPagination();
-      populateTaskList();
-      updateTaskSummary();
-      
-      // Clear checkboxes and hide toolbar
-      updateSelectedCount();
-      updateSelectAllState();
-      
-      // Show notification
-      showNotification(`${selectedCheckboxes.length} task(s) deleted successfully`, 'success');
-    }
-  }
-
-  function duplicateSelectedTasks() {
-    const selectedCheckboxes = document.querySelectorAll('.task-checkbox:checked');
-    if (selectedCheckboxes.length === 0) return;
-    
-    const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.dataset.taskId);
-    const tasksToDuplicate = tasks.filter(task => selectedIds.includes(task.id));
-    
-    tasksToDuplicate.forEach(task => {
-      const newTask = {
-        ...task,
-        id: 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
-        title: task.title + ' (Copy)',
-        status: 'not-started',
-        progress: 0
-      };
-      tasks.push(newTask);
-    });
-    
-    // Save and re-render
-    saveScheduleData();
-    applyPagination();
-    populateTaskList();
-    updateTaskSummary();
-    
-    // Clear checkboxes and hide toolbar
-    updateSelectedCount();
-    updateSelectAllState();
-    
-    // Show notification
-    showNotification(`${selectedCheckboxes.length} task(s) duplicated successfully`, 'success');
-  }
-
-  function exportSelectedTasks() {
-    const selectedCheckboxes = document.querySelectorAll('.task-checkbox:checked');
-    if (selectedCheckboxes.length === 0) return;
-    
-    const selectedIds = Array.from(selectedCheckboxes).map(cb => cb.dataset.taskId);
-    const tasksToExport = tasks.filter(task => selectedIds.includes(task.id));
-    
-    const dataStr = JSON.stringify(tasksToExport, null, 2);
-    const dataBlob = new Blob([dataStr], {type: 'application/json'});
-    const url = URL.createObjectURL(dataBlob);
-    
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `schedule_tasks_${new Date().toISOString().split('T')[0]}.json`;
-    link.click();
-    
-    URL.revokeObjectURL(url);
-    showNotification(`${selectedCheckboxes.length} task(s) exported successfully`, 'success');
-  }
-
-  function showNotification(message, type = 'info') {
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    
-    // Add to page
-    document.body.appendChild(notification);
-    
-    // Animate in
-    setTimeout(() => {
-      notification.classList.add('show');
-    }, 100);
-    
-    // Remove after 3 seconds
-    setTimeout(() => {
-      notification.classList.remove('show');
-      setTimeout(() => {
-        document.body.removeChild(notification);
-      }, 300);
-    }, 3000);
-  }
 })();

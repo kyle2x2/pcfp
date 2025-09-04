@@ -2,7 +2,10 @@
 (function(g){
   function bindHeader(){
     var doc = document;
-    var header = doc.querySelector('[data-app-header], header, .app-header, #app-header') || doc.body;
+    // Only target the main app header in the sidebar, not module headers
+    var header = doc.querySelector('aside header');
+    if(!header) return; // Don't proceed if we can't find the sidebar header
+    
     var span = header.querySelector('[data-app-version-header]');
     if(!span){
       span = doc.createElement('span');
@@ -10,26 +13,11 @@
       span.style.marginLeft = '8px';
       span.style.fontSize = '12px';
       span.style.opacity = '0.8';
-      // Try to place near an h1/h2 title if present
-      var title = header.querySelector('h1, .title, [data-app-title]');
-      if(title){
-        title.appendChild(span);
-      }else{
-        header.insertBefore(span, header.firstChild);
-      }
+      // Add to the sidebar header
+      header.appendChild(span);
     }
-                const appBuild = window.APP_BUILD || 'v8.8.4';
+                const appBuild = window.APP_BUILD || 'v8.8.10';
     span.textContent = 'Build ' + appBuild;
-    // Also replace any stale static "Build vX" occurrences in header
-    var walker = doc.createTreeWalker(header, NodeFilter.SHOW_TEXT, null);
-    var nodes = [];
-    while(walker.nextNode()){ nodes.push(walker.currentNode); }
-    nodes.forEach(function(n){
-      var t = n.nodeValue || '';
-      if(/Build\s+v\d+(\.\d+)*[a-zA-Z0-9\-]*/.test(t)){
-                    n.nodeValue = t.replace(/Build\s+v\d+(\.\d+)*[a-zA-Z0-9\-]*/, 'Build ' + (window.APP_BUILD || 'v8.8.4'));
-      }
-    });
   }
   if(document.readyState!=='loading') bindHeader();
   else document.addEventListener('DOMContentLoaded', bindHeader);

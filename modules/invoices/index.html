@@ -1,21 +1,143 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>🧾 Invoices — Coming Soon</title>
-<link rel="stylesheet" href="../../core/theme.css?v=20250831223240">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📄 Invoices — Coming Soon</title>
+<link rel="stylesheet" href="../../core/theme.css?v=20250101132000">
 <style>
-  body{margin:0;background:#fff;color:#0f172a;font:14px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
-  .wrap{display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:10px}
-  h1{margin:0;font-size:18px}
-  .tag{border:1px solid var(--ring);background:var(--panel);padding:6px 10px;border-radius:999px}
+  body {
+    margin: 0;
+    background: #fff;
+    color: #0f172a;
+    font: 14px/1.5 system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+  }
+  
+  .placeholder-container {
+    text-align: center;
+    padding: 40px;
+    max-width: 400px;
+  }
+  
+  .module-icon {
+    font-size: 48px;
+    margin-bottom: 20px;
+  }
+  
+  .module-title {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+    color: #0f172a;
+  }
+  
+  .module-description {
+    color: #64748b;
+    margin-bottom: 30px;
+    line-height: 1.6;
+  }
+  
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background: #f4e4b7;
+    color: #8b6f2e;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    margin: 20px 0;
+    overflow: hidden;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background: #C6A247;
+    width: 25%;
+    animation: progress 2s ease-in-out infinite;
+  }
+  
+  @keyframes progress {
+    0%, 100% { width: 25%; }
+    50% { width: 75%; }
+  }
+  
+  .features-list {
+    text-align: left;
+    margin: 20px 0;
+    padding: 0;
+    list-style: none;
+  }
+  
+  .features-list li {
+    padding: 8px 0;
+    color: #64748b;
+    position: relative;
+    padding-left: 20px;
+  }
+  
+  .features-list li:before {
+    content: "•";
+    color: #C6A247;
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+  }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="tag">2x2 Module</div>
-  <h1>🧾 Invoices</h1>
-  <div>Coming soon</div>
+<div class="placeholder-container">
+  <div class="module-icon">📄</div>
+  <h1 class="module-title">Invoice Management</h1>
+  <p class="module-description">
+    Professional client billing and invoice management system. 
+    Create, send, and track invoices with automated payment processing.
+  </p>
+  
+  <div class="status-badge">Phase 2</div>
+  
+  <div class="progress-bar">
+    <div class="progress-fill"></div>
+  </div>
+  
+  <ul class="features-list">
+    <li>Professional invoice creation</li>
+    <li>Automated payment tracking</li>
+    <li>Client portal integration</li>
+    <li>Payment Planner synchronization</li>
+    <li>Financial reporting and analytics</li>
+  </ul>
+  
+  <p style="color: #64748b; font-size: 12px; margin-top: 30px;">
+    Estimated completion: Q1 2025
+  </p>
 </div>
+
+<script>
+// Lazy loading - only load when module is actually accessed
+document.addEventListener('DOMContentLoaded', function() {
+  // Track module access for analytics
+  if (window.PCFP && window.PCFP.events) {
+    window.PCFP.events.emit('module:accessed', {
+      module: 'invoices',
+      timestamp: new Date().toISOString(),
+      type: 'placeholder'
+    });
+  }
+});
+</script>
 </body>
 </html>
