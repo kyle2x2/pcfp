@@ -364,11 +364,13 @@ During Schedule v1.5.1 implementation, we discovered that the task data model in
 6. **Documentation**: Update development guide with new learnings
 
 ### **Development Priorities**:
-1. **API Integration**: RESTful endpoints for task management
-2. **Real-time Features**: WebSocket connections for live updates
-3. **User Management**: Authentication and permissions system
-4. **Advanced Features**: Notifications, analytics, and reporting
-5. **Performance**: Optimize for large-scale project management
+1. **API Integration** - RESTful endpoints for task management
+2. **Real-time Features** - WebSocket connections for live updates
+3. **User Management** - Authentication and permissions system
+4. **Advanced Features** - Notifications, analytics, and reporting
+5. **Performance** - Optimize for large-scale project management
+6. **☑️ Checkboxes** - Mass selection for bulk operations (reuse Payment Planner pattern)
+7. **📊 Mass Operations** - Bulk edit, delete, duplicate functionality
 
 ### **Success Criteria**:
 - Seamless backend integration

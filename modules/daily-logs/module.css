@@ -1,0 +1,528 @@
+/* modules/daily-logs/module.css - Daily Logs Module v1.0 Styles */
+/* PCFP White/Gold Design Scheme - Professional Construction Software Quality */
+
+:root {
+  --pcfp-white: #ffffff;
+  --pcfp-gold: #C6A247;
+  --pcfp-gold-light: #f4e4b7;
+  --pcfp-gold-medium: #a88a3a;
+  --pcfp-gold-dark: #8b6f2e;
+  --pcfp-text: #0f172a;
+  --pcfp-text-muted: #64748b;
+  --pcfp-border: #e5e7eb;
+  --pcfp-panel: #f8fafc;
+  --pcfp-success: #10b981;
+  --pcfp-warning: #f59e0b;
+  --pcfp-error: #ef4444;
+  --pcfp-info: #3b82f6;
+}
+
+.module-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: var(--pcfp-white);
+  border-bottom: 1px solid var(--pcfp-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.module-toolbar {
+  display: flex;
+  gap: 10px;
+}
+
+.module-version-display {
+  display: flex;
+  align-items: center;
+}
+
+.version-badge {
+  font-size: 12px;
+  color: var(--pcfp-text-muted);
+  font-weight: normal;
+  margin-left: 8px;
+  padding: 2px 6px;
+  background: var(--pcfp-panel);
+  border-radius: 4px;
+  border: 1px solid var(--pcfp-border);
+}
+
+.module-container {
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+.module-content {
+  height: 100%;
+  overflow: hidden;
+}
+
+.daily-logs-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 20px;
+  background: var(--pcfp-panel);
+  gap: 20px;
+}
+
+.daily-logs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: var(--pcfp-white);
+  border-radius: 8px;
+  border: 1px solid var(--pcfp-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.view-selector {
+  display: flex;
+  gap: 5px;
+}
+
+.view-selector .btn {
+  padding: 8px 12px;
+  border: 1px solid var(--pcfp-border);
+  background: var(--pcfp-white);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+  color: var(--pcfp-text);
+}
+
+.view-selector .btn:hover {
+  background: var(--pcfp-gold-light);
+  border-color: var(--pcfp-gold);
+}
+
+.view-selector .btn.active {
+  background: var(--pcfp-gold);
+  color: var(--pcfp-white);
+  border-color: var(--pcfp-gold);
+}
+
+.daily-logs-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 8px 16px;
+  border: 1px solid var(--pcfp-border);
+  background: var(--pcfp-white);
+  color: var(--pcfp-text);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  background: var(--pcfp-panel);
+}
+
+.btn-primary {
+  background: var(--pcfp-gold);
+  color: var(--pcfp-white);
+  border-color: var(--pcfp-gold);
+}
+
+.btn-primary:hover {
+  background: var(--pcfp-gold-medium);
+}
+
+.daily-logs-content {
+  flex: 1;
+  overflow: hidden;
+}
+
+.view-content {
+  display: none;
+  height: 100%;
+  overflow: hidden;
+}
+
+.view-content.active {
+  display: block;
+}
+
+/* ===== LIST VIEW STYLES (Matching Schedule Module) ===== */
+
+/* Grid Container with Horizontal Scroll */
+.grid-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-radius: 8px;
+  position: relative;
+}
+
+/* Data Grid Table */
+.data-grid {
+  display: table;
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--pcfp-white);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Grid Header Row */
+.grid-header {
+  display: table-row;
+}
+
+.grid-header .grid-cell {
+  display: table-cell;
+  background: var(--pcfp-panel);
+  padding: 15px 10px;
+  border-right: 1px solid var(--pcfp-border) !important;
+  border-bottom: 2px solid var(--pcfp-border) !important;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--pcfp-text-muted);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.grid-header .grid-cell:last-child {
+  border-right: none !important;
+}
+
+/* Grid Body */
+.grid-body {
+  display: table-row-group;
+}
+
+/* Grid Rows */
+.grid-row {
+  display: table-row;
+}
+
+/* Grid Cells */
+.grid-row .grid-cell {
+  display: table-cell;
+  padding: 15px 10px;
+  vertical-align: middle;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-right: 1px solid var(--pcfp-border) !important;
+  border-bottom: 1px solid var(--pcfp-border) !important;
+}
+
+.grid-row .grid-cell:last-child {
+  border-right: none !important;
+}
+
+/* Column widths */
+.grid-cell[data-col="checkbox"] { width: 60px; }
+.grid-cell[data-col="date"] { width: 150px; }
+.grid-cell[data-col="notes"] { width: 400px; }
+.grid-cell[data-col="photos"] { width: 120px; }
+.grid-cell[data-col="weather"] { width: 120px; }
+.grid-cell[data-col="createdBy"] { width: 150px; }
+.grid-cell[data-col="actions"] { width: 120px; }
+
+/* Checkbox styling */
+.checkbox-cell {
+  text-align: center;
+}
+
+.checkbox-cell input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+/* Photo preview */
+.photo-preview {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
+  border: 1px solid var(--pcfp-border);
+}
+
+.photo-count {
+  background: var(--pcfp-gold);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* Weather display */
+.weather-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.weather-temp {
+  font-weight: 600;
+  color: var(--pcfp-text);
+}
+
+.weather-condition {
+  font-size: 11px;
+  color: var(--pcfp-text-muted);
+}
+
+/* Three-dot menu */
+.action-menu {
+  position: relative;
+  display: inline-block;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  color: var(--pcfp-text-muted);
+  font-size: 16px;
+}
+
+.action-btn:hover {
+  background: var(--pcfp-panel);
+  color: var(--pcfp-text);
+}
+
+.action-menu-content {
+  position: fixed;
+  background: var(--pcfp-white);
+  border: 1px solid var(--pcfp-border);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  z-index: 1000;
+  min-width: 120px;
+  display: none;
+}
+
+.action-menu-content.show {
+  display: block;
+}
+
+.action-menu-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 1px solid var(--pcfp-border);
+}
+
+.action-menu-item:last-child {
+  border-bottom: none;
+}
+
+.action-menu-item:hover {
+  background: var(--pcfp-panel);
+}
+
+/* Hover effects */
+.grid-row:hover .grid-cell {
+  background: var(--pcfp-panel);
+}
+
+/* ===== CARDS VIEW STYLES ===== */
+
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.log-card {
+  background: var(--pcfp-white);
+  border: 1px solid var(--pcfp-border);
+  border-radius: 12px;
+  padding: 20px;
+  position: relative;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.log-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  transform: translateY(-2px);
+}
+
+.log-card.selected {
+  border-color: var(--pcfp-gold);
+  background: #fefbf3;
+}
+
+/* Card Header */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 15px;
+}
+
+.card-date {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--pcfp-text);
+}
+
+.card-checkbox {
+  margin-top: 2px;
+}
+
+.card-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+/* Card Content */
+.card-notes {
+  margin-bottom: 15px;
+  line-height: 1.5;
+  color: var(--pcfp-text);
+}
+
+.card-photos {
+  margin-bottom: 15px;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 8px;
+}
+
+.photo-item {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--pcfp-border);
+}
+
+.photo-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photo-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--pcfp-panel);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pcfp-text-muted);
+  font-size: 12px;
+}
+
+/* Card Footer */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--pcfp-border);
+}
+
+.weather-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.weather-icon {
+  width: 24px;
+  height: 24px;
+  background: var(--pcfp-gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 12px;
+}
+
+.weather-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.weather-temp {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.weather-condition {
+  font-size: 11px;
+  color: var(--pcfp-text-muted);
+}
+
+.card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.card-action-btn {
+  background: none;
+  border: 1px solid var(--pcfp-border);
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--pcfp-text-muted);
+  transition: all 0.2s ease;
+}
+
+.card-action-btn:hover {
+  background: var(--pcfp-panel);
+  color: var(--pcfp-text);
+}
+
+.card-action-btn.primary {
+  background: var(--pcfp-gold);
+  color: white;
+  border-color: var(--pcfp-gold);
+}
+
+.card-action-btn.primary:hover {
+  background: var(--pcfp-gold-medium);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cards-container {
+    grid-template-columns: 1fr;
+    padding: 10px;
+  }
+  
+  .log-card {
+    padding: 15px;
+  }
+  
+  .daily-logs-header {
+    flex-direction: column;
+    gap: 15px;
+    align-items: stretch;
+  }
+  
+  .view-selector {
+    justify-content: center;
+  }
+  
+  .daily-logs-actions {
+    justify-content: center;
+  }
+}

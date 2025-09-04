@@ -3,9 +3,75 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Daily Logs - PCFP v1.0</title>
+    <title>Daily Logs - Mass Actions Test (Option 1)</title>
     <link rel="stylesheet" href="../../core/theme.css?v=20250101130500">
     <link rel="stylesheet" href="module.css?v=20250101130500">
+    <style>
+        /* Option 1: Mass Action Toolbar Styles */
+        .mass-action-toolbar {
+            display: none;
+            background: var(--pcfp-white);
+            border: 1px solid var(--pcfp-gold);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 10px 0;
+            box-shadow: 0 2px 8px rgba(198, 162, 71, 0.15);
+            align-items: center;
+            gap: 12px;
+        }
+
+        .mass-action-toolbar.show {
+            display: flex;
+        }
+
+        .selected-count {
+            font-weight: 600;
+            color: var(--pcfp-gold);
+            font-size: 14px;
+        }
+
+        .mass-action-buttons {
+            display: flex;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .mass-action-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--pcfp-border);
+            background: var(--pcfp-white);
+            color: var(--pcfp-text);
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .mass-action-btn:hover {
+            background: var(--pcfp-panel);
+            border-color: var(--pcfp-gold);
+        }
+
+        .mass-action-btn.danger {
+            background: var(--pcfp-error);
+            color: white;
+            border-color: var(--pcfp-error);
+        }
+
+        .mass-action-btn.danger:hover {
+            background: #dc2626;
+        }
+
+        .mass-action-btn.primary {
+            background: var(--pcfp-gold);
+            color: white;
+            border-color: var(--pcfp-gold);
+        }
+
+        .mass-action-btn.primary:hover {
+            background: var(--pcfp-gold-medium);
+        }
+    </style>
 </head>
 <body>
 <header class="module-header">
@@ -14,7 +80,7 @@
     <button class="btn" id="btnExport" title="Export data">Export</button>
   </div>
   <div class="module-version-display">
-    <span class="version-badge">v1.0</span>
+    <span class="version-badge">v1.0 - Test Option 1</span>
   </div>
 </header>
 
@@ -29,6 +95,16 @@
         
         <div class="daily-logs-actions">
           <button class="btn btn-primary" id="btnAddLog">+ Add Daily Log</button>
+        </div>
+      </div>
+
+      <!-- Option 1: Mass Action Toolbar -->
+      <div id="massActionToolbar" class="mass-action-toolbar">
+        <span class="selected-count">0 selected</span>
+        <div class="mass-action-buttons">
+          <button class="mass-action-btn danger" onclick="deleteSelectedLogs()">Delete Selected</button>
+          <button class="mass-action-btn" onclick="duplicateSelectedLogs()">Duplicate Selected</button>
+          <button class="mass-action-btn primary" onclick="exportSelectedLogs()">Export Selected</button>
         </div>
       </div>
       
@@ -78,6 +154,6 @@
   </div>
 </div>
 
-<script src="module.js?v=20250101130500"></script>
+<script src="test-mass-actions-option1.js"></script>
 </body>
 </html>

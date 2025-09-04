@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>2x2 App — v8.6.1</title>
 <link rel="icon" href="assets/favicon.svg" />
-  <link rel="stylesheet" href="core/theme.css?v=20250101130400">
+  <link rel="stylesheet" href="core/theme.css?v=20250101130600">
 <style>
   :root{--bg:#fff;--fg:#0f172a;--muted:#475569;--gold:#C6A247;--ring:#e5e7eb;--panel:#f8fafc}
   html, body{margin:0;height:100vh;overflow:hidden;background:var(--bg);color:var(--fg);font:14px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
@@ -24,7 +24,7 @@
   iframe.module-frame{border:0;width:100%;height:100%;background:#fff}
   .version{color:var(--muted);font-size:12px}
 </style>
-<link rel="stylesheet" href="./core/design/tokens.css?v=20250101130200">
+<link rel="stylesheet" href="./core/design/tokens.css?v=20250101130600">
 
 <script>
   (function(g){
@@ -37,10 +37,9 @@
         return;
       }
       
-      g.PCFP.version = { app: window.APP_BUILD, build: '20250101130400Z' };
+      g.PCFP.version = { app: window.APP_BUILD, build: '20250101130600Z' };
       var pill = document.querySelector('[data-app-version]');
       if(pill) pill.textContent = g.PCFP.version.app;
-    }
     }
     
     if(document.readyState!=='loading') setPill();
@@ -79,40 +78,40 @@
   </main>
 </div>
 
-  <script src="core/kernel.standalone.js?v=20250101130400"></script>
-<script type="module" src="./core/shim.js?v=20250101130400"></script>
-<script type="module" src="core/services/module-manager.js?v=20250101130400"></script>
-<script type="module" src="core/version-manager.js?v=20250101130400"></script>
+  <script src="core/kernel.standalone.js?v=20250101130600"></script>
+<script type="module" src="./core/shim.js?v=20250101130600"></script>
+<script type="module" src="core/services/module-manager.js?v=20250101130600"></script>
+<script type="module" src="core/version-manager.js?v=20250101130600"></script>
 
-  <script src="core/config.js?v=20250101130400"></script>
-<script src="core/version_shim.js?v=20250101130400"></script>
-<script src="core/events/emit.js?v=20250101130400"></script>
-<script src="core/events/on.js?v=20250101130400"></script>
-<script src="core/adapters/http.js?v=20250101130400"></script>
-<script src="repos/projects.js?v=20250101130400"></script>
-<script src="repos/profiles.js?v=20250101130400"></script>
-<script src="repos/events.js?v=20250101130400"></script>
-<script src="core/compute/money.js?v=20250101130400"></script>
-<script src="core/compute/schedule.js?v=20250101130400"></script>
-<script src="components/index.js?v=20250101130400"></script>
-<script type="module" src="core/components/index.js?v=20250101130400"></script>
-<link rel="stylesheet" href="components/export_bar.css?v=20250101130000">
-<script src="core/contracts/validator.js?v=20250101130400"></script>
-<script src="components/export_bar.js?v=20250101130400"></script>
-<script src="components/gantt/index.js?v=20250101130400"></script>
-<script src="components/kebab/index.js?v=20250101130400"></script>
+  <script src="core/config.js?v=20250101130600"></script>
+<script src="core/version_shim.js?v=20250101130600"></script>
+<script src="core/events/emit.js?v=20250101130600"></script>
+<script src="core/events/on.js?v=20250101130600"></script>
+<script src="core/adapters/http.js?v=20250101130600"></script>
+<script src="repos/projects.js?v=20250101130600"></script>
+<script src="repos/profiles.js?v=20250101130600"></script>
+<script src="repos/events.js?v=20250101130600"></script>
+<script src="core/compute/money.js?v=20250101130600"></script>
+<script src="core/compute/schedule.js?v=20250101130600"></script>
+<script src="components/index.js?v=20250101130600"></script>
+<script type="module" src="core/components/index.js?v=20250101130600"></script>
+<link rel="stylesheet" href="components/export_bar.css?v=20250101130600">
+<script src="core/contracts/validator.js?v=20250101130600"></script>
+  <script src="components/export_bar.js?v=20250101130600"></script>
+      <script src="components/gantt/index.js?v=20250101130600"></script>
+      <script src="components/kebab/index.js?v=20250101130600"></script>
 
-<script src="core/verify/v73_integrity.js?v=20250101130400"></script>
-<script src="core/boot_check.js?v=20250101130400"></script>
+      <script src="core/verify/v73_integrity.js?v=20250101130600"></script>
+      <script src="core/boot_check.js?v=20250101130600"></script>
 
-<script src="core/router.js?v=20250101130400"></script>
-<script src="core/contracts/migrations.js?v=20250101130400"></script>
-<script src="core/projects.js?v=20250101130400"></script>
+      <script src="core/router.js?v=20250101130600"></script>
+  <script src="core/contracts/migrations.js?v=20250101130600"></script>
+  <script src="core/projects.js?v=20250101130600"></script>
 
-<script src="core/log.js?v=20250101130400"></script>
-<script src="core/lifecycle.js?v=20250101130400"></script>
-<script src="core/integrity_banner.js?v=20250101130400"></script>
-<script src="core/header_version.js?v=20250101130400"></script>
+  <script src="core/log.js?v=20250101130600"></script>
+  <script src="core/lifecycle.js?v=20250101130600"></script>
+  <script src="core/integrity_banner.js?v=20250101130600"></script>
+  <script src="core/header_version.js?v=20250101130600"></script>
 
 </body>
 </html>

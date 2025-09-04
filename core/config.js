@@ -3,10 +3,10 @@
 
 // Single source of truth for app metadata - API-ready structure
 export const APP_META = {
-  build: "v8.7.2",
+      build: "v8.7.5",
   appName: "PCFP - Project Construction Financial Planner",
   copyright: "© 2x2 Construction",
-  version: "8.7.2",
+      version: "8.7.5",
   apiVersion: "v1",
   description: "Modern construction project management platform - BuilderTrend alternative",
   features: {
@@ -27,6 +27,7 @@ window.APP_BUILD = APP_META.build;
         window.MODULE_VERS = {
           "payments": "v7.5",        // Payment-planner is now v7.5
           "schedule": "v1.5.1",        // Schedule is v1.5.1 (Professional List, Calendar, Gantt & Kanban)
+          "daily-logs": "v1.0",      // Daily Logs is v1.0 (Foundation)
           "logs": "v1.0",            // All other modules are v1.0
           "todos": "v1.0",           // All other modules are v1.0
           "changes": "v1.0",         // All other modules are v1.0
@@ -44,13 +45,13 @@ window.APP_BUILD = APP_META.build;
 window.MODULE_STATUS = {
   "payments": "active",      // Fully functional - Payment Planner
   "schedule": "active",      // Fully functional - Schedule Management
+  "daily-logs": "active",    // Fully functional - Daily Log Management
   "budget": "placeholder",   // Coming soon - Budget Management
   "bills": "placeholder",    // Coming soon - Bill Management
   "documents": "placeholder", // Coming soon - Document Management
   "bids": "placeholder",     // Coming soon - Bid Management
   "change-orders": "placeholder", // Coming soon - Change Order Management
   "to-dos": "placeholder",   // Coming soon - To-Do Management
-  "daily-logs": "placeholder", // Coming soon - Daily Log Management
   "selections": "placeholder", // Coming soon - Selection Management
   "specifications": "placeholder", // Coming soon - Specification Management
   "purchase-orders": "placeholder", // Coming soon - Purchase Order Management

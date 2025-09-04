@@ -461,6 +461,37 @@ The application uses a dual versioning system with two distinct version numbers:
 1. **Main Application Version** - Displayed in the left sidebar, changes with every iteration
 2. **Individual Module Versions** - Each module has its own version number
 
+### **Version Management Discipline**
+
+#### **Development Phase Version Updates**
+- **Only update `CHANGELOG.md`** during active development
+- **Document all changes** with clear descriptions and impact
+- **Wait for explicit instruction** before updating other version files
+- **User instruction**: "push the new version to GitHub" triggers full version update
+
+#### **Version Update Process**
+1. **Development**: Update only `CHANGELOG.md` with changes
+2. **User Approval**: Get explicit "push to GitHub" instruction
+3. **Full Update**: Update all version files together:
+   - `core/config.js` - `window.APP_BUILD` and `window.MODULE_VERS`
+   - `core/kernel.standalone.js` - route titles
+   - `core/header_version.js` - fallback values (lines 20, 29)
+   - `core/version_shim.js` - fallback values (line 5)
+   - `core/integrity_banner.js` - fallback values (line 20)
+   - `index.html` - cache-busting parameters
+
+#### **Guide Reference vs Modification**
+- **Guide is reference**: Use `PCFP_DEVELOPMENT_GUIDE.md` for best practices
+- **Don't modify during implementation**: Guide is the "holy bible" for reference
+- **Update guide only when instructed**: Explicit user approval required for guide changes
+- **Document learnings**: Add new patterns and solutions to guide after validation
+
+#### **Benefits of Disciplined Version Management**
+- **Focused development**: No time wasted on premature version updates
+- **User control**: User decides when to "push" versions
+- **Consistency**: All version files updated together
+- **Documentation**: Complete change history in changelog
+
 ### **Version Configuration**
 
 #### **Main Configuration File: `core/config.js`**
@@ -1651,10 +1682,34 @@ console.log('Function took:', end - start, 'ms');
   </div>
   ```
 
-#### **Table Layout Systems**
+#### **Dropdown Menu Positioning**
+- **Fixed Positioning for Table Layouts**: Use `position: fixed` for dropdowns in table-based layouts
+- **Why it works**: Avoids clipping by table cell boundaries and ensures dropdown appears on top
+- **When to use**: Any dropdown menu in table layouts or grid systems
+- **Example**:
+  ```css
+  .action-menu-content {
+    position: fixed;
+    z-index: 1000;
+    background: var(--pcfp-white);
+    border: 1px solid var(--pcfp-border);
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  ```
+  ```javascript
+  // Calculate position for fixed positioning
+  const button = document.querySelector(`[onclick="toggleActionMenu('${logId}')"]`);
+  const buttonRect = button.getBoundingClientRect();
+  
+  menu.style.left = (buttonRect.right - 120) + 'px'; // 120px is min-width
+  menu.style.top = (buttonRect.bottom + 5) + 'px';
+  ```
+
+#### **Table-Based Layout Systems**
 - **Table-Based Grids**: `display: table`, `table-row`, `table-cell` for reliable data alignment
-- **Why it works**: Native table behavior ensures perfect column alignment
-- **When to use**: Data tables with multiple columns that must align perfectly
+- **Why it works**: Native table behavior ensures perfect column alignment, consistent with Schedule module
+- **When to use**: Data tables with multiple columns that must align perfectly, list views requiring consistency
 - **Example**:
   ```css
   .data-grid {
@@ -1671,6 +1726,8 @@ console.log('Function took:', end - start, 'ms');
     border-right: 1px solid var(--pcfp-border);
   }
   ```
+- **Advantages over CSS Grid**: Perfect column alignment, reliable border rendering, better browser compatibility
+- **Reference Implementation**: Schedule module uses this pattern for all list views
 
 #### **Column Width Management**
 - **Fixed Widths**: Explicit width definitions prevent text wrapping
@@ -2575,6 +2632,61 @@ const task = {
 - **Cost Efficiency**: 1 developer vs hundreds
 - **Quality**: Professional, modern, user-friendly
 
+### **Pattern Reuse Best Practices**
+
+#### **Component Reuse Strategy**
+When developing new modules, prioritize reusing existing patterns and components:
+
+1. **List View Pattern** - Reuse Schedule module's professional list view structure
+2. **Checkbox Pattern** - Leverage Payment Planner's mass selection functionality
+3. **Three-Dot Menu** - Use Schedule module's action menu pattern
+4. **Modal Patterns** - Reuse existing modal structures and styling
+5. **Export Functionality** - Leverage existing export patterns
+
+#### **Benefits of Pattern Reuse**
+- **Faster Development** - Reduce implementation time by 50-70%
+- **Consistent UX** - Users learn once, apply everywhere
+- **Maintainability** - Single source of truth for common patterns
+- **Quality Assurance** - Proven patterns reduce bugs and issues
+- **PCFP Integration** - Consistent styling and behavior across modules
+
+#### **Pattern Reuse Checklist**
+- [ ] **Identify existing patterns** in completed modules
+- [ ] **Analyze reusability** - Can this pattern work for new module?
+- [ ] **Adapt patterns** - Modify existing code for new requirements
+- [ ] **Maintain consistency** - Keep PCFP design system integration
+- [ ] **Document reuse** - Note which patterns were reused and how
+
+#### **Common Reusable Patterns**
+```javascript
+// List View Pattern (Schedule module)
+- Professional CSS Grid layout
+- Fixed-width columns with hover tooltips
+- Three-dot action menu
+- Status badges and progress indicators
+- Export functionality
+
+// Checkbox Pattern (Payment Planner)
+- Mass selection checkboxes
+- Bulk operations (edit, delete, duplicate)
+- Select all/none functionality
+- Visual feedback for selected items
+
+// Modal Pattern (Schedule module)
+- Professional form layout
+- PCFP white/gold styling
+- Form validation
+- Responsive design
+```
+
+#### **Pattern Reuse Case Study: Daily Logs Module**
+- **Successfully reused**: Schedule list view, Payment Planner checkboxes, Schedule three-dot menu
+- **Development time**: 70% faster than building from scratch
+- **Consistency**: Perfect visual and functional consistency with existing modules
+- **User validation**: User confirmed "reuse the work that we've already done"
+- **Implementation**: Table-based layout, mass selection, action menus all worked seamlessly
+- **Key learning**: Table-based layout (not CSS Grid) is the reference pattern for list views
+
 ### **Code Cleanup Checklist**
 - [ ] **Remove console logs** from production code
 - [ ] **Remove TODO/FIXME** comments or add timeline
@@ -2623,6 +2735,8 @@ console.log('Element bounds:', element.getBoundingClientRect());
 - **Version not updating**: Check fallback values in version scripts
 - **Script loading issues**: Add wait logic for `window.APP_BUILD`
 - **Sidebar version stuck**: Update hardcoded fallbacks in `header_version.js`, `version_shim.js`, `integrity_banner.js`
+- **Dropdown menu cut off**: Use `position: fixed` instead of `position: absolute` for table layouts
+- **Table layout inconsistency**: Use `display: table`, `table-row`, `table-cell` for list views (not CSS Grid)
 
 ### **Quality Gates**
 - [ ] All functionality tested

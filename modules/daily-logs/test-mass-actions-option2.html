@@ -3,9 +3,85 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Daily Logs - PCFP v1.0</title>
+    <title>Daily Logs - Mass Actions Test (Option 2)</title>
     <link rel="stylesheet" href="../../core/theme.css?v=20250101130500">
     <link rel="stylesheet" href="module.css?v=20250101130500">
+    <style>
+        /* Option 2: Inline Mass Actions Styles */
+        .mass-actions {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            background: var(--pcfp-gold-light);
+            border: 1px solid var(--pcfp-gold);
+            border-radius: 6px;
+            margin-left: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .mass-actions.show {
+            display: flex;
+        }
+
+        .selected-count {
+            font-weight: 600;
+            color: var(--pcfp-gold-dark);
+            font-size: 13px;
+            min-width: 80px;
+        }
+
+        .mass-action-btn {
+            padding: 4px 10px;
+            border: 1px solid var(--pcfp-gold);
+            background: var(--pcfp-white);
+            color: var(--pcfp-gold-dark);
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .mass-action-btn:hover {
+            background: var(--pcfp-gold);
+            color: var(--pcfp-white);
+        }
+
+        .mass-action-btn.danger {
+            background: var(--pcfp-error);
+            color: white;
+            border-color: var(--pcfp-error);
+        }
+
+        .mass-action-btn.danger:hover {
+            background: #dc2626;
+        }
+
+        .mass-action-btn.primary {
+            background: var(--pcfp-gold);
+            color: white;
+            border-color: var(--pcfp-gold);
+        }
+
+        .mass-action-btn.primary:hover {
+            background: var(--pcfp-gold-medium);
+        }
+
+        /* Enhanced toolbar layout */
+        .daily-logs-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .actions-divider {
+            width: 1px;
+            height: 24px;
+            background: var(--pcfp-border);
+            margin: 0 8px;
+        }
+    </style>
 </head>
 <body>
 <header class="module-header">
@@ -14,7 +90,7 @@
     <button class="btn" id="btnExport" title="Export data">Export</button>
   </div>
   <div class="module-version-display">
-    <span class="version-badge">v1.0</span>
+    <span class="version-badge">v1.0 - Test Option 2</span>
   </div>
 </header>
 
@@ -29,6 +105,15 @@
         
         <div class="daily-logs-actions">
           <button class="btn btn-primary" id="btnAddLog">+ Add Daily Log</button>
+          
+          <!-- Option 2: Inline Mass Actions -->
+          <div class="actions-divider"></div>
+          <div id="massActions" class="mass-actions">
+            <span class="selected-count">0 selected</span>
+            <button class="mass-action-btn danger" onclick="deleteSelectedLogs()">Delete</button>
+            <button class="mass-action-btn" onclick="duplicateSelectedLogs()">Duplicate</button>
+            <button class="mass-action-btn primary" onclick="exportSelectedLogs()">Export</button>
+          </div>
         </div>
       </div>
       
@@ -78,6 +163,6 @@
   </div>
 </div>
 
-<script src="module.js?v=20250101130500"></script>
+<script src="test-mass-actions-option2.js"></script>
 </body>
 </html>
