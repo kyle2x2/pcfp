@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Test List View - PCFP Experimental</title>
+    <link rel="stylesheet" href="../../core/theme.css?v=20250101162000">
+    <link rel="stylesheet" href="module.css?v=20250101186000">
+</head>
+<body>
+<header class="module-header">
+  <div class="module-toolbar">
+    <button class="btn" id="btnSave" title="Save data">Save</button>
+    <button class="btn" id="btnExport" title="Export data">Export</button>
+    <button class="btn" id="btnAddFeature" title="Add experimental feature">+ Feature</button>
+    <button class="btn" id="btnKeyboardHelp" title="Show keyboard shortcuts">⌨️ Help</button>
+  </div>
+</header>
+
+<div class="module-container">
+  <div class="module-content">
+    <div class="test-container" tabindex="0">
+      <div class="test-header">
+        <div class="view-selector">
+          <button class="btn active" data-view="list">List</button>
+          <button class="btn" data-view="cards">Cards</button>
+        </div>
+        
+        <!-- Search and Filter Section -->
+        <div class="search-filter-container">
+          <div class="search-box">
+            <input type="text" id="itemSearch" placeholder="Search items..." class="search-input" title="Search by title, description, or category">
+            <button class="search-btn" onclick="clearSearch()" title="Clear search">×</button>
+          </div>
+          <select id="filterBy" class="filter-select" title="Filter by category">
+            <option value="">All Items</option>
+            <option value="category">By Category</option>
+            <option value="status">By Status</option>
+            <option value="priority">By Priority</option>
+            <option value="assignee">By Assignee</option>
+          </select>
+          <!-- Date Range Selection -->
+          <div class="date-range-container">
+            <input type="date" id="dateRangeStart" class="date-input" title="Start date">
+            <span class="date-separator">to</span>
+            <input type="date" id="dateRangeEnd" class="date-input" title="End date">
+            <button class="date-range-btn" onclick="applyDateRange()" title="Apply date range">Apply</button>
+            <button class="date-range-btn clear" onclick="clearDateRange()" title="Clear date range">Clear</button>
+          </div>
+        </div>
+        
+        <div class="test-actions">
+          <button class="btn btn-primary" id="btnAddItem">+ Add Item</button>
+        </div>
+      </div>
+
+      <!-- Mass Action Toolbar -->
+      <div id="massActionToolbar" class="mass-action-toolbar">
+        <div class="mass-action-left">
+          <button id="btnClearSelected" class="mass-action-btn clear-btn">Clear</button>
+          <span class="selected-count">0 selected</span>
+        </div>
+        <div class="mass-action-buttons">
+          <button id="btnDeleteSelected" class="mass-action-btn danger">Delete Selected</button>
+          <button id="btnDuplicateSelected" class="mass-action-btn">Duplicate Selected</button>
+          <button id="btnExportSelected" class="mass-action-btn">Export Selected</button>
+        </div>
+      </div>
+      
+      <div class="test-content">
+        <!-- List View -->
+        <div id="listView" class="view-content active">
+          <div class="grid-container">
+            <div class="data-grid">
+              <div class="grid-header">
+                <div class="grid-cell checkbox-cell" data-col="checkbox">
+                  <input type="checkbox" id="selectAll" title="Select all">
+                </div>
+                <div class="grid-cell sortable" data-col="title" onclick="handleColumnClick('title')">
+                  <span class="col-title">Title</span>
+                </div>
+                <div class="grid-cell sortable" data-col="description" onclick="handleColumnClick('description')">
+                  <span class="col-title">Description</span>
+                </div>
+                <div class="grid-cell sortable" data-col="category" onclick="handleColumnClick('category')">
+                  <span class="col-title">Category</span>
+                </div>
+                <div class="grid-cell sortable" data-col="status" onclick="handleColumnClick('status')">
+                  <span class="col-title">Status</span>
+                </div>
+                <div class="grid-cell sortable" data-col="priority" onclick="handleColumnClick('priority')">
+                  <span class="col-title">Priority</span>
+                </div>
+                <div class="grid-cell sortable" data-col="assignee" onclick="handleColumnClick('assignee')">
+                  <span class="col-title">Assignee</span>
+                </div>
+                <div class="grid-cell" data-col="actions">
+                  <span class="col-title">Actions</span>
+                </div>
+              </div>
+              <div class="grid-body" id="itemsGridBody">
+                <!-- Items will be populated here -->
+              </div>
+            </div>
+          </div>
+          <!-- Pagination Container -->
+          <div id="paginationContainer" class="pagination-container">
+            <!-- Pagination controls will be populated here -->
+          </div>
+        </div>
+        
+        <!-- Cards View -->
+        <div id="cardsView" class="view-content">
+          <div class="cards-container" id="cardsContainer">
+            <!-- Cards will be populated here -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for Add/Edit Item -->
+<div id="itemModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="modalTitle">Add Item</h3>
+      <button class="close-btn" onclick="closeItemModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <form id="itemForm">
+        <div class="form-group">
+          <label for="titleField">Title *</label>
+          <input type="text" id="titleField" required>
+        </div>
+        <div class="form-group">
+          <label for="descriptionField">Description</label>
+          <textarea id="descriptionField" rows="4" placeholder="Enter item description..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="categoryField">Category</label>
+          <select id="categoryField">
+            <option value="">Select category...</option>
+            <option value="Development">Development</option>
+            <option value="Design">Design</option>
+            <option value="Testing">Testing</option>
+            <option value="Documentation">Documentation</option>
+            <option value="Maintenance">Maintenance</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="statusField">Status</label>
+          <select id="statusField">
+            <option value="not-started">Not Started</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="on-hold">On Hold</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="priorityField">Priority</label>
+          <select id="priorityField">
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="assigneeField">Assignee</label>
+          <input type="text" id="assigneeField" placeholder="Enter assignee name...">
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" onclick="closeItemModal()">Cancel</button>
+      <button type="button" class="btn btn-primary" onclick="document.getElementById('itemForm').dispatchEvent(new Event('submit'))">Save Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- Keyboard Shortcuts Help Modal -->
+<div id="keyboardHelpModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Keyboard Shortcuts</h3>
+      <button class="close-btn" onclick="closeKeyboardHelp()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="shortcuts-grid">
+        <div class="shortcut-category">
+          <h4>Navigation</h4>
+          <div class="shortcut-item">
+            <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd>
+            <span>Navigate items and pages</span>
+          </div>
+          <div class="shortcut-item">
+            <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>...</kbd><kbd>9</kbd>
+            <span>Jump to page number</span>
+          </div>
+        </div>
+        
+        <div class="shortcut-category">
+          <h4>Selection</h4>
+          <div class="shortcut-item">
+            <kbd>Ctrl</kbd> + <kbd>A</kbd>
+            <span>Select all items</span>
+          </div>
+          <div class="shortcut-item">
+            <kbd>Space</kbd>
+            <span>Toggle focused item checkbox</span>
+          </div>
+        </div>
+        
+        <div class="shortcut-category">
+          <h4>Actions</h4>
+          <div class="shortcut-item">
+            <kbd>Ctrl</kbd> + <kbd>N</kbd>
+            <span>Add new item</span>
+          </div>
+          <div class="shortcut-item">
+            <kbd>Enter</kbd>
+            <span>Edit selected item</span>
+          </div>
+          <div class="shortcut-item">
+            <kbd>Delete</kbd>
+            <span>Delete selected items</span>
+          </div>
+          <div class="shortcut-item">
+            <kbd>Ctrl</kbd> + <kbd>D</kbd>
+            <span>Duplicate selected items</span>
+          </div>
+          <div class="shortcut-item">
+            <kbd>Ctrl</kbd> + <kbd>E</kbd>
+            <span>Export selected items</span>
+          </div>
+        </div>
+        
+        <div class="shortcut-category">
+          <h4>General</h4>
+          <div class="shortcut-item">
+            <kbd>Esc</kbd>
+            <span>Close menus/modals</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-primary" onclick="closeKeyboardHelp()">Got it!</button>
+    </div>
+  </div>
+</div>
+
+<script src="module.js?v=20250101192000"></script>
+</body>
+</html>

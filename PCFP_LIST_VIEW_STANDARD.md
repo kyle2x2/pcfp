@@ -1,16 +1,18 @@
-# PCFP List View Standard v8.8.20
+# PCFP List View Standard v8.8.23
 
 ## 📋 **Standard Features for All List Views**
 
 ### **🎯 Core Requirements**
 Every list view module must implement these standard features:
 
-#### **1. Pagination System**
+#### **1. Enhanced Pagination System**
 - **Default**: 10 items per page
-- **Navigation**: Previous/Next buttons with page info
-- **Display**: "Page X of Y (Z items)"
+- **Navigation**: First, Previous, Next, Last buttons with smart page numbers
+- **Smart Display**: Shows ellipsis (...) for large page counts (e.g., "1 2 3 4 ... 10")
+- **Page Numbers**: Dynamic page number display with current page highlighting
 - **Performance**: Automatic pagination on initial load
 - **Items Per Page**: Dropdown selector (10, 25, 50) positioned on right side of pagination bar
+- **Always Visible**: Pagination container always visible, page navigation buttons conditional
 
 #### **2. Horizontal Scroll Behavior (STANDARDIZED)**
 - **Window Shrink**: Columns maintain fixed widths, horizontal scrollbar appears
@@ -34,12 +36,29 @@ Every list view module must implement these standard features:
 - **Clear Functions**: Clear search and clear date range buttons
 - **Performance**: Optimized filtering with performance metrics tracking
 
-#### **4. Mass Actions Toolbar**
+#### **5. Column Sorting System (NEW STANDARD)**
+- **Clickable Headers**: All data columns (except checkbox and actions) are sortable
+- **3-Click Cycle**: First click (asc), second click (desc), third click (clear)
+- **Default Sort**: Items load sorted by primary field (usually title) ascending
+- **Data Type Handling**: Automatic detection and proper sorting for strings, dates, priorities, statuses
+- **Visual Indicators**: Single arrows (↑/↓) show current sort direction, subtle ↕ for sortable columns
+- **Sort State**: Tracks current column and direction, clears on third click
+- **Performance**: Sorting resets to page 1 and maintains pagination
+
+#### **4. Enhanced Mass Actions Toolbar (CROSS-PAGE SELECTION)**
 - **Trigger**: Checkbox selection (individual + select all)
-- **Display**: Dynamic toolbar with selected count
-- **Actions**: Delete, Duplicate, Export (standardized across all modules)
+- **Display**: Dynamic toolbar with selected count and gold-themed styling
+- **Cross-Page Selection**: Selections persist across page navigation
+- **Cumulative Counter**: Shows total selected items across ALL pages
+- **Clear Button**: Left-side "Clear" button to deselect all items
+- **Escape Key**: Press Escape to clear all selections when toolbar is visible
+- **Smart Select All**: "Select All" checkbox resets on page navigation
+- **Mass Actions**: Delete, Duplicate, Export operate on ALL selected items
+- **Auto-Clear**: Toolbar automatically clears selections when disengaged
+- **Animation**: Smooth slideDown animation on show/hide
+- **Layout**: `[Clear] [X selected] ................ [Delete] [Duplicate] [Export]`
 - **Confirmation**: Required for destructive actions
-- **Buttons**: Exactly 3 buttons - no additional buttons allowed
+- **Buttons**: Exactly 3 action buttons + 1 clear button
 - **Event Listeners**: Simple, direct event listeners in setupEventListeners()
 
 #### **3. Standard Mass Action Buttons**
@@ -51,7 +70,10 @@ Every list view module must implement these standard features:
 **HTML Structure:**
 ```html
 <div id="massActionToolbar" class="mass-action-toolbar">
+  <div class="mass-action-left">
+    <button id="btnClearSelected" class="mass-action-btn clear-btn">Clear</button>
   <span class="selected-count">0 selected</span>
+  </div>
   <div class="mass-action-buttons">
     <button id="btnDeleteSelected" class="mass-action-btn danger">Delete Selected</button>
     <button id="btnDuplicateSelected" class="mass-action-btn">Duplicate Selected</button>
@@ -66,6 +88,7 @@ Every list view module must implement these standard features:
 document.getElementById('btnDeleteSelected')?.addEventListener('click', deleteSelectedItems);
 document.getElementById('btnDuplicateSelected')?.addEventListener('click', duplicateSelectedItems);
 document.getElementById('btnExportSelected')?.addEventListener('click', exportSelectedItems);
+document.getElementById('btnClearSelected')?.addEventListener('click', clearAllSelections);
 ```
 
 **⚠️ CRITICAL: Avoid Complex Event Listener Patterns**
@@ -102,7 +125,26 @@ document.getElementById('btnExportSelected')?.addEventListener('click', exportSe
 </div>
 ```
 
-#### **5. Performance Monitoring**
+#### **5. Cross-Page Selection System (NEW)**
+- **Selection Persistence**: Selections maintained across page navigation
+- **Global Tracking**: `selectedItemIds = new Set()` tracks all selected items
+- **Page Navigation**: Arrow keys preserve selections, click navigation clears selections
+- **Select All Reset**: "Select All" checkbox resets to unchecked on page navigation
+- **Cumulative Counter**: Mass action toolbar shows total selections across all pages
+- **Mass Action Scope**: All mass actions operate on ALL selected items, not just current page
+- **Clear Functionality**: Both Clear button and Escape key clear ALL selections
+- **Restoration**: Checkbox states restored when rendering pages
+- **Performance**: Efficient Set-based tracking with O(1) operations
+
+#### **6. Keyboard Shortcuts**
+- **Navigation**: Arrow keys (↑↓←→) for item/page navigation
+- **Selection**: Ctrl+A (Select All), Space (Toggle focused item checkbox)
+- **Actions**: Ctrl+N (New), Enter (Edit), Delete (Delete), Ctrl+D (Duplicate), Ctrl+E (Export)
+- **Pagination**: Number keys (1-9) for quick page jumping
+- **General**: Escape (Clear selections when mass toolbar visible, otherwise close menus/modals)
+- **Help**: Keyboard shortcuts help modal with visual guide
+
+#### **6. Performance Monitoring**
 - **Metrics**: Render time, search time, memory usage
 - **Warnings**: Console warnings for slow operations
 - **Thresholds**: >500ms render, >200ms search, >6MB memory
@@ -118,11 +160,11 @@ document.getElementById('btnExportSelected')?.addEventListener('click', exportSe
         <div class="grid-cell checkbox-cell" data-col="checkbox">
           <input type="checkbox" id="selectAll" title="Select all">
         </div>
-        <!-- Module-specific columns -->
-        <div class="grid-cell" data-col="column1">
+        <!-- Module-specific columns (sortable) -->
+        <div class="grid-cell sortable" data-col="column1" onclick="handleColumnClick('column1')">
           <span class="col-title">Column Title</span>
         </div>
-        <!-- ... more columns ... -->
+        <!-- ... more sortable columns ... -->
         <div class="grid-cell" data-col="actions">
           <span class="col-title">Actions</span>
         </div>
@@ -302,6 +344,51 @@ document.getElementById('btnExportSelected')?.addEventListener('click', exportSe
 }
 ```
 
+#### **6. Column Sorting CSS (NEW STANDARD)**
+```css
+/* Column sorting styles */
+.grid-header .grid-cell.sortable {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.grid-header .grid-cell.sortable:hover {
+  background: var(--pcfp-gold-light);
+}
+
+.grid-header .grid-cell.sorted {
+  background: var(--pcfp-gold-light);
+  color: var(--pcfp-gold);
+}
+
+.grid-header .grid-cell.sorted .col-title {
+  font-weight: 700;
+}
+
+/* Sort indicators */
+.grid-header .grid-cell.sorted.asc .col-title::after {
+  content: ' ↑';
+  color: var(--pcfp-gold);
+  font-weight: bold;
+}
+
+.grid-header .grid-cell.sorted.desc .col-title::after {
+  content: ' ↓';
+  color: var(--pcfp-gold);
+  font-weight: bold;
+}
+
+/* Show subtle indicator when no column is sorted */
+.grid-header .grid-cell.sortable:not(.sorted) .col-title::after {
+  content: ' ↕';
+  color: var(--pcfp-text-muted);
+  font-weight: normal;
+  opacity: 0.5;
+}
+```
+
 **Pagination Styles (EXACT Daily Logs Implementation):**
 ```css
 /* Pagination Container */
@@ -341,6 +428,18 @@ document.getElementById('btnExportSelected')?.addEventListener('click', exportSe
 .pagination-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.pagination-btn.active {
+  background: var(--pcfp-gold);
+  color: var(--pcfp-white);
+  border-color: var(--pcfp-gold);
+}
+
+.pagination-ellipsis {
+  padding: 8px 4px;
+  color: var(--pcfp-text-muted);
+  font-weight: bold;
 }
 
 .pagination-info {
@@ -383,7 +482,165 @@ document.getElementById('btnExportSelected')?.addEventListener('click', exportSe
 }
 ```
 
-#### **6. Standard Search & Filter CSS**
+#### **6. Enhanced Mass Action Toolbar CSS**
+```css
+/* ===== MASS ACTION TOOLBAR ===== */
+.mass-action-toolbar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 20px;
+  background: var(--pcfp-white);
+  border: 1px solid var(--pcfp-gold);
+  border-radius: 8px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 8px rgba(198, 162, 71, 0.15);
+  animation: slideDown 0.3s ease-out;
+}
+
+.mass-action-toolbar.show {
+  display: flex;
+}
+
+.selected-count {
+  font-weight: 600;
+  color: var(--pcfp-gold);
+  font-size: 14px;
+}
+
+.mass-action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.mass-action-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--pcfp-border);
+  background: var(--pcfp-white);
+  color: var(--pcfp-text);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.mass-action-btn:hover {
+  background: var(--pcfp-gold-light);
+  border-color: var(--pcfp-gold);
+}
+
+.mass-action-btn.danger {
+  color: var(--pcfp-error);
+  border-color: var(--pcfp-error);
+}
+
+.mass-action-btn.danger:hover {
+  background: var(--pcfp-error);
+  color: var(--pcfp-white);
+}
+
+.mass-action-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.mass-action-btn.clear-btn {
+  background: var(--pcfp-gold-light);
+  border-color: var(--pcfp-gold);
+  color: var(--pcfp-gold-dark);
+  font-weight: 600;
+}
+
+.mass-action-btn.clear-btn:hover {
+  background: var(--pcfp-gold);
+  color: var(--pcfp-white);
+}
+
+.mass-action-btn.primary {
+  background: var(--pcfp-gold);
+  color: var(--pcfp-white);
+  border-color: var(--pcfp-gold);
+}
+
+.mass-action-btn.primary:hover {
+  background: var(--pcfp-gold-dark);
+  border-color: var(--pcfp-gold-dark);
+}
+
+/* Animation for mass action toolbar */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+```
+
+#### **7. Keyboard Shortcuts CSS**
+```css
+/* Keyboard navigation focus */
+.grid-row.focused {
+  background: var(--pcfp-gold-light);
+  outline: 2px solid var(--pcfp-gold);
+  outline-offset: -2px;
+}
+
+.grid-row.focused .grid-cell {
+  background: var(--pcfp-gold-light);
+}
+
+/* Keyboard shortcuts help modal */
+.shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin: 20px 0;
+}
+
+.shortcut-category h4 {
+  margin: 0 0 15px 0;
+  color: var(--pcfp-gold);
+  font-size: 16px;
+  font-weight: 600;
+  border-bottom: 2px solid var(--pcfp-gold-light);
+  padding-bottom: 8px;
+}
+
+.shortcut-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 8px 0;
+}
+
+.shortcut-item kbd {
+  background: var(--pcfp-panel);
+  border: 1px solid var(--pcfp-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--pcfp-text);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  min-width: 20px;
+  text-align: center;
+}
+
+.shortcut-item span {
+  color: var(--pcfp-text-muted);
+  font-size: 14px;
+}
+```
+
+#### **8. Standard Search & Filter CSS**
 ```css
 /* ===== SEARCH AND FILTER STYLES ===== */
 
@@ -538,6 +795,12 @@ let performanceMetrics = {
   memoryUsage: 0
 };
 
+// Column Sorting Variables (NEW STANDARD)
+let currentSort = {
+  column: '',
+  direction: 'asc' // 'asc' or 'desc'
+};
+
 // Required Functions
 function applyPagination() {
   const itemsToPaginate = items; // Replace with module's data array
@@ -555,109 +818,275 @@ function applyPagination() {
 }
 
 function updatePaginationDisplay() {
-    const paginationContainer = document.getElementById('paginationContainer');
-    if (!paginationContainer) return;
+    const container = document.getElementById('paginationContainer');
+    if (!container) return;
 
-    paginationContainer.innerHTML = '';
+    // Always show pagination container for items per page dropdown
+    container.style.display = 'flex';
 
-    const itemsToPaginate = filteredItems.length > 0 ? filteredItems : window.items; // Replace with module's data array
-    if (itemsToPaginate.length === 0) {
-        paginationContainer.style.display = 'none';
-        return;
-    }
+    const startItem = (currentPage - 1) * itemsPerPage + 1;
+    const endItem = Math.min(currentPage * itemsPerPage, filteredItems.length);
 
-    paginationContainer.style.display = 'flex';
+    container.innerHTML = `
+        <div class="pagination-info">
+            Showing ${startItem}-${endItem} of ${filteredItems.length} items
+        </div>
+        <div class="pagination-controls">
+            ${totalPages > 1 ? `
+                <button class="pagination-btn" onclick="changePage(1)" ${currentPage === 1 ? 'disabled' : ''}>First</button>
+                <button class="pagination-btn" onclick="changePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>Previous</button>
+                <span class="page-numbers">
+                    ${generatePageNumbers()}
+                </span>
+                <button class="pagination-btn" onclick="changePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next</button>
+                <button class="pagination-btn" onclick="changePage(${totalPages})" ${currentPage === totalPages ? 'disabled' : ''}>Last</button>
+            ` : ''}
+        </div>
+        <div class="items-per-page">
+            <label>Items per page:</label>
+            <select onchange="changeItemsPerPage(this.value)">
+                <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
+                <option value="25" ${itemsPerPage === 25 ? 'selected' : ''}>25</option>
+                <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+            </select>
+        </div>
+    `;
+}
 
-    // Left side - pagination controls
-    const paginationControls = document.createElement('div');
-    paginationControls.className = 'pagination-controls';
+// Enhanced pagination with ellipsis indicators
+function generatePageNumbers() {
+    const maxVisible = 5;
+    let html = '';
 
-    // Previous button
-    const prevBtn = document.createElement('button');
-    prevBtn.className = 'pagination-btn';
-    prevBtn.disabled = currentPage === 1;
-    prevBtn.textContent = '← Previous';
-    prevBtn.onclick = () => changePage(currentPage - 1);
-    paginationControls.appendChild(prevBtn);
-
-    // Page info
-    const pageInfo = document.createElement('span');
-    pageInfo.className = 'pagination-info';
-    if (totalPages <= 1) {
-        pageInfo.textContent = `${itemsToPaginate.length} items`;
-    } else {
-        pageInfo.textContent = `Page ${currentPage} of ${totalPages} (${paginatedItems.length} items)`;
-    }
-    paginationControls.appendChild(pageInfo);
-
-    // Next button
-    const nextBtn = document.createElement('button');
-    nextBtn.className = 'pagination-btn';
-    nextBtn.disabled = currentPage === totalPages;
-    nextBtn.textContent = 'Next →';
-    nextBtn.onclick = () => changePage(currentPage + 1);
-    paginationControls.appendChild(nextBtn);
-
-    paginationContainer.appendChild(paginationControls);
-
-    // Right side - items per page selector
-    const itemsPerPageContainer = document.createElement('div');
-    itemsPerPageContainer.className = 'items-per-page-container';
-
-    const label = document.createElement('span');
-    label.className = 'items-per-page-label';
-    label.textContent = 'Items per page:';
-    itemsPerPageContainer.appendChild(label);
-
-    const select = document.createElement('select');
-    select.className = 'items-per-page-select';
-    select.value = itemsPerPage;
-    select.onchange = (e) => {
-        itemsPerPage = parseInt(e.target.value);
-        currentPage = 1;
-        applyPagination();
-        populateList(); // Replace with module's render function
-    };
-
-    const options = [10, 25, 50];
-    options.forEach(option => {
-        const opt = document.createElement('option');
-        opt.value = option;
-        opt.textContent = option;
-        if (option === itemsPerPage) {
-            opt.selected = true;
+    if (totalPages <= maxVisible) {
+        // Show all pages if total is 5 or less
+        for (let i = 1; i <= totalPages; i++) {
+            html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
         }
-        select.appendChild(opt);
-    });
-
-    itemsPerPageContainer.appendChild(select);
-    paginationContainer.appendChild(itemsPerPageContainer);
-}
-
-function changePage(page) {
-  if (page < 1 || page > totalPages) return;
-  currentPage = page;
-  applyPagination();
-  populateList(); // Replace with module's render function
-}
-
-// Mass Action Functions
-function updateSelectedCount() {
-  const selectedCheckboxes = document.querySelectorAll('.item-checkbox:checked'); // Replace with module's checkbox class
-  const count = selectedCheckboxes.length;
-  
-  const massActionToolbar = document.getElementById('massActionToolbar');
-  if (massActionToolbar) {
-    if (count > 0) {
-      massActionToolbar.classList.add('show');
     } else {
-      massActionToolbar.classList.remove('show');
+        // Complex pagination with ellipsis
+        if (currentPage <= 3) {
+            // Show pages 1-4, ellipsis, last page
+            for (let i = 1; i <= 4; i++) {
+                html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+            html += `<span class="pagination-ellipsis">...</span>`;
+            html += `<button class="pagination-btn" onclick="changePage(${totalPages})">${totalPages}</button>`;
+        } else if (currentPage >= totalPages - 2) {
+            // Show first page, ellipsis, last 4 pages
+            html += `<button class="pagination-btn" onclick="changePage(1)">1</button>`;
+            html += `<span class="pagination-ellipsis">...</span>`;
+            for (let i = totalPages - 3; i <= totalPages; i++) {
+                html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+        } else {
+            // Show first page, ellipsis, current-1, current, current+1, ellipsis, last page
+            html += `<button class="pagination-btn" onclick="changePage(1)">1</button>`;
+            html += `<span class="pagination-ellipsis">...</span>`;
+            for (let i = currentPage - 1; i <= currentPage + 1; i++) {
+                html += `<button class="pagination-btn ${i === currentPage ? 'active' : ''}" onclick="changePage(${i})">${i}</button>`;
+            }
+            html += `<span class="pagination-ellipsis">...</span>`;
+            html += `<button class="pagination-btn" onclick="changePage(${totalPages})">${totalPages}</button>`;
+        }
+    }
+
+    return html;
+}
+
+function changeItemsPerPage(newItemsPerPage) {
+  itemsPerPage = parseInt(newItemsPerPage);
+  currentPage = 1;
+  
+  // Clear all selections when changing items per page
+  clearAllSelections();
+  
+  applyPagination();
+  renderCurrentView(); // Replace with module's render function
+}
+
+function changePage(page, clearSelections = true) {
+  if (page < 1 || page > totalPages) return;
+  
+  // Clear all selections when changing pages (unless explicitly disabled)
+  if (clearSelections) {
+    clearAllSelections();
+  }
+  
+  currentPage = page;
+    applyPagination();
+    populateList(); // Replace with module's render function
+}
+
+// Cross-Page Selection System Functions
+let selectedItemIds = new Set(); // Global selection tracking
+
+function updateSelectedCount() {
+  // Count selected items across ALL pages (not just current page)
+  const totalSelectedCount = selectedItemIds.size;
+  const toolbar = document.getElementById('massActionToolbar');
+  const countSpan = toolbar.querySelector('.selected-count');
+  
+  if (totalSelectedCount > 0) {
+    toolbar.classList.add('show');
+    countSpan.textContent = `${totalSelectedCount} selected`;
+  } else {
+    toolbar.classList.remove('show');
+    // When toolbar is disengaged, clear all selections
+    clearAllSelections();
+  }
+}
+
+function clearAllSelections() {
+  // Clear individual checkboxes
+  document.querySelectorAll('.item-checkbox').forEach(checkbox => {
+    checkbox.checked = false;
+  });
+  
+  // Clear the selection tracking set
+  selectedItemIds.clear();
+  
+  // Clear select all checkbox
+  const selectAllCheckbox = document.getElementById('selectAll');
+  if (selectAllCheckbox) {
+    selectAllCheckbox.checked = false;
+    selectAllCheckbox.indeterminate = false;
+  }
+  
+  // Update selection count (without clearing again to avoid infinite loop)
+  updateSelectedCountOnly();
+}
+
+function updateSelectedCountOnly() {
+  // Count selected items across ALL pages (not just current page)
+  const totalSelectedCount = selectedItemIds.size;
+  const toolbar = document.getElementById('massActionToolbar');
+  const countSpan = toolbar.querySelector('.selected-count');
+  
+  if (totalSelectedCount > 0) {
+    toolbar.classList.add('show');
+    countSpan.textContent = `${totalSelectedCount} selected`;
+    } else {
+    toolbar.classList.remove('show');
+  }
+}
+
+// Enhanced Mass Action Functions (Cross-Page)
+function deleteSelectedItems() {
+  if (selectedItemIds.size === 0) {
+    alert('Please select items to delete');
+    return;
+  }
+  
+  if (confirm(`Are you sure you want to delete ${selectedItemIds.size} selected items?`)) {
+    const selectedIds = Array.from(selectedItemIds);
+    // Replace with module's data array and filter logic
+    window.moduleItems = window.moduleItems.filter(item => !selectedIds.includes(item.id));
+    
+    saveItems(); // Replace with module's save function
+    applySearchAndFilter(); // Replace with module's filter function
+    clearAllSelections();
+    showNotification(`${selectedIds.length} items deleted successfully`, 'success');
+  }
+}
+
+function duplicateSelectedItems() {
+  if (selectedItemIds.size === 0) {
+    alert('Please select items to duplicate');
+    return;
+  }
+  
+  const selectedIds = Array.from(selectedItemIds);
+  const itemsToDuplicate = window.moduleItems.filter(item => selectedIds.includes(item.id));
+  
+  itemsToDuplicate.forEach(item => {
+    const newItem = {
+      ...item,
+      id: generateItemId(), // Replace with module's ID generation
+      title: item.title + ' (Copy)',
+      createdDate: new Date().toISOString().split('T')[0],
+      updatedDate: new Date().toISOString().split('T')[0]
+    };
+    window.moduleItems.push(newItem);
+  });
+  
+  saveItems(); // Replace with module's save function
+  applySearchAndFilter(); // Replace with module's filter function
+  clearAllSelections();
+  showNotification(`${itemsToDuplicate.length} items duplicated successfully`, 'success');
+}
+
+function exportSelectedItems() {
+  if (selectedItemIds.size === 0) {
+    alert('Please select items to export');
+    return;
+  }
+  
+  const selectedIds = Array.from(selectedItemIds);
+  const itemsToExport = window.moduleItems.filter(item => selectedIds.includes(item.id));
+  
+  exportToCSV(itemsToExport, 'selected_items.csv'); // Replace with module's export function
+  clearAllSelections();
+  showNotification(`${itemsToExport.length} items exported successfully`, 'success');
+}
+
+// Checkbox Event Listeners (Cross-Page Selection)
+document.addEventListener('change', function(e) {
+  if (e.target.classList.contains('item-checkbox')) {
+    const itemId = e.target.dataset.itemId;
+    if (e.target.checked) {
+      selectedItemIds.add(itemId);
+    } else {
+      selectedItemIds.delete(itemId);
+    }
+    updateSelectedCount();
+    updateSelectAllState();
+  }
+});
+
+// Select All checkbox
+document.getElementById('selectAll').addEventListener('change', function() {
+  const checkboxes = document.querySelectorAll('.item-checkbox');
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = this.checked;
+    const itemId = checkbox.dataset.itemId;
+    if (this.checked) {
+      selectedItemIds.add(itemId);
+    } else {
+      selectedItemIds.delete(itemId);
+    }
+  });
+  updateSelectedCount();
+});
+
+// Page Navigation with Select All Reset
+function changePage(page, clearSelections = true) {
+  if (page >= 1 && page <= totalPages) {
+    if (clearSelections) {
+      clearAllSelections();
+    } else {
+      // Reset Select All checkbox when navigating with arrow keys
+      const selectAllCheckbox = document.getElementById('selectAll');
+      if (selectAllCheckbox) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+      }
     }
     
-    const countDisplay = massActionToolbar.querySelector('.selected-count');
-    if (countDisplay) {
-      countDisplay.textContent = `${count} selected`;
-    }
+    currentPage = page;
+    applyPagination();
+    renderCurrentView(); // Replace with module's render function
+  }
+}
+
+// Selection Restoration on Render
+function renderListView() {
+  // ... existing render logic ...
+  
+  // Restore selection state if this item was previously selected
+  const checkbox = row.querySelector('.item-checkbox');
+  if (selectedItemIds.has(item.id)) {
+    checkbox.checked = true;
   }
 }
 
@@ -672,7 +1101,7 @@ function updateSelectAllState() {
   }
 }
 
-// Standard Mass Action Buttons
+// Enhanced Mass Action Buttons
 function deleteSelectedItems() {
   const selectedCheckboxes = document.querySelectorAll('.item-checkbox:checked'); // Replace with module's checkbox class
   if (selectedCheckboxes.length === 0) return;
@@ -686,9 +1115,8 @@ function deleteSelectedItems() {
     applyPagination();
     populateList(); // Replace with module's render function
     
-    // Clear checkboxes and hide toolbar
-    updateSelectedCount();
-    updateSelectAllState();
+    // Clear all checkboxes after action
+    clearAllSelections();
     
     // Show notification
     showNotification(`${selectedCheckboxes.length} item(s) deleted successfully`, 'success');
@@ -718,9 +1146,8 @@ function duplicateSelectedItems() {
   applyPagination();
   populateList(); // Replace with module's render function
   
-  // Clear checkboxes and hide toolbar
-  updateSelectedCount();
-  updateSelectAllState();
+  // Clear all checkboxes after action
+  clearAllSelections();
   
   // Show notification
   showNotification(`${selectedCheckboxes.length} item(s) duplicated successfully`, 'success');
@@ -743,6 +1170,10 @@ function exportSelectedItems() {
   link.click();
   
   URL.revokeObjectURL(url);
+  
+  // Clear all checkboxes after action
+  clearAllSelections();
+  
   showNotification(`${selectedCheckboxes.length} item(s) exported successfully`, 'success');
 }
 
@@ -769,9 +1200,307 @@ function updatePerformanceMetrics() {
     console.warn(`[PCFP] High memory usage detected: ${(performanceMetrics.memoryUsage / 1024 / 1024).toFixed(2)}MB`);
   }
 }
+
+// Column Sorting Functions (NEW STANDARD)
+function sortColumn(columnName, direction = 'asc') {
+  // Update current sort state
+  currentSort.column = columnName;
+  currentSort.direction = direction;
+  
+  // Sort the filtered items
+  filteredItems.sort((a, b) => {
+    let aVal = a[columnName] || '';
+    let bVal = b[columnName] || '';
+    
+    // Handle different data types
+    if (columnName.includes('Date') || columnName === 'createdDate' || columnName === 'updatedDate') {
+      // Date sorting
+      aVal = new Date(aVal);
+      bVal = new Date(bVal);
+    } else if (columnName === 'priority') {
+      // Priority sorting (custom order)
+      const priorityOrder = { 'urgent': 4, 'high': 3, 'medium': 2, 'low': 1 };
+      aVal = priorityOrder[aVal] || 0;
+      bVal = priorityOrder[bVal] || 0;
+    } else if (columnName === 'status') {
+      // Status sorting (custom order)
+      const statusOrder = { 'not-started': 1, 'in-progress': 2, 'completed': 3, 'on-hold': 4 };
+      aVal = statusOrder[aVal] || 0;
+      bVal = statusOrder[bVal] || 0;
+    } else if (typeof aVal === 'string') {
+      // String sorting (case insensitive)
+      aVal = aVal.toLowerCase();
+      bVal = bVal.toLowerCase();
+    }
+    
+    // Compare values
+    let comparison = 0;
+    if (aVal > bVal) {
+      comparison = 1;
+    } else if (aVal < bVal) {
+      comparison = -1;
+    }
+    
+    // Reverse if descending
+    return direction === 'desc' ? -comparison : comparison;
+  });
+  
+  // Reset to first page after sorting
+  currentPage = 1;
+  
+  // Re-apply pagination and render
+  applyPagination();
+  renderCurrentView(); // Replace with module's render function
+  
+  // Update column headers to show sort indicators
+  updateColumnHeaders();
+}
+
+function updateColumnHeaders() {
+  // Remove sort indicators from all headers
+  document.querySelectorAll('.grid-header .grid-cell').forEach(cell => {
+    cell.classList.remove('sorted', 'asc', 'desc');
+  });
+  
+  // Add sort indicator to current sort column
+  if (currentSort.column) {
+    const sortCell = document.querySelector(`[data-col="${currentSort.column}"]`);
+    if (sortCell) {
+      sortCell.classList.add('sorted', currentSort.direction);
+    }
+  }
+}
+
+function handleColumnClick(columnName) {
+  // If clicking the same column that's already sorted
+  if (currentSort.column === columnName) {
+    if (currentSort.direction === 'asc') {
+      // First click: asc, second click: desc, third click: clear
+      currentSort.direction = 'desc';
+    } else if (currentSort.direction === 'desc') {
+      // Third click: clear sorting
+      clearSorting();
+      return;
+    }
+  } else {
+    // Clicking a different column: start with ascending
+    currentSort.direction = 'asc';
+  }
+  
+  // Sort the column
+  sortColumn(columnName, currentSort.direction);
+}
+
+function clearSorting() {
+  // Reset sort state
+  currentSort.column = '';
+  currentSort.direction = 'asc';
+  
+  // Reset to original order (by creation order or ID)
+  filteredItems.sort((a, b) => {
+    // Sort by ID to maintain original order
+    return a.id.localeCompare(b.id);
+  });
+  
+  // Reset to first page
+  currentPage = 1;
+  
+  // Re-apply pagination and render
+  applyPagination();
+  renderCurrentView(); // Replace with module's render function
+  
+  // Update column headers to remove sort indicators
+  updateColumnHeaders();
+}
+
+function applyDefaultSort() {
+  // Set default sort (usually by title ascending)
+  currentSort.column = 'title'; // Replace with module's primary field
+  currentSort.direction = 'asc';
+  
+  // Sort by primary field ascending
+  filteredItems.sort((a, b) => {
+    const aVal = (a.title || '').toLowerCase(); // Replace with module's primary field
+    const bVal = (b.title || '').toLowerCase(); // Replace with module's primary field
+    return aVal.localeCompare(bVal);
+  });
+}
+
+// Make functions globally accessible for onclick handlers
+window.handleColumnClick = handleColumnClick;
+window.clearSorting = clearSorting;
 ```
 
-#### **8. Standard Search & Filter JavaScript Functions**
+#### **8. Keyboard Shortcuts JavaScript Functions**
+```javascript
+// Keyboard shortcuts event listener (add to setupEventListeners function)
+document.addEventListener('keydown', (e) => {
+    // Don't trigger shortcuts when typing in inputs
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+        return;
+    }
+
+    // Escape key - close menus/modals
+    if (e.key === 'Escape') {
+        closeMenu();
+        closeItemModal();
+        return;
+    }
+
+    // Ctrl/Cmd + A - Select all items
+    if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        e.preventDefault();
+        const selectAllCheckbox = document.getElementById('selectAll');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = true;
+            selectAllCheckbox.dispatchEvent(new Event('change'));
+        }
+        return;
+    }
+
+    // Ctrl/Cmd + D - Duplicate selected items
+    if ((e.ctrlKey || e.metaKey) && e.key === 'd') {
+        e.preventDefault();
+        const selectedCount = document.querySelectorAll('.item-checkbox:checked').length;
+        if (selectedCount > 0) {
+            duplicateSelectedItems();
+        }
+        return;
+    }
+
+    // Delete key - Delete selected items
+    if (e.key === 'Delete') {
+        e.preventDefault();
+        const selectedCount = document.querySelectorAll('.item-checkbox:checked').length;
+        if (selectedCount > 0) {
+            deleteSelectedItems();
+        }
+        return;
+    }
+
+    // Ctrl/Cmd + E - Export selected items
+    if ((e.ctrlKey || e.metaKey) && e.key === 'e') {
+        e.preventDefault();
+        const selectedCount = document.querySelectorAll('.item-checkbox:checked').length;
+        if (selectedCount > 0) {
+            exportSelectedItems();
+        }
+        return;
+    }
+
+    // Ctrl/Cmd + N - Add new item
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        addNewItem();
+        return;
+    }
+
+    // Arrow keys for item navigation
+    if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
+        e.preventDefault();
+        handleItemNavigation(e.key);
+        return;
+    }
+    
+    // Left/Right arrows for page navigation
+    if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        if (currentPage > 1) {
+            changePage(currentPage - 1, false); // Don't clear selections
+        }
+        return;
+    }
+    
+    if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        if (currentPage < totalPages) {
+            changePage(currentPage + 1, false); // Don't clear selections
+        }
+        return;
+    }
+
+    // Enter key - Edit first selected item
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        const firstSelected = document.querySelector('.item-checkbox:checked');
+        if (firstSelected) {
+            const itemId = firstSelected.dataset.itemId;
+            editItem(itemId);
+        }
+        return;
+    }
+
+    // Number keys for quick pagination
+    if (e.key >= '1' && e.key <= '9') {
+        e.preventDefault();
+        const pageNumber = parseInt(e.key);
+        if (pageNumber <= totalPages) {
+            changePage(pageNumber);
+        }
+        return;
+    }
+
+    // Space key - Toggle checkbox of currently focused item
+    if (e.key === ' ') {
+        e.preventDefault();
+        const focusedItem = document.querySelector('.grid-row.focused');
+        if (focusedItem) {
+            const checkbox = focusedItem.querySelector('.item-checkbox');
+            if (checkbox) {
+                checkbox.checked = !checkbox.checked;
+                checkbox.dispatchEvent(new Event('change'));
+            }
+        } else {
+            // If no item is focused, focus the first item and toggle its checkbox
+            const firstItem = document.querySelector('.grid-row');
+            if (firstItem) {
+                firstItem.classList.add('focused');
+                const checkbox = firstItem.querySelector('.item-checkbox');
+                if (checkbox) {
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change'));
+                }
+            }
+        }
+        return;
+    }
+});
+
+// Handle up/down arrow key navigation for items
+function handleItemNavigation(direction) {
+    const visibleItems = document.querySelectorAll('.grid-row');
+    if (visibleItems.length === 0) return;
+
+    // Find currently focused item
+    let currentIndex = -1;
+    const focusedItem = document.querySelector('.grid-row.focused');
+    if (focusedItem) {
+        currentIndex = Array.from(visibleItems).indexOf(focusedItem);
+    }
+
+    let newIndex = currentIndex;
+
+    switch (direction) {
+        case 'ArrowUp':
+            newIndex = Math.max(0, currentIndex - 1);
+            break;
+        case 'ArrowDown':
+            newIndex = Math.min(visibleItems.length - 1, currentIndex + 1);
+            break;
+    }
+
+    // Remove focus from all items
+    visibleItems.forEach(item => item.classList.remove('focused'));
+
+    // Add focus to new item
+    if (newIndex >= 0 && newIndex < visibleItems.length) {
+        visibleItems[newIndex].classList.add('focused');
+        visibleItems[newIndex].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+}
+```
+
+#### **9. Standard Search & Filter JavaScript Functions**
 ```javascript
 // Search and filter variables
 let searchQuery = '';
@@ -929,38 +1658,62 @@ if (dateEndInput) {
 
 ### **🔄 Implementation Checklist**
 - [ ] Add pagination variables to module
-- [ ] Add pagination functions (applyPagination, updatePaginationDisplay, changePage)
+- [ ] Add enhanced pagination functions (applyPagination, updatePaginationDisplay, changePage, generatePageNumbers, changeItemsPerPage)
 - [ ] Add performance monitoring variables and functions
-- [ ] Add mass action functions (updateSelectedCount, updateSelectAllState)
-- [ ] Add standardized mass action functions (deleteSelectedItems, duplicateSelectedItems, exportSelectedItems)
+- [ ] **Add cross-page selection system** (`selectedItemIds = new Set()`)
+- [ ] **Add cross-page selection functions** (updateSelectedCount, clearAllSelections, updateSelectedCountOnly)
+- [ ] **Add checkbox event listeners** for cross-page selection tracking
+- [ ] **Add Select All checkbox event listener** with cross-page tracking
+- [ ] **Add page navigation with Select All reset** (changePage with clearSelections parameter)
+- [ ] **Add selection restoration on render** (checkbox state restoration)
+- [ ] Add enhanced mass action functions (deleteSelectedItems, duplicateSelectedItems, exportSelectedItems) **using selectedItemIds**
 - [ ] Add search and filter variables (searchQuery, currentFilter, dateRangeStart, dateRangeEnd, isDateRangeActive, filteredItems)
 - [ ] Add search and filter functions (applySearchAndFilter, clearSearch, applyDateRange, clearDateRange)
 - [ ] Add search and filter event listeners to setupEventListeners function
+- [ ] Add column sorting variables (currentSort object with column and direction)
+- [ ] Add column sorting functions (sortColumn, updateColumnHeaders, handleColumnClick, clearSorting, applyDefaultSort)
+- [ ] Make column sorting functions globally accessible (window.handleColumnClick, window.clearSorting)
 - [ ] Update render function to use paginated data
 - [ ] Update applyPagination to use filteredItems instead of items
 - [ ] Add performance tracking to render function
 - [ ] Update initialization to call applyPagination()
 - [ ] Add checkbox column to grid header and rows
-- [ ] Add pagination container to HTML
-- [ ] Add standardized mass action toolbar to HTML (exactly 3 buttons)
+- [ ] Add pagination container to HTML (always visible)
+- [ ] **Add enhanced mass action toolbar to HTML** (Clear button + 3 action buttons)
 - [ ] Add search and filter HTML structure to module header
+- [ ] Add sortable class and onclick handlers to column headers (except checkbox and actions)
+- [ ] Add column sorting CSS styles (sortable, sorted, hover effects, arrow indicators)
 - [ ] Add event listeners for checkboxes
 - [ ] Add simple event listeners for mass action buttons (btnDeleteSelected, btnDuplicateSelected, btnExportSelected)
 - [ ] Add items per page dropdown to pagination
 - [ ] Update cache busting parameters
-- [ ] Test pagination, mass actions, search, filter, and performance monitoring
-- [ ] Verify consistent styling across modules
+- [ ] Test enhanced pagination with ellipsis indicators
+- [ ] Test mass actions with auto-clear functionality
+- [ ] Test search, filter, and performance monitoring
+- [ ] Verify consistent gold-themed styling across modules
 - [ ] Test items per page dropdown functionality
 - [ ] Test search functionality with different data types
 - [ ] Test filter dropdown with all options
 - [ ] Test date range filtering
 - [ ] Test clear search and clear date range functions
+- [ ] Test column sorting functionality (asc, desc, clear) with different data types
+- [ ] Test 3-click cycle behavior (asc → desc → clear → asc)
+- [ ] Test default sort on page load
+- [ ] Test sort indicators (arrows) display correctly
+- [ ] Test sorting resets to page 1
 - [ ] CRITICAL: Make search functions globally accessible (window.clearSearch, window.applyDateRange, window.clearDateRange)
 - [ ] CRITICAL: Use neutral styling for clear buttons (no red/danger colors)
 - [ ] CRITICAL: Implement complete three-dot action menu with all 5 options
 - [ ] CRITICAL: Add escape key support for closing action menus
 - [ ] CRITICAL: Implement insertAbove and insertBelow functions
 - [ ] CRITICAL: Expose all action menu functions globally (window.toggleActionMenu, window.insertItemAbove, etc.)
+- [ ] CRITICAL: Add clearAllSelections() call to all mass action functions
+- [ ] CRITICAL: Implement enhanced pagination with First/Last buttons and ellipsis
+- [ ] CRITICAL: Add gold-themed mass action toolbar styling with slideDown animation
+- [ ] CRITICAL: Implement comprehensive keyboard shortcuts (navigation, selection, actions)
+- [ ] CRITICAL: Add keyboard shortcuts help modal with visual guide
+- [ ] CRITICAL: Add keyboard navigation focus styling (.grid-row.focused)
+- [ ] CRITICAL: Add handleArrowNavigation() function for arrow key navigation
 
 ### **📝 Module-Specific Customizations**
 - **Data Array**: Replace `items` with module's data array (e.g., `tasks`, `logs`, `bills`)
