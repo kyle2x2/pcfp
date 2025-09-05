@@ -3,8 +3,8 @@
 (function(){
   const routes = {
     '#/payments':        { title: 'Payment Planner v7.5',  src: 'modules/payment-planner/index.html' },
-             '#/schedule':        { title: 'Schedule v1.5.2',    src: 'modules/schedule/index.html' },
-    '#/daily-logs':      { title: 'Daily Logs v1.9',       src: 'modules/daily-logs/index.html' },
+             '#/schedule':        { title: 'Schedule v1.5.3',    src: 'modules/schedule/index.html' },
+    '#/daily-logs':      { title: 'Daily Logs v1.10',       src: 'modules/daily-logs/index.html' },
     '#/to-dos':          { title: 'To‑Dos v1.0',           src: 'modules/to-dos/index.html' },
     '#/change-orders':   { title: 'Change Orders v1.0',    src: 'modules/change-orders/index.html' },
     '#/selections':      { title: 'Selections v1.0',       src: 'modules/selections/index.html' },

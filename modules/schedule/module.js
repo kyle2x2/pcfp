@@ -1,10 +1,11 @@
-// modules/schedule/module.js - Schedule Module v1.5.2 (Gantt Charts & Kanban with DHTMLX & SortableJS)
+// modules/schedule/module.js - Schedule Module v1.5.3 (Gantt Charts & Kanban with DHTMLX & SortableJS)
 // Construction project scheduling and timeline management
 
 (function() {
   let currentView = 'list';
   let currentTimeScale = 'month';
   let tasks = [];
+  let filteredTasks = [];
   let editingTaskId = null;
   
   // Pagination variables
@@ -121,6 +122,9 @@
         }
       ];
     }
+    
+    // Initialize filtered tasks
+    filteredTasks = [...tasks];
   }
   
   function populateTaskList() {
@@ -1465,7 +1469,7 @@
 
   // Pagination functions
   function applyPagination() {
-    const tasksToPaginate = tasks;
+    const tasksToPaginate = filteredTasks.length > 0 ? filteredTasks : tasks;
     totalPages = Math.ceil(tasksToPaginate.length / itemsPerPage);
     
     // Ensure current page is valid
@@ -1485,37 +1489,81 @@
   function updatePaginationDisplay() {
     const paginationContainer = document.getElementById('paginationContainer');
     if (!paginationContainer) return;
-    
+
     paginationContainer.innerHTML = '';
-    
-    if (totalPages <= 1) {
-      paginationContainer.style.display = 'none';
-      return;
+
+    const tasksToPaginate = filteredTasks.length > 0 ? filteredTasks : tasks;
+    if (tasksToPaginate.length === 0) {
+        paginationContainer.style.display = 'none';
+        return;
     }
-    
+
     paginationContainer.style.display = 'flex';
-    
+
+    // Left side - pagination controls
+    const paginationControls = document.createElement('div');
+    paginationControls.className = 'pagination-controls';
+
     // Previous button
     const prevBtn = document.createElement('button');
     prevBtn.className = 'pagination-btn';
     prevBtn.disabled = currentPage === 1;
     prevBtn.textContent = '← Previous';
     prevBtn.onclick = () => changePage(currentPage - 1);
-    paginationContainer.appendChild(prevBtn);
-    
-    // Page numbers
+    paginationControls.appendChild(prevBtn);
+
+    // Page info
     const pageInfo = document.createElement('span');
     pageInfo.className = 'pagination-info';
-    pageInfo.textContent = `Page ${currentPage} of ${totalPages} (${paginatedTasks.length} items)`;
-    paginationContainer.appendChild(pageInfo);
-    
+    if (totalPages <= 1) {
+        pageInfo.textContent = `${tasksToPaginate.length} items`;
+    } else {
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages} (${paginatedTasks.length} items)`;
+    }
+    paginationControls.appendChild(pageInfo);
+
     // Next button
     const nextBtn = document.createElement('button');
     nextBtn.className = 'pagination-btn';
     nextBtn.disabled = currentPage === totalPages;
     nextBtn.textContent = 'Next →';
     nextBtn.onclick = () => changePage(currentPage + 1);
-    paginationContainer.appendChild(nextBtn);
+    paginationControls.appendChild(nextBtn);
+
+    paginationContainer.appendChild(paginationControls);
+
+    // Right side - items per page selector
+    const itemsPerPageContainer = document.createElement('div');
+    itemsPerPageContainer.className = 'items-per-page-container';
+
+    const label = document.createElement('span');
+    label.className = 'items-per-page-label';
+    label.textContent = 'Items per page:';
+    itemsPerPageContainer.appendChild(label);
+
+    const select = document.createElement('select');
+    select.className = 'items-per-page-select';
+    select.value = itemsPerPage;
+    select.onchange = (e) => {
+        itemsPerPage = parseInt(e.target.value);
+        currentPage = 1;
+        applyPagination();
+        populateTaskList();
+    };
+
+    const options = [10, 25, 50];
+    options.forEach(option => {
+        const opt = document.createElement('option');
+        opt.value = option;
+        opt.textContent = option;
+        if (option === itemsPerPage) {
+            opt.selected = true;
+        }
+        select.appendChild(opt);
+    });
+
+    itemsPerPageContainer.appendChild(select);
+    paginationContainer.appendChild(itemsPerPageContainer);
   }
 
   function changePage(page) {

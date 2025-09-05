@@ -92,9 +92,57 @@ document.getElementById('btnExportSelected')?.addEventListener('click', exportSe
 </div>
 ```
 
-#### **5. Standard CSS Classes**
+#### **5. Standard CSS Classes (Based on Daily Logs - WORKING PERFECTLY)**
+
+**Container Structure (CRITICAL - Prevents Items Being Hidden):**
 ```css
-/* Grid Container */
+/* Module Container - FLEXIBLE HEIGHT */
+.module-container {
+  min-height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Module Content - FLEXIBLE */
+.module-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Module-specific Container - FLEXIBLE */
+.module-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 20px;
+  background: var(--pcfp-panel);
+  gap: 20px;
+}
+
+/* Module Content Area - FLEXIBLE */
+.module-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* View Content - FLEXIBLE */
+.view-content {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+}
+
+.view-content.active {
+  display: flex;
+  flex-direction: column;
+}
+```
+
+**Grid Structure (EXACT Daily Logs Implementation):**
+```css
+/* Grid Container - HORIZONTAL SCROLL ONLY */
 .grid-container {
   width: 100%;
   overflow-x: auto;
@@ -133,6 +181,15 @@ document.getElementById('btnExportSelected')?.addEventListener('click', exportSe
   white-space: nowrap;
 }
 
+.grid-header .grid-cell:last-child {
+  border-right: none !important;
+}
+
+/* Grid Body */
+.grid-body {
+  display: table-row-group;
+}
+
 /* Grid Rows */
 .grid-row {
   display: table-row;
@@ -158,10 +215,13 @@ document.getElementById('btnExportSelected')?.addEventListener('click', exportSe
   border-bottom: 1px solid var(--pcfp-border) !important;
 }
 
+.grid-row .grid-cell:last-child {
+  border-right: none !important;
+}
+
 /* Checkbox Styling */
 .checkbox-cell {
   text-align: center;
-  width: 60px;
 }
 
 .checkbox-cell input[type="checkbox"] {
@@ -169,18 +229,26 @@ document.getElementById('btnExportSelected')?.addEventListener('click', exportSe
   height: 16px;
   cursor: pointer;
 }
+```
 
-/* Pagination Styles */
+**Pagination Styles (EXACT Daily Logs Implementation):**
+```css
+/* Pagination Container */
 .pagination-container {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 15px;
   padding: 20px;
   background: var(--pcfp-white);
   border-top: 1px solid var(--pcfp-border);
   margin-top: 10px;
   border-radius: 0 0 8px 8px;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
 .pagination-btn {
@@ -208,12 +276,6 @@ document.getElementById('btnExportSelected')?.addEventListener('click', exportSe
   font-size: 14px;
   color: var(--pcfp-text-muted);
   font-weight: 500;
-}
-
-.pagination-controls {
-  display: flex;
-  align-items: center;
-  gap: 15px;
 }
 
 .items-per-page-container {
@@ -282,75 +344,83 @@ function applyPagination() {
 }
 
 function updatePaginationDisplay() {
-  const paginationContainer = document.getElementById('paginationContainer');
-  if (!paginationContainer) return;
-  
-  paginationContainer.innerHTML = '';
-  
-  if (totalPages <= 1) {
-    paginationContainer.style.display = 'none';
-    return;
-  }
-  
-  paginationContainer.style.display = 'flex';
-  
-  // Left side - pagination controls
-  const paginationControls = document.createElement('div');
-  paginationControls.className = 'pagination-controls';
-  
-  // Previous button
-  const prevBtn = document.createElement('button');
-  prevBtn.className = 'pagination-btn';
-  prevBtn.disabled = currentPage === 1;
-  prevBtn.textContent = '← Previous';
-  prevBtn.onclick = () => changePage(currentPage - 1);
-  paginationControls.appendChild(prevBtn);
-  
-  // Page numbers
-  const pageInfo = document.createElement('span');
-  pageInfo.className = 'pagination-info';
-  pageInfo.textContent = `Page ${currentPage} of ${totalPages} (${paginatedItems.length} items)`;
-  paginationControls.appendChild(pageInfo);
-  
-  // Next button
-  const nextBtn = document.createElement('button');
-  nextBtn.className = 'pagination-btn';
-  nextBtn.disabled = currentPage === totalPages;
-  nextBtn.textContent = 'Next →';
-  nextBtn.onclick = () => changePage(currentPage + 1);
-  paginationControls.appendChild(nextBtn);
-  
-  paginationContainer.appendChild(paginationControls);
-  
-  // Right side - items per page dropdown
-  const itemsPerPageContainer = document.createElement('div');
-  itemsPerPageContainer.className = 'items-per-page-container';
-  
-  const label = document.createElement('label');
-  label.textContent = 'Items per page:';
-  label.className = 'items-per-page-label';
-  itemsPerPageContainer.appendChild(label);
-  
-  const select = document.createElement('select');
-  select.className = 'items-per-page-select';
-  select.value = itemsPerPage;
-  select.onchange = (e) => {
-    itemsPerPage = parseInt(e.target.value);
-    currentPage = 1; // Reset to first page
-    applyPagination();
-    populateList(); // Replace with module's render function
-  };
-  
-  const options = [10, 25, 50];
-  options.forEach(option => {
-    const opt = document.createElement('option');
-    opt.value = option;
-    opt.textContent = option;
-    select.appendChild(opt);
-  });
-  
-  itemsPerPageContainer.appendChild(select);
-  paginationContainer.appendChild(itemsPerPageContainer);
+    const paginationContainer = document.getElementById('paginationContainer');
+    if (!paginationContainer) return;
+
+    paginationContainer.innerHTML = '';
+
+    const itemsToPaginate = filteredItems.length > 0 ? filteredItems : window.items; // Replace with module's data array
+    if (itemsToPaginate.length === 0) {
+        paginationContainer.style.display = 'none';
+        return;
+    }
+
+    paginationContainer.style.display = 'flex';
+
+    // Left side - pagination controls
+    const paginationControls = document.createElement('div');
+    paginationControls.className = 'pagination-controls';
+
+    // Previous button
+    const prevBtn = document.createElement('button');
+    prevBtn.className = 'pagination-btn';
+    prevBtn.disabled = currentPage === 1;
+    prevBtn.textContent = '← Previous';
+    prevBtn.onclick = () => changePage(currentPage - 1);
+    paginationControls.appendChild(prevBtn);
+
+    // Page info
+    const pageInfo = document.createElement('span');
+    pageInfo.className = 'pagination-info';
+    if (totalPages <= 1) {
+        pageInfo.textContent = `${itemsToPaginate.length} items`;
+    } else {
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages} (${paginatedItems.length} items)`;
+    }
+    paginationControls.appendChild(pageInfo);
+
+    // Next button
+    const nextBtn = document.createElement('button');
+    nextBtn.className = 'pagination-btn';
+    nextBtn.disabled = currentPage === totalPages;
+    nextBtn.textContent = 'Next →';
+    nextBtn.onclick = () => changePage(currentPage + 1);
+    paginationControls.appendChild(nextBtn);
+
+    paginationContainer.appendChild(paginationControls);
+
+    // Right side - items per page selector
+    const itemsPerPageContainer = document.createElement('div');
+    itemsPerPageContainer.className = 'items-per-page-container';
+
+    const label = document.createElement('span');
+    label.className = 'items-per-page-label';
+    label.textContent = 'Items per page:';
+    itemsPerPageContainer.appendChild(label);
+
+    const select = document.createElement('select');
+    select.className = 'items-per-page-select';
+    select.value = itemsPerPage;
+    select.onchange = (e) => {
+        itemsPerPage = parseInt(e.target.value);
+        currentPage = 1;
+        applyPagination();
+        populateList(); // Replace with module's render function
+    };
+
+    const options = [10, 25, 50];
+    options.forEach(option => {
+        const opt = document.createElement('option');
+        opt.value = option;
+        opt.textContent = option;
+        if (option === itemsPerPage) {
+            opt.selected = true;
+        }
+        select.appendChild(opt);
+    });
+
+    itemsPerPageContainer.appendChild(select);
+    paginationContainer.appendChild(itemsPerPageContainer);
 }
 
 function changePage(page) {

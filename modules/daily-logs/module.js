@@ -1,4 +1,4 @@
-/* modules/daily-logs/module.js - Daily Logs Module v1.9 */
+/* modules/daily-logs/module.js - Daily Logs Module v1.10 */
 /* PCFP Core Integration - Professional Construction Software Quality */
 
 // Sample data for testing
@@ -287,7 +287,9 @@ function updatePaginationDisplay() {
     
     paginationContainer.innerHTML = '';
     
-    if (totalPages <= 1) {
+    // Always show pagination if there are items, even if only one page
+    const logsToPaginate = filteredLogs.length > 0 ? filteredLogs : window.dailyLogs;
+    if (logsToPaginate.length === 0) {
         paginationContainer.style.display = 'none';
         return;
     }
@@ -309,7 +311,11 @@ function updatePaginationDisplay() {
     // Page numbers
     const pageInfo = document.createElement('span');
     pageInfo.className = 'pagination-info';
-    pageInfo.textContent = `Page ${currentPage} of ${totalPages} (${paginatedLogs.length} items)`;
+    if (totalPages <= 1) {
+        pageInfo.textContent = `${logsToPaginate.length} items`;
+    } else {
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages} (${paginatedLogs.length} items)`;
+    }
     paginationControls.appendChild(pageInfo);
     
     // Next button
@@ -346,6 +352,9 @@ function updatePaginationDisplay() {
         const opt = document.createElement('option');
         opt.value = option;
         opt.textContent = option;
+        if (option === itemsPerPage) {
+            opt.selected = true;
+        }
         select.appendChild(opt);
     });
     

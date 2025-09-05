@@ -1,4 +1,4 @@
-/* modules/daily-logs/module.css - Daily Logs Module v1.9 Styles */
+/* modules/daily-logs/module.css - Daily Logs Module v1.10 Styles */
 /* PCFP White/Gold Design Scheme - Professional Construction Software Quality */
 
 :root {
@@ -49,15 +49,13 @@
 }
 
 .module-container {
-  height: calc(100vh - 60px);
-  overflow: hidden;
+  min-height: calc(100vh - 60px);
   display: flex;
   flex-direction: column;
 }
 
 .module-content {
-  height: 100%;
-  overflow: hidden;
+  flex: 1;
   display: flex;
   flex-direction: column;
 }
@@ -65,11 +63,10 @@
 .daily-logs-container {
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
   padding: 20px;
   background: var(--pcfp-panel);
   gap: 20px;
-  overflow: hidden;
 }
 
 .daily-logs-header {
@@ -145,16 +142,14 @@
 
 .daily-logs-content {
   flex: 1;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
 .view-content {
   display: none;
-  height: 100%;
-  overflow: hidden;
   flex: 1;
+  flex-direction: column;
 }
 
 .view-content.active {
@@ -518,25 +513,11 @@
 .grid-container {
   width: 100%;
   overflow-x: auto;
-  overflow-y: auto;
+  overflow-y: hidden;
   border-radius: 8px;
   position: relative;
-  flex: 1;
-  min-height: 0;
 }
 
-.data-grid {
-  display: table;
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--pcfp-white);
-  border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-  min-height: 0;
-}
-
-/* Data Grid Table */
 .data-grid {
   display: table;
   width: 100%;

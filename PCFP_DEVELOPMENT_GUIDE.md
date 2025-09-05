@@ -1,4 +1,4 @@
-# PCFP Development Guide v8.8.10
+# PCFP Development Guide v8.8.16
 
 ## 🎯 Table of Contents
 
@@ -1044,6 +1044,23 @@ header h1 {
 html, body { overflow: hidden; height: 100vh; }
 .app { height: 100vh; overflow: hidden; }
 ```
+
+**Issue**: Double vertical scroll in list views (Daily Logs module)
+**Problem**: Inner scroll within table container + outer page scroll
+**Status**: ✅ **RESOLVED** - Standardized to Schedule module approach
+**Solution**: 
+```css
+.grid-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;  /* Key: prevents inner vertical scroll */
+  border-radius: 8px;
+  position: relative;
+}
+```
+**Implementation**: Updated Daily Logs module to match Schedule module's overflow behavior
+**Result**: Consistent horizontal scrolling behavior across all list view modules
+**Standard**: All list view modules now use `overflow-y: hidden` for grid containers
 
 **Issue**: Version displays in multiple locations
 **Solution**: Keep only one version display in sidebar header, remove others
@@ -3136,6 +3153,7 @@ console.log('Element bounds:', element.getBoundingClientRect());
 - **Duplicate versions**: Remove `.pcfp-version-pill` outside main structure
 - **Version not updating**: Check fallback values in version scripts
 - **Script loading issues**: Add wait logic for `window.APP_BUILD`
+- **CSS changes not appearing**: Browser caching issue - use hard refresh (`Ctrl+Shift+R` / `Cmd+Shift+R`) or update cache busting parameters
 - **Sidebar version stuck**: Update hardcoded fallbacks in `header_version.js`, `version_shim.js`, `integrity_banner.js`
 - **Dropdown menu cut off**: Use `position: fixed` instead of `position: absolute` for table layouts
 - **Table layout inconsistency**: Use `display: table`, `table-row`, `table-cell` for list views (not CSS Grid)
