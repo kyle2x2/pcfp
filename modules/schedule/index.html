@@ -4,8 +4,8 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Schedule - PCFP v1.5.3</title>
-<link rel="stylesheet" href="../../core/theme.css?v=20250101154000">
-<link rel="stylesheet" href="module.css?v=20250101154000">
+    <link rel="stylesheet" href="../../core/theme.css?v=20250101162000">
+<link rel="stylesheet" href="module.css?v=20250101162000">
 <link rel="stylesheet" href="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.css">
 </head>
 <body>
@@ -27,7 +27,30 @@
             <button class="btn" data-view="gantt">Gantt</button>
           </div>
           
-          <!-- REMOVED: time-scale-selector (Day, Week, Month, Quarter, Year buttons) -->
+          <!-- Search and Filter Section -->
+          <div class="search-filter-container">
+            <div class="search-box">
+              <input type="text" id="taskSearch" placeholder="Search tasks..." class="search-input" title="Search by task name, description, or assignee">
+              <button class="search-btn" onclick="clearSearch()" title="Clear search">×</button>
+            </div>
+            <select id="filterBy" class="filter-select" title="Filter by category">
+              <option value="">All Tasks</option>
+              <option value="assignee">By Assignee</option>
+              <option value="status">By Status</option>
+              <option value="priority">By Priority</option>
+              <option value="phase">By Phase</option>
+              <option value="overdue">Overdue</option>
+              <option value="completed">Completed</option>
+            </select>
+            <!-- Date Range Selection -->
+            <div class="date-range-container">
+              <input type="date" id="dateRangeStart" class="date-input" title="Start date">
+              <span class="date-separator">to</span>
+              <input type="date" id="dateRangeEnd" class="date-input" title="End date">
+              <button class="date-range-btn" onclick="applyDateRange()" title="Apply date range">Apply</button>
+              <button class="date-range-btn clear" onclick="clearDateRange()" title="Clear date range">Clear</button>
+            </div>
+          </div>
           
           <div class="schedule-actions">
             <button class="btn btn-primary" id="btnAddTask">+ Add Task</button>
@@ -262,6 +285,6 @@
 
 <script src="https://cdn.dhtmlx.com/gantt/edge/dhtmlxgantt.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<script src="module.js?v=20250101155000"></script>
+<script src="module.js?v=20250101162000"></script>
 </body>
 </html>

@@ -159,18 +159,23 @@ function setupEventListeners() {
     document.getElementById('btnDuplicateSelected')?.addEventListener('click', duplicateSelectedLogs);
     document.getElementById('btnExportSelected')?.addEventListener('click', exportSelectedLogs);
 
-    // Close menus when clicking outside
+    // Close action menus when clicking outside
     document.addEventListener('click', function(e) {
-        if (!e.target.closest('.action-menu')) {
-            document.querySelectorAll('.action-menu-content').forEach(menu => {
-                menu.classList.remove('show');
-            });
+        if (!e.target.closest('.action-menu-btn') && !e.target.closest('.pcfp-menu')) {
+            closeMenu();
         }
         
         // Close modal when clicking outside
         const modal = document.getElementById('dailyLogModal');
         if (modal && modal.style.display === 'flex' && !e.target.closest('.modal-content')) {
             closeDailyLogModal();
+        }
+    });
+
+    // Close action menus on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeMenu();
         }
     });
 }
@@ -466,15 +471,10 @@ function renderListView() {
             <div class="grid-cell">
                 ${log.createdBy}
             </div>
-            <div class="grid-cell">
-                <div class="action-menu">
-                    <button class="action-btn" onclick="toggleActionMenu('${log.id}')">⋯</button>
-                    <div class="action-menu-content" id="menu-${log.id}">
-                        <div class="action-menu-item" onclick="editLog('${log.id}')">Edit</div>
-                        <div class="action-menu-item" onclick="duplicateLog('${log.id}')">Duplicate</div>
-                        <div class="action-menu-item" onclick="deleteLog('${log.id}')">Delete</div>
-                    </div>
-                </div>
+            <div class="grid-cell" data-col="actions">
+                <button class="action-menu-btn" onclick="toggleActionMenu('${log.id}')">
+                    <span class="three-dots">⋯</span>
+                </button>
             </div>
         `;
 
@@ -612,30 +612,108 @@ function truncateText(text, maxLength) {
 }
 
 // Action menu functions
+let menuEl = null;
+
+function closeMenu() { 
+  if (menuEl) { 
+    menuEl.remove(); 
+    menuEl = null; 
+    document.removeEventListener('click', onDoc); 
+  } 
+}
+
+function onDoc(e) { 
+  if (menuEl && !menuEl.contains(e.target)) closeMenu(); 
+}
+
 function toggleActionMenu(logId) {
-    const menu = document.getElementById(`menu-${logId}`);
-    const allMenus = document.querySelectorAll('.action-menu-content');
-    
-    allMenus.forEach(m => {
-        if (m !== menu) m.classList.remove('show');
-    });
-    
-    if (menu.classList.contains('show')) {
-        menu.classList.remove('show');
-    } else {
-        // Calculate position for fixed positioning
-        const button = document.querySelector(`[onclick="toggleActionMenu('${logId}')"]`);
-        const buttonRect = button.getBoundingClientRect();
-        
-        menu.style.left = (buttonRect.right - 120) + 'px'; // 120px is min-width
-        menu.style.top = (buttonRect.bottom + 5) + 'px';
-        
-        menu.classList.add('show');
-    }
+  // Close any existing menu
+  closeMenu();
+  
+  // Find the button that was clicked
+  const button = document.querySelector(`button[onclick*="toggleActionMenu('${logId}')"]`);
+  if (!button) {
+    return;
+  }
+  
+  // Get button position
+  const rect = button.getBoundingClientRect();
+  
+  // Create menu dynamically (like Schedule)
+  const menu = document.createElement('div');
+  menu.className = 'pcfp-menu';
+  menu.innerHTML = [
+    `<button type="button" onclick="editLog('${logId}');">✏️ Edit</button>`,
+    `<button type="button" onclick="insertLogAbove('${logId}');">⬆️ Insert Above</button>`,
+    `<button type="button" onclick="insertLogBelow('${logId}');">⬇️ Insert Below</button>`,
+    `<button type="button" onclick="duplicateLog('${logId}');">📋 Duplicate</button>`,
+    `<button type="button" onclick="deleteLog('${logId}');">🗑️ Delete</button>`
+  ].join('');
+  
+  // Append to document body
+  document.body.appendChild(menu);
+  menuEl = menu;
+  
+  // Position menu
+  menu.style.top = (rect.bottom + window.scrollY + 6) + 'px';
+  menu.style.left = Math.max(12, rect.right + window.scrollX - 180) + 'px';
+  
+  // Add click outside listener
+  setTimeout(() => document.addEventListener('click', onDoc));
 }
 
 function editLog(logId) {
     openDailyLogModal(logId);
+}
+
+function insertLogAbove(logId) {
+    const logIndex = window.dailyLogs.findIndex(l => l.id === logId);
+    
+    if (logIndex === 0) {
+        showInsertError('Cannot insert above the first log');
+        return;
+    }
+    
+    const currentLog = window.dailyLogs[logIndex];
+    const newLog = createLogFromTemplate(currentLog, 'above');
+    
+    // Open modal with new log data
+    openDailyLogModal(newLog.id, 'insert-above', logIndex);
+}
+
+function insertLogBelow(logId) {
+    const logIndex = window.dailyLogs.findIndex(l => l.id === logId);
+    
+    if (logIndex === window.dailyLogs.length - 1) {
+        showInsertError('Cannot insert below the last log');
+        return;
+    }
+    
+    const currentLog = window.dailyLogs[logIndex];
+    const newLog = createLogFromTemplate(currentLog, 'below');
+    
+    // Open modal with new log data
+    openDailyLogModal(newLog.id, 'insert-below', logIndex);
+}
+
+function createLogFromTemplate(sourceLog, type) {
+    const newLog = {
+        ...sourceLog,
+        id: generateLogId(),
+        notes: type === 'duplicate' ? `${sourceLog.notes} (Copy)` : sourceLog.notes,
+        timestamp: new Date().toISOString()
+    };
+    
+    return newLog;
+}
+
+function showInsertError(message) {
+    alert(message);
+    closeMenu();
+}
+
+function generateLogId() {
+    return 'log_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
 }
 
 function duplicateLog(logId) {
@@ -1520,3 +1598,11 @@ function updatePerformanceMetrics() {
         console.warn(`[PCFP] High memory usage detected: ${(performanceMetrics.memoryUsage / 1024 / 1024).toFixed(2)}MB`);
     }
 }
+
+// Make functions globally accessible for onclick handlers
+window.clearSearch = clearSearch;
+window.applyDateRange = applyDateRange;
+window.clearDateRange = clearDateRange;
+window.toggleActionMenu = toggleActionMenu;
+window.insertLogAbove = insertLogAbove;
+window.insertLogBelow = insertLogBelow;

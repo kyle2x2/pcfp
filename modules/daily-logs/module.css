@@ -193,12 +193,6 @@
   box-shadow: 0 0 0 2px rgba(198, 162, 71, 0.1);
 }
 
-.search-input:focus {
-  outline: none;
-  border-color: var(--pcfp-gold);
-  box-shadow: 0 0 0 2px rgba(198, 162, 71, 0.1);
-}
-
 .search-input::placeholder {
   color: var(--pcfp-text-muted);
 }
@@ -293,13 +287,13 @@
 }
 
 .date-range-btn.clear {
-  background: var(--pcfp-error);
-  color: white;
-  border-color: var(--pcfp-error);
+  background: var(--pcfp-panel);
+  color: var(--pcfp-text-muted);
 }
 
 .date-range-btn.clear:hover {
-  background: #dc2626;
+  background: var(--pcfp-border);
+  color: var(--pcfp-text);
 }
 
 /* ===== UNDO/REDO STYLES ===== */
@@ -579,20 +573,32 @@
   box-sizing: border-box;
   border-right: 1px solid var(--pcfp-border) !important;
   border-bottom: 1px solid var(--pcfp-border) !important;
+  white-space: nowrap;
 }
 
 .grid-row .grid-cell:last-child {
   border-right: none !important;
 }
 
-/* Column widths */
+/* Column widths - Fixed widths to prevent compression */
 .grid-cell[data-col="checkbox"] { width: 60px; }
-.grid-cell[data-col="project"] { width: 200px; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.grid-cell[data-col="project"] { width: 200px; }
 .grid-cell[data-col="date"] { width: 150px; }
 .grid-cell[data-col="notes"] { width: 400px; }
 .grid-cell[data-col="weather"] { width: 120px; }
 .grid-cell[data-col="createdBy"] { width: 150px; }
 .grid-cell[data-col="actions"] { width: 120px; }
+
+/* Prevent text wrapping in all columns */
+.grid-cell[data-col="project"],
+.grid-cell[data-col="date"],
+.grid-cell[data-col="notes"],
+.grid-cell[data-col="weather"],
+.grid-cell[data-col="createdBy"] {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
 
 /* Checkbox styling */
 .checkbox-cell {
@@ -633,55 +639,58 @@
   color: var(--pcfp-text-muted);
 }
 
-/* Three-dot menu */
-.action-menu {
-  position: relative;
-  display: inline-block;
-}
-
-.action-btn {
-  background: none;
-  border: none;
+/* Three-Dot Button - Compact Size */
+.action-menu-btn {
+  background: var(--pcfp-white);
+  border: 1px solid var(--pcfp-border);
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
-  color: var(--pcfp-text-muted);
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+}
+
+.action-menu-btn:hover {
+  background: var(--pcfp-panel);
+}
+
+.three-dots {
   font-size: 16px;
+  font-weight: bold;
+  color: var(--pcfp-text-muted);
+  line-height: 1;
 }
 
-.action-btn:hover {
-  background: var(--pcfp-panel);
-  color: var(--pcfp-text);
-}
-
-.action-menu-content {
-  position: fixed;
-  background: var(--pcfp-white);
-  border: 1px solid var(--pcfp-border);
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+/* Payment Planner Menu Styles (Replicated) */
+.pcfp-menu {
+  position: absolute;
   z-index: 1000;
-  min-width: 120px;
-  display: none;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  min-width: 170px;
+  padding: 6px;
 }
 
-.action-menu-content.show {
+.pcfp-menu button {
+  width: 100%;
   display: block;
-}
-
-.action-menu-item {
-  padding: 8px 12px;
+  background: #fff;
+  border: 0;
+  color: #0f172a;
+  padding: 8px 10px;
+  text-align: left;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
-  border-bottom: 1px solid var(--pcfp-border);
 }
 
-.action-menu-item:last-child {
-  border-bottom: none;
-}
-
-.action-menu-item:hover {
-  background: var(--pcfp-panel);
+.pcfp-menu button:hover {
+  background: #f8fafc;
 }
 
 /* Hover effects */

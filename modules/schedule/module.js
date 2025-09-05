@@ -8,6 +8,13 @@
   let filteredTasks = [];
   let editingTaskId = null;
   
+  // Search and filter variables
+  let searchQuery = '';
+  let currentFilter = '';
+  let dateRangeStart = '';
+  let dateRangeEnd = '';
+  let isDateRangeActive = false;
+  
   // Pagination variables
   let currentPage = 1;
   let itemsPerPage = 10;
@@ -301,6 +308,48 @@
     document.getElementById('btnDeleteSelected')?.addEventListener('click', deleteSelectedTasks);
     document.getElementById('btnDuplicateSelected')?.addEventListener('click', duplicateSelectedTasks);
     document.getElementById('btnExportSelected')?.addEventListener('click', exportSelectedTasks);
+    
+    // Search functionality
+    const searchInput = document.getElementById('taskSearch');
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        searchQuery = this.value.toLowerCase();
+        applySearchAndFilter();
+      });
+    }
+    
+    // Filter functionality
+    const filterSelect = document.getElementById('filterBy');
+    if (filterSelect) {
+      filterSelect.addEventListener('change', function() {
+        currentFilter = this.value;
+        applySearchAndFilter();
+      });
+    }
+    
+    // Date range functionality
+    const dateStartInput = document.getElementById('dateRangeStart');
+    const dateEndInput = document.getElementById('dateRangeEnd');
+    
+    if (dateStartInput) {
+      dateStartInput.addEventListener('change', function() {
+        dateRangeStart = this.value;
+        if (dateRangeStart && dateRangeEnd) {
+          isDateRangeActive = true;
+          applySearchAndFilter();
+        }
+      });
+    }
+    
+    if (dateEndInput) {
+      dateEndInput.addEventListener('change', function() {
+        dateRangeEnd = this.value;
+        if (dateRangeStart && dateRangeEnd) {
+          isDateRangeActive = true;
+          applySearchAndFilter();
+        }
+      });
+    }
     
     // Modal event listeners
     setupModalEventListeners();
@@ -1719,4 +1768,109 @@
       }, 300);
     }, 3000);
   }
+
+  // ===== SEARCH AND FILTER FUNCTIONS =====
+
+  function applySearchAndFilter() {
+    const startTime = performance.now();
+    
+    filteredTasks = tasks.filter(task => {
+      // Apply search query
+      const matchesSearch = !searchQuery || 
+        task.title.toLowerCase().includes(searchQuery) ||
+        task.description.toLowerCase().includes(searchQuery) ||
+        task.assignee.toLowerCase().includes(searchQuery);
+      
+      // Apply filter
+      let matchesFilter = true;
+      switch (currentFilter) {
+        case 'assignee':
+          matchesFilter = task.assignee && task.assignee.trim() !== '';
+          break;
+        case 'status':
+          matchesFilter = task.status && task.status.trim() !== '';
+          break;
+        case 'priority':
+          matchesFilter = task.priority && task.priority.trim() !== '';
+          break;
+        case 'phase':
+          matchesFilter = task.phase && task.phase.trim() !== '';
+          break;
+        case 'overdue':
+          const today = new Date();
+          const endDate = new Date(task.endDate);
+          matchesFilter = endDate < today && task.status !== 'completed';
+          break;
+        case 'completed':
+          matchesFilter = task.status === 'completed';
+          break;
+      }
+      
+      // Apply date range filter
+      let matchesDateRange = true;
+      if (isDateRangeActive && dateRangeStart && dateRangeEnd) {
+        const taskStartDate = new Date(task.startDate);
+        const taskEndDate = new Date(task.endDate);
+        const startDate = new Date(dateRangeStart);
+        const endDate = new Date(dateRangeEnd);
+        matchesDateRange = (taskStartDate >= startDate && taskStartDate <= endDate) ||
+                          (taskEndDate >= startDate && taskEndDate <= endDate) ||
+                          (taskStartDate <= startDate && taskEndDate >= endDate);
+      }
+      
+      return matchesSearch && matchesFilter && matchesDateRange;
+    });
+    
+    // Update performance metrics
+    performanceMetrics.searchTime = performance.now() - startTime;
+    
+    // Apply pagination
+    applyPagination();
+    
+    // Re-render the current view
+    if (currentView === 'list') {
+      populateTaskList();
+    }
+  }
+
+  function clearSearch() {
+    const searchInput = document.getElementById('taskSearch');
+    if (searchInput) {
+      searchInput.value = '';
+    }
+    searchQuery = '';
+    applySearchAndFilter();
+  }
+
+  function applyDateRange() {
+    const startInput = document.getElementById('dateRangeStart');
+    const endInput = document.getElementById('dateRangeEnd');
+    
+    if (startInput && endInput && startInput.value && endInput.value) {
+      dateRangeStart = startInput.value;
+      dateRangeEnd = endInput.value;
+      isDateRangeActive = true;
+      applySearchAndFilter();
+    } else {
+      alert('Please select both start and end dates');
+    }
+  }
+
+  function clearDateRange() {
+    const startInput = document.getElementById('dateRangeStart');
+    const endInput = document.getElementById('dateRangeEnd');
+    
+    if (startInput) startInput.value = '';
+    if (endInput) endInput.value = '';
+    
+    dateRangeStart = '';
+    dateRangeEnd = '';
+    isDateRangeActive = false;
+    applySearchAndFilter();
+  }
+
+  // Make functions globally accessible for onclick handlers
+  window.clearSearch = clearSearch;
+  window.applyDateRange = applyDateRange;
+  window.clearDateRange = clearDateRange;
 })();

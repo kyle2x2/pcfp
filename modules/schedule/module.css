@@ -128,6 +128,143 @@
   border-color: var(--pcfp-gold-medium);
 }
 
+/* ===== SEARCH AND FILTER STYLES ===== */
+
+.search-filter-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  margin: 0 20px;
+  max-width: 600px;
+}
+
+.search-box {
+  position: relative;
+  flex: 0 0 200px;
+  min-width: 200px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 32px 8px 12px;
+  border: 1px solid var(--pcfp-border);
+  border-radius: 6px;
+  font-size: 14px;
+  background: var(--pcfp-white);
+  color: var(--pcfp-text);
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--pcfp-gold);
+  box-shadow: 0 0 0 2px rgba(198, 162, 71, 0.1);
+}
+
+.search-input::placeholder {
+  color: var(--pcfp-text-muted);
+}
+
+.search-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--pcfp-text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.search-btn:hover {
+  color: var(--pcfp-text);
+  background: var(--pcfp-panel);
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid var(--pcfp-border);
+  border-radius: 6px;
+  background: var(--pcfp-white);
+  color: var(--pcfp-text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--pcfp-gold);
+}
+
+/* ===== DATE RANGE STYLES ===== */
+
+.date-range-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--pcfp-panel);
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--pcfp-border);
+}
+
+.date-input {
+  padding: 6px 8px;
+  border: 1px solid var(--pcfp-border);
+  border-radius: 4px;
+  background: var(--pcfp-white);
+  color: var(--pcfp-text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: var(--pcfp-gold);
+}
+
+.date-separator {
+  font-size: 12px;
+  color: var(--pcfp-text-muted);
+  font-weight: 500;
+}
+
+.date-range-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--pcfp-border);
+  border-radius: 4px;
+  background: var(--pcfp-white);
+  color: var(--pcfp-text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.date-range-btn:hover {
+  background: var(--pcfp-gold-light);
+  border-color: var(--pcfp-gold);
+}
+
+.date-range-btn.clear {
+  background: var(--pcfp-panel);
+  color: var(--pcfp-text-muted);
+}
+
+.date-range-btn.clear:hover {
+  background: var(--pcfp-border);
+  color: var(--pcfp-text);
+}
+
 .schedule-content {
   background: var(--pcfp-white);
   border-radius: 8px;

@@ -1,4 +1,4 @@
-# PCFP List View Standard
+# PCFP List View Standard v8.8.20
 
 ## 📋 **Standard Features for All List Views**
 
@@ -12,7 +12,29 @@ Every list view module must implement these standard features:
 - **Performance**: Automatic pagination on initial load
 - **Items Per Page**: Dropdown selector (10, 25, 50) positioned on right side of pagination bar
 
-#### **2. Mass Actions Toolbar**
+#### **2. Horizontal Scroll Behavior (STANDARDIZED)**
+- **Window Shrink**: Columns maintain fixed widths, horizontal scrollbar appears
+- **No Text Wrapping**: All table cells use `white-space: nowrap`
+- **Text Overflow**: Long text shows ellipsis (`text-overflow: ellipsis`)
+- **Column Compression**: Prevented through fixed column widths
+- **Consistent**: Both Daily Logs and Schedule modules behave identically
+
+#### **3. Three-Dot Action Menu (COMPLETE STANDARDIZATION)**
+- **Menu Options**: Edit, Insert Above, Insert Below, Duplicate, Delete
+- **Keyboard Support**: Escape key closes menu
+- **Click Outside**: Clicking outside closes menu
+- **Dynamic Positioning**: Menu positions automatically based on button location
+- **Global Functions**: All functions exposed via window object for onclick handlers
+
+#### **4. Search & Filter System (STANDARDIZED)**
+- **Search Box**: Real-time search with debounced input (300ms delay)
+- **Search Fields**: Search by title, description, assignee/creator, and dates
+- **Filter Dropdown**: Category-based filtering (assignee, status, priority, etc.)
+- **Date Range**: Start/end date selection with Apply/Clear buttons
+- **Clear Functions**: Clear search and clear date range buttons
+- **Performance**: Optimized filtering with performance metrics tracking
+
+#### **4. Mass Actions Toolbar**
 - **Trigger**: Checkbox selection (individual + select all)
 - **Display**: Dynamic toolbar with selected count
 - **Actions**: Delete, Duplicate, Export (standardized across all modules)
@@ -52,7 +74,35 @@ document.getElementById('btnExportSelected')?.addEventListener('click', exportSe
 - ❌ **Don't use**: Event delegation for mass action buttons
 - ✅ **Do use**: Direct event listeners as shown above
 
-#### **4. Performance Monitoring**
+#### **4. Standard Search & Filter HTML Structure**
+```html
+<!-- Search and Filter Section -->
+<div class="search-filter-container">
+  <div class="search-box">
+    <input type="text" id="itemSearch" placeholder="Search items..." class="search-input" title="Search by title, description, or assignee">
+    <button class="search-btn" onclick="clearSearch()" title="Clear search">×</button>
+  </div>
+  <select id="filterBy" class="filter-select" title="Filter by category">
+    <option value="">All Items</option>
+    <option value="assignee">By Assignee</option>
+    <option value="status">By Status</option>
+    <option value="priority">By Priority</option>
+    <option value="phase">By Phase</option>
+    <option value="overdue">Overdue</option>
+    <option value="completed">Completed</option>
+  </select>
+  <!-- Date Range Selection -->
+  <div class="date-range-container">
+    <input type="date" id="dateRangeStart" class="date-input" title="Start date">
+    <span class="date-separator">to</span>
+    <input type="date" id="dateRangeEnd" class="date-input" title="End date">
+    <button class="date-range-btn" onclick="applyDateRange()" title="Apply date range">Apply</button>
+    <button class="date-range-btn clear" onclick="clearDateRange()" title="Clear date range">Clear</button>
+  </div>
+</div>
+```
+
+#### **5. Performance Monitoring**
 - **Metrics**: Render time, search time, memory usage
 - **Warnings**: Console warnings for slow operations
 - **Thresholds**: >500ms render, >200ms search, >6MB memory
@@ -204,7 +254,7 @@ document.getElementById('btnExportSelected')?.addEventListener('click', exportSe
   background: var(--pcfp-panel);
 }
 
-/* Grid Cells */
+/* Grid Cells - HORIZONTAL SCROLL STANDARD */
 .grid-row .grid-cell {
   display: table-cell;
   padding: 15px 10px;
@@ -213,6 +263,7 @@ document.getElementById('btnExportSelected')?.addEventListener('click', exportSe
   box-sizing: border-box;
   border-right: 1px solid var(--pcfp-border) !important;
   border-bottom: 1px solid var(--pcfp-border) !important;
+  white-space: nowrap; /* CRITICAL: Prevents text wrapping */
 }
 
 .grid-row .grid-cell:last-child {
@@ -228,6 +279,26 @@ document.getElementById('btnExportSelected')?.addEventListener('click', exportSe
   width: 16px;
   height: 16px;
   cursor: pointer;
+}
+
+/* Column Widths - Fixed widths to prevent compression */
+.grid-cell[data-col="checkbox"] { width: 60px; }
+.grid-cell[data-col="project"] { width: 200px; }
+.grid-cell[data-col="date"] { width: 150px; }
+.grid-cell[data-col="notes"] { width: 400px; }
+.grid-cell[data-col="weather"] { width: 120px; }
+.grid-cell[data-col="createdBy"] { width: 150px; }
+.grid-cell[data-col="actions"] { width: 120px; }
+
+/* Prevent text wrapping in all columns */
+.grid-cell[data-col="project"],
+.grid-cell[data-col="date"],
+.grid-cell[data-col="notes"],
+.grid-cell[data-col="weather"],
+.grid-cell[data-col="createdBy"] {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 ```
 
@@ -312,7 +383,147 @@ document.getElementById('btnExportSelected')?.addEventListener('click', exportSe
 }
 ```
 
-#### **6. Standard JavaScript Functions**
+#### **6. Standard Search & Filter CSS**
+```css
+/* ===== SEARCH AND FILTER STYLES ===== */
+
+.search-filter-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  margin: 0 20px;
+  max-width: 600px;
+}
+
+.search-box {
+  position: relative;
+  flex: 0 0 200px;
+  min-width: 200px;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 32px 8px 12px;
+  border: 1px solid var(--pcfp-border);
+  border-radius: 6px;
+  font-size: 14px;
+  background: var(--pcfp-white);
+  color: var(--pcfp-text);
+  transition: all 0.2s;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--pcfp-gold);
+  box-shadow: 0 0 0 2px rgba(198, 162, 71, 0.1);
+}
+
+.search-input::placeholder {
+  color: var(--pcfp-text-muted);
+}
+
+.search-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--pcfp-text-muted);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 2px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.search-btn:hover {
+  color: var(--pcfp-text);
+  background: var(--pcfp-panel);
+}
+
+.filter-select {
+  padding: 8px 12px;
+  border: 1px solid var(--pcfp-border);
+  border-radius: 6px;
+  background: var(--pcfp-white);
+  color: var(--pcfp-text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--pcfp-gold);
+}
+
+/* ===== DATE RANGE STYLES ===== */
+
+.date-range-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--pcfp-panel);
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--pcfp-border);
+}
+
+.date-input {
+  padding: 6px 8px;
+  border: 1px solid var(--pcfp-border);
+  border-radius: 4px;
+  background: var(--pcfp-white);
+  color: var(--pcfp-text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: var(--pcfp-gold);
+}
+
+.date-separator {
+  font-size: 12px;
+  color: var(--pcfp-text-muted);
+  font-weight: 500;
+}
+
+.date-range-btn {
+  padding: 6px 12px;
+  border: 1px solid var(--pcfp-border);
+  border-radius: 4px;
+  background: var(--pcfp-white);
+  color: var(--pcfp-text);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.date-range-btn:hover {
+  background: var(--pcfp-gold-light);
+  border-color: var(--pcfp-gold);
+}
+
+.date-range-btn.clear {
+  background: var(--pcfp-panel);
+  color: var(--pcfp-text-muted);
+}
+
+.date-range-btn.clear:hover {
+  background: var(--pcfp-border);
+  color: var(--pcfp-text);
+}
+```
+
+#### **7. Standard JavaScript Functions**
 ```javascript
 // Pagination Variables
 let currentPage = 1;
@@ -560,25 +771,196 @@ function updatePerformanceMetrics() {
 }
 ```
 
+#### **8. Standard Search & Filter JavaScript Functions**
+```javascript
+// Search and filter variables
+let searchQuery = '';
+let currentFilter = '';
+let dateRangeStart = '';
+let dateRangeEnd = '';
+let isDateRangeActive = false;
+let filteredItems = [];
+
+// Search and filter functions
+function applySearchAndFilter() {
+  const startTime = performance.now();
+  
+  filteredItems = items.filter(item => {
+    // Apply search query
+    const matchesSearch = !searchQuery || 
+      item.title.toLowerCase().includes(searchQuery) ||
+      item.description.toLowerCase().includes(searchQuery) ||
+      item.assignee.toLowerCase().includes(searchQuery);
+    
+    // Apply filter
+    let matchesFilter = true;
+    switch (currentFilter) {
+      case 'assignee':
+        matchesFilter = item.assignee && item.assignee.trim() !== '';
+        break;
+      case 'status':
+        matchesFilter = item.status && item.status.trim() !== '';
+        break;
+      case 'priority':
+        matchesFilter = item.priority && item.priority.trim() !== '';
+        break;
+      case 'phase':
+        matchesFilter = item.phase && item.phase.trim() !== '';
+        break;
+      case 'overdue':
+        const today = new Date();
+        const endDate = new Date(item.endDate);
+        matchesFilter = endDate < today && item.status !== 'completed';
+        break;
+      case 'completed':
+        matchesFilter = item.status === 'completed';
+        break;
+    }
+    
+    // Apply date range filter
+    let matchesDateRange = true;
+    if (isDateRangeActive && dateRangeStart && dateRangeEnd) {
+      const itemStartDate = new Date(item.startDate);
+      const itemEndDate = new Date(item.endDate);
+      const startDate = new Date(dateRangeStart);
+      const endDate = new Date(dateRangeEnd);
+      matchesDateRange = (itemStartDate >= startDate && itemStartDate <= endDate) ||
+                        (itemEndDate >= startDate && itemEndDate <= endDate) ||
+                        (itemStartDate <= startDate && itemEndDate >= endDate);
+    }
+    
+    return matchesSearch && matchesFilter && matchesDateRange;
+  });
+  
+  // Update performance metrics
+  performanceMetrics.searchTime = performance.now() - startTime;
+  
+  // Apply pagination
+  applyPagination();
+  
+  // Re-render the current view
+  renderCurrentView();
+}
+
+function clearSearch() {
+  const searchInput = document.getElementById('itemSearch');
+  if (searchInput) {
+    searchInput.value = '';
+  }
+  searchQuery = '';
+  applySearchAndFilter();
+}
+
+function applyDateRange() {
+  const startInput = document.getElementById('dateRangeStart');
+  const endInput = document.getElementById('dateRangeEnd');
+  
+  if (startInput && endInput && startInput.value && endInput.value) {
+    dateRangeStart = startInput.value;
+    dateRangeEnd = endInput.value;
+    isDateRangeActive = true;
+    applySearchAndFilter();
+  } else {
+    alert('Please select both start and end dates');
+  }
+}
+
+function clearDateRange() {
+  const startInput = document.getElementById('dateRangeStart');
+  const endInput = document.getElementById('dateRangeEnd');
+  
+  if (startInput) startInput.value = '';
+  if (endInput) endInput.value = '';
+  
+  dateRangeStart = '';
+  dateRangeEnd = '';
+  isDateRangeActive = false;
+  applySearchAndFilter();
+}
+
+// CRITICAL: Make functions globally accessible for onclick handlers
+window.clearSearch = clearSearch;
+window.applyDateRange = applyDateRange;
+window.clearDateRange = clearDateRange;
+window.toggleActionMenu = toggleActionMenu;
+window.insertItemAbove = insertItemAbove;
+window.insertItemBelow = insertItemBelow;
+
+// Search event listeners (add to setupEventListeners function)
+const searchInput = document.getElementById('itemSearch');
+if (searchInput) {
+  searchInput.addEventListener('input', function() {
+    searchQuery = this.value.toLowerCase();
+    applySearchAndFilter();
+  });
+}
+
+const filterSelect = document.getElementById('filterBy');
+if (filterSelect) {
+  filterSelect.addEventListener('change', function() {
+    currentFilter = this.value;
+    applySearchAndFilter();
+  });
+}
+
+const dateStartInput = document.getElementById('dateRangeStart');
+const dateEndInput = document.getElementById('dateRangeEnd');
+
+if (dateStartInput) {
+  dateStartInput.addEventListener('change', function() {
+    dateRangeStart = this.value;
+    if (dateRangeStart && dateRangeEnd) {
+      isDateRangeActive = true;
+      applySearchAndFilter();
+    }
+  });
+}
+
+if (dateEndInput) {
+  dateEndInput.addEventListener('change', function() {
+    dateRangeEnd = this.value;
+    if (dateRangeStart && dateRangeEnd) {
+      isDateRangeActive = true;
+      applySearchAndFilter();
+    }
+  });
+}
+```
+
 ### **🔄 Implementation Checklist**
 - [ ] Add pagination variables to module
 - [ ] Add pagination functions (applyPagination, updatePaginationDisplay, changePage)
 - [ ] Add performance monitoring variables and functions
 - [ ] Add mass action functions (updateSelectedCount, updateSelectAllState)
 - [ ] Add standardized mass action functions (deleteSelectedItems, duplicateSelectedItems, exportSelectedItems)
+- [ ] Add search and filter variables (searchQuery, currentFilter, dateRangeStart, dateRangeEnd, isDateRangeActive, filteredItems)
+- [ ] Add search and filter functions (applySearchAndFilter, clearSearch, applyDateRange, clearDateRange)
+- [ ] Add search and filter event listeners to setupEventListeners function
 - [ ] Update render function to use paginated data
+- [ ] Update applyPagination to use filteredItems instead of items
 - [ ] Add performance tracking to render function
 - [ ] Update initialization to call applyPagination()
 - [ ] Add checkbox column to grid header and rows
 - [ ] Add pagination container to HTML
 - [ ] Add standardized mass action toolbar to HTML (exactly 3 buttons)
+- [ ] Add search and filter HTML structure to module header
 - [ ] Add event listeners for checkboxes
 - [ ] Add simple event listeners for mass action buttons (btnDeleteSelected, btnDuplicateSelected, btnExportSelected)
 - [ ] Add items per page dropdown to pagination
 - [ ] Update cache busting parameters
-- [ ] Test pagination, mass actions, and performance monitoring
+- [ ] Test pagination, mass actions, search, filter, and performance monitoring
 - [ ] Verify consistent styling across modules
 - [ ] Test items per page dropdown functionality
+- [ ] Test search functionality with different data types
+- [ ] Test filter dropdown with all options
+- [ ] Test date range filtering
+- [ ] Test clear search and clear date range functions
+- [ ] CRITICAL: Make search functions globally accessible (window.clearSearch, window.applyDateRange, window.clearDateRange)
+- [ ] CRITICAL: Use neutral styling for clear buttons (no red/danger colors)
+- [ ] CRITICAL: Implement complete three-dot action menu with all 5 options
+- [ ] CRITICAL: Add escape key support for closing action menus
+- [ ] CRITICAL: Implement insertAbove and insertBelow functions
+- [ ] CRITICAL: Expose all action menu functions globally (window.toggleActionMenu, window.insertItemAbove, etc.)
 
 ### **📝 Module-Specific Customizations**
 - **Data Array**: Replace `items` with module's data array (e.g., `tasks`, `logs`, `bills`)

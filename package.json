@@ -1,6 +1,6 @@
 {
   "name": "pcfp-builder-trend-competitor",
-  "version": "8.8.16",
+  "version": "8.8.20",
   "description": "PCFP - Modern Construction Project Management Platform - BuilderTrend Alternative",
   "main": "index.html",
   "scripts": {
