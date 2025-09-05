@@ -1,4 +1,4 @@
-# PCFP Development Guide v8.8.16
+# PCFP Development Guide v8.8.24
 
 ## 🎯 Table of Contents
 
@@ -1847,8 +1847,6 @@ console.log('Function took:', end - start, 'ms');
 
 ## 🧠 Learning & Knowledge Base
 
-## 🧠 Learning & Knowledge Base
-
 ### **✅ What Works**
 
 #### **CSS Grid Systems**
@@ -2053,6 +2051,65 @@ console.log('Function took:', end - start, 'ms');
 - **Advantages over CSS Grid**: Perfect column alignment, reliable border rendering, better browser compatibility
 - **Reference Implementation**: Schedule module uses this pattern for all list views
 
+#### **Smart Export System Patterns (v8.8.24)**
+- **Export Preview Pattern**: Always show content preview before download
+- **Why it works**: Prevents wasted downloads and user frustration
+- **When to use**: Any export functionality with multiple formats
+- **Example**:
+  ```javascript
+  function showExportPreview(format, data) {
+    const preview = generatePreviewContent(format, data);
+    updatePreviewModal(preview);
+    showModal('exportPreviewModal');
+  }
+  ```
+
+#### **Comprehensive Action History (v8.8.24)**
+- **Complete Action Tracking**: Track all user actions, not just exports
+- **Why it works**: Provides complete audit trail and user context
+- **When to use**: Any module with user interactions
+- **Example**:
+  ```javascript
+  function addToActionHistory(action, details) {
+    actionHistory.unshift({
+      action: action,
+      details: details,
+      timestamp: new Date().toISOString()
+    });
+    // Limit to 100 entries
+    if (actionHistory.length > 100) actionHistory.pop();
+  }
+  ```
+
+#### **Bulk Export Architecture (v8.8.24)**
+- **Multi-Format Export**: Export multiple formats simultaneously
+- **Why it works**: Saves user time and provides comprehensive data access
+- **When to use**: Enterprise-level export requirements
+- **Example**:
+  ```javascript
+  function performBulkExport(formats, items, options) {
+    const exports = formats.map(format => ({
+      format: format,
+      data: generateExportData(format, items, options),
+      filename: generateExportFilename(format, scope, items.length),
+      mimeType: getMimeType(format)
+    }));
+    downloadIndividualExports(exports);
+  }
+  ```
+
+#### **Modal Management Patterns (v8.8.24)**
+- **Z-Index Hierarchy**: Consistent modal layering system
+- **Why it works**: Prevents modal conflicts and ensures proper display order
+- **When to use**: Any application with multiple modals
+- **Example**:
+  ```css
+  .export-menu-modal { z-index: 1000; }
+  .export-preview-modal { z-index: 1001; }
+  .export-history-modal { z-index: 1002; }
+  .bulk-export-modal { z-index: 1003; }
+  ```
+
 ### **❌ What Doesn't Work**
 
 #### **CSS Grid Border Issues**
@@ -2072,6 +2129,24 @@ console.log('Function took:', end - start, 'ms');
 - **Why it fails**: Changes to current data affect historical snapshots
 - **Solution**: Use `JSON.parse(JSON.stringify())` for deep copying
 - **Alternative**: Use structured cloning API if available
+
+#### **Function Removal Without Dependency Check (v8.8.24)**
+- **Problem**: Removing functions without checking all callers
+- **Why it fails**: Causes "function not defined" errors
+- **Solution**: Always search for function usage before removing
+- **Example**: `grep -r "functionName" .` before deletion
+
+#### **Parameter Mismatch in Function Calls (v8.8.24)**
+- **Problem**: Changing function signatures without updating all callers
+- **Why it fails**: Silent failures or runtime errors
+- **Solution**: Update all function calls when changing signatures
+- **Example**: `downloadFile(data, filename, mimeType)` vs `downloadFile(blob, filename)`
+
+#### **Initialization Order Dependencies (v8.8.24)**
+- **Problem**: Calling functions before dependencies are ready
+- **Why it fails**: Data not available when functions execute
+- **Solution**: Document and follow proper initialization sequence
+- **Example**: Initialize data → Apply filters → Apply pagination → Render view
 
 #### **No Cache Busting**
 - **Problem**: Browser caches old CSS/JS files, changes don't appear

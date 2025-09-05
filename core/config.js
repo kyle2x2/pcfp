@@ -1,12 +1,12 @@
-// PCFP v8.8.20 - BuilderTrend Competitor Foundation
+// PCFP v8.8.24 - BuilderTrend Competitor Foundation
 // API-First Architecture with Enhanced Performance & Flexibility
 
 // Single source of truth for app metadata - API-ready structure
 export const APP_META = {
-      build: "v8.8.23",
+      build: "v8.8.24",
       appName: "PCFP - Project Construction Financial Planner",
       copyright: "© 2x2 Construction",
-      version: "8.8.23",
+      version: "8.8.24",
   apiVersion: "v1",
   description: "Modern construction project management platform - BuilderTrend alternative",
   features: {

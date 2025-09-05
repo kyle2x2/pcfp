@@ -180,6 +180,10 @@ let dateRangeStart = '';
 let dateRangeEnd = '';
 let isDateRangeActive = false;
 
+// Export history variables
+let actionHistory = [];
+const maxActionHistorySize = 100;
+
 // Pagination variables
 let itemsPerPage = 10; // Default items per page
 let currentPage = 1;
@@ -202,6 +206,22 @@ let currentSort = {
     direction: 'asc' // 'asc' or 'desc'
 };
 
+// Bulk edit state
+let isBulkEditMode = false;
+let bulkEditFields = {
+    status: '',
+    assignee: '',
+    priority: '',
+    startDate: '',
+    endDate: ''
+};
+
+// Undo/Redo state
+let undoHistory = [];
+let redoHistory = [];
+let maxHistorySize = 20;
+let isPerformingUndoRedo = false;
+
 // Initialize module
 function initTestModule() {
     console.log('Initializing test module...');
@@ -215,7 +235,7 @@ function initTestModule() {
     setupEventListeners();
     setupSearchAndFilter();
     
-    // Apply default sort (by title ascending)
+    // Apply default sort (by title ascending) AFTER filteredItems is set
     applyDefaultSort();
     
     // Apply pagination on initial load
@@ -224,6 +244,11 @@ function initTestModule() {
     // Initialize column headers
     updateColumnHeaders();
     
+    // Load undo/redo history from sessionStorage
+    loadUndoRedoFromStorage();
+    loadActionHistoryFromStorage();
+    
+    // Render the view AFTER pagination is applied
     renderCurrentView();
     
     // Ensure main content area gets focus for keyboard navigation
@@ -285,7 +310,10 @@ function setupEventListeners() {
 
     // Save and export buttons
     document.getElementById('btnSave').addEventListener('click', saveItems);
-    document.getElementById('btnExport').addEventListener('click', exportItems);
+    
+    // Top header buttons
+    document.getElementById('btnExportAll').addEventListener('click', exportAllItems);
+    document.getElementById('btnExportHistory').addEventListener('click', showActionHistory);
     
     // Keyboard help button
     document.getElementById('btnKeyboardHelp').addEventListener('click', showKeyboardHelp);
@@ -331,8 +359,46 @@ function setupEventListeners() {
     // Mass action buttons
     document.getElementById('btnDeleteSelected')?.addEventListener('click', deleteSelectedItems);
     document.getElementById('btnDuplicateSelected')?.addEventListener('click', duplicateSelectedItems);
-    document.getElementById('btnExportSelected')?.addEventListener('click', exportSelectedItems);
     document.getElementById('btnClearSelected')?.addEventListener('click', clearAllSelections);
+    
+    // Bulk edit buttons
+    document.getElementById('btnBulkEdit')?.addEventListener('click', openBulkEdit);
+    document.getElementById('btnApplyBulkEdit')?.addEventListener('click', applyBulkEdit);
+    document.getElementById('btnCancelBulkEdit')?.addEventListener('click', closeBulkEdit);
+    document.getElementById('btnCloseBulkEdit')?.addEventListener('click', closeBulkEdit);
+    
+    // Undo/Redo buttons
+    document.getElementById('btnUndo')?.addEventListener('click', performUndo);
+    document.getElementById('btnRedo')?.addEventListener('click', performRedo);
+    
+    // Export buttons
+    document.getElementById('btnExportAll')?.addEventListener('click', exportAllItems);
+    document.getElementById('btnExportSelected')?.addEventListener('click', exportSelectedItems);
+    
+    // Export menu modal
+    document.getElementById('btnCloseExportMenu')?.addEventListener('click', hideExportMenu);
+    document.getElementById('btnCancelExport')?.addEventListener('click', hideExportMenu);
+    
+    // Export format buttons
+    document.querySelectorAll('.export-format-btn').forEach(btn => {
+        btn.addEventListener('click', () => selectExportFormat(btn.dataset.format));
+    });
+    
+    // Export preview modal buttons
+    document.getElementById('btnCloseExportPreview')?.addEventListener('click', hideExportPreview);
+    document.getElementById('btnCancelPreview')?.addEventListener('click', hideExportPreview);
+    document.getElementById('btnConfirmExport')?.addEventListener('click', confirmExportFromPreview);
+    
+    // Export history modal buttons
+    document.getElementById('btnExportHistory')?.addEventListener('click', showActionHistory);
+    document.getElementById('btnCloseExportHistory')?.addEventListener('click', hideActionHistory);
+    document.getElementById('btnCloseHistory')?.addEventListener('click', hideActionHistory);
+    document.getElementById('btnClearHistory')?.addEventListener('click', clearActionHistory);
+    
+    // Bulk export modal buttons
+    document.getElementById('btnCloseBulkExport')?.addEventListener('click', hideBulkExportModal);
+    document.getElementById('btnCancelBulkExport')?.addEventListener('click', hideBulkExportModal);
+    document.getElementById('btnStartBulkExport')?.addEventListener('click', startBulkExport);
 
     // Close action menus when clicking outside
     document.addEventListener('click', function(e) {
@@ -416,12 +482,27 @@ function setupEventListeners() {
             return;
         }
 
-        // Ctrl/Cmd + N - Add new item
-        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
-            e.preventDefault();
-            addNewItem();
-            return;
-        }
+            // Ctrl/Cmd + N - Add new item
+    if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        addNewItem();
+        return;
+    }
+    
+    // Ctrl/Cmd + Z - Undo
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+        e.preventDefault();
+        performUndo();
+        return;
+    }
+    
+    // Ctrl/Cmd + Y or Ctrl/Cmd + Shift + Z - Redo
+    if (((e.ctrlKey || e.metaKey) && e.key === 'y') || 
+        ((e.ctrlKey || e.metaKey) && e.key === 'z' && e.shiftKey)) {
+        e.preventDefault();
+        performRedo();
+        return;
+    }
 
         // Arrow keys for navigation
         if (['ArrowUp', 'ArrowDown'].includes(e.key)) {
@@ -751,6 +832,1298 @@ function applyDefaultSort() {
     console.log('Default sort applied');
 }
 
+// ===== BULK EDIT FUNCTIONS =====
+
+// Open bulk edit mode
+function openBulkEdit() {
+    if (selectedItemIds.size === 0) {
+        alert('Please select items to bulk edit');
+        return;
+    }
+    
+    console.log(`Opening bulk edit for ${selectedItemIds.size} items`);
+    
+    // Show bulk edit toolbar
+    const toolbar = document.getElementById('bulkEditToolbar');
+    toolbar.classList.add('show');
+    
+    // Hide mass action toolbar
+    const massToolbar = document.getElementById('massActionToolbar');
+    massToolbar.classList.remove('show');
+    
+    isBulkEditMode = true;
+    
+    // Clear all bulk edit fields
+    clearBulkEditFields();
+}
+
+// Close bulk edit mode
+function closeBulkEdit() {
+    console.log('Closing bulk edit mode');
+    
+    // Hide bulk edit toolbar
+    const toolbar = document.getElementById('bulkEditToolbar');
+    toolbar.classList.remove('show');
+    
+    // Show mass action toolbar if items are selected
+    if (selectedItemIds.size > 0) {
+        const massToolbar = document.getElementById('massActionToolbar');
+        massToolbar.classList.add('show');
+    }
+    
+    isBulkEditMode = false;
+    
+    // Clear all bulk edit fields
+    clearBulkEditFields();
+}
+
+// Clear all bulk edit fields
+function clearBulkEditFields() {
+    document.getElementById('bulkStatus').value = '';
+    document.getElementById('bulkAssignee').value = '';
+    document.getElementById('bulkPriority').value = '';
+    document.getElementById('bulkStartDate').value = '';
+    document.getElementById('bulkEndDate').value = '';
+    
+    // Reset bulk edit fields object
+    bulkEditFields = {
+        status: '',
+        assignee: '',
+        priority: '',
+        startDate: '',
+        endDate: ''
+    };
+}
+
+// Apply bulk edit changes
+function applyBulkEdit() {
+    if (selectedItemIds.size === 0) {
+        alert('No items selected for bulk edit');
+        return;
+    }
+    
+    // Get current field values
+    const status = document.getElementById('bulkStatus').value;
+    const assignee = document.getElementById('bulkAssignee').value.trim();
+    const priority = document.getElementById('bulkPriority').value;
+    const startDate = document.getElementById('bulkStartDate').value;
+    const endDate = document.getElementById('bulkEndDate').value;
+    
+    // Check if any changes are made
+    if (!status && !assignee && !priority && !startDate && !endDate) {
+        alert('Please make at least one change before applying');
+        return;
+    }
+    
+    // Validate dates
+    if (startDate && endDate && startDate > endDate) {
+        alert('Start date cannot be after end date');
+        return;
+    }
+    
+    const selectedIds = Array.from(selectedItemIds);
+    let changesApplied = 0;
+    
+    // Save to undo history BEFORE making changes (after validation)
+    saveToUndoHistory('bulk_edit', `Bulk edited ${selectedIds.length} items`);
+    
+    // Apply changes to selected items
+    selectedIds.forEach(itemId => {
+        const item = window.testItems.find(item => item.id === itemId);
+        if (item) {
+            let itemChanged = false;
+            
+            // Apply status change
+            if (status) {
+                item.status = status;
+                itemChanged = true;
+            }
+            
+            // Apply assignee change
+            if (assignee) {
+                item.assignee = assignee;
+                itemChanged = true;
+            }
+            
+            // Apply priority change
+            if (priority) {
+                item.priority = priority;
+                itemChanged = true;
+            }
+            
+            // Apply start date change
+            if (startDate) {
+                item.startDate = startDate;
+                itemChanged = true;
+            }
+            
+            // Apply end date change
+            if (endDate) {
+                item.endDate = endDate;
+                itemChanged = true;
+            }
+            
+            // Update updated date if any changes were made
+            if (itemChanged) {
+                item.updatedDate = new Date().toISOString().split('T')[0];
+                changesApplied++;
+            }
+        }
+    });
+    
+    if (changesApplied > 0) {
+        // Save changes
+        saveItems();
+        
+        // Re-apply search and filter
+        applySearchAndFilter();
+        
+        // Clear all selections after successful bulk edit
+        clearAllSelections();
+        
+        // Add to action history
+        addToActionHistory('bulk_edit', {
+            count: changesApplied,
+            description: `Bulk edited ${changesApplied} items`
+        });
+        
+        // Close bulk edit mode
+        closeBulkEdit();
+        
+        // Show success message
+        showNotification(`${changesApplied} items updated successfully`, 'success');
+        
+        console.log(`Bulk edit applied to ${changesApplied} items`);
+    } else {
+        alert('No changes were applied');
+    }
+}
+
+// Show notification
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        background: ${type === 'success' ? 'var(--pcfp-gold)' : 'var(--pcfp-text)'};
+        color: var(--pcfp-white);
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        z-index: 1000;
+        font-size: 14px;
+        font-weight: 500;
+    `;
+    
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 3000);
+}
+
+// ===== UNDO/REDO FUNCTIONS =====
+
+// Save current state to undo history
+function saveToUndoHistory(action, description) {
+    if (isPerformingUndoRedo) return;
+    
+    // We need to save the state BEFORE the change was made
+    // This function should be called BEFORE making changes, not after
+    const previousState = {
+        action: action,
+        description: description,
+        timestamp: new Date().toISOString(),
+        data: JSON.parse(JSON.stringify(window.testItems)) // Deep copy of current state
+    };
+    
+    // Add to undo history
+    undoHistory.push(previousState);
+    
+    // Limit history size
+    if (undoHistory.length > maxHistorySize) {
+        undoHistory.shift();
+    }
+    
+    // Clear redo history when new action is performed
+    redoHistory = [];
+    
+    // Update button states
+    updateUndoRedoButtons();
+    
+    // Save to sessionStorage
+    saveUndoRedoToStorage();
+    
+    console.log(`Saved to undo history: ${action} - ${description}`);
+}
+
+// Perform undo action
+function performUndo() {
+    if (undoHistory.length === 0) return;
+    
+    const lastAction = undoHistory.pop();
+    
+    // Save current state to redo history
+    redoHistory.push({
+        action: 'undo',
+        description: `Redo: ${lastAction.description}`,
+        timestamp: new Date().toISOString(),
+        data: JSON.parse(JSON.stringify(window.testItems))
+    });
+    
+    // Restore previous state
+    isPerformingUndoRedo = true;
+    window.testItems = JSON.parse(JSON.stringify(lastAction.data));
+    isPerformingUndoRedo = false;
+    
+    // Save and refresh
+    saveItems();
+    applySearchAndFilter();
+    
+    // Update button states
+    updateUndoRedoButtons();
+    
+    // Save to sessionStorage
+    saveUndoRedoToStorage();
+    
+    // Add to action history
+    addToActionHistory('undo', {
+        description: `Undo: ${lastAction.description}`,
+        originalAction: lastAction.description
+    });
+    
+    // Show notification
+    showNotification(`Undo: ${lastAction.description}`, 'info');
+    
+    console.log(`Undo performed: ${lastAction.description}`);
+}
+
+// Perform redo action
+function performRedo() {
+    if (redoHistory.length === 0) return;
+    
+    const lastAction = redoHistory.pop();
+    
+    // Save current state to undo history
+    undoHistory.push({
+        action: 'redo',
+        description: `Undo: ${lastAction.description.replace('Redo: ', '')}`,
+        timestamp: new Date().toISOString(),
+        data: JSON.parse(JSON.stringify(window.testItems))
+    });
+    
+    // Restore previous state
+    isPerformingUndoRedo = true;
+    window.testItems = JSON.parse(JSON.stringify(lastAction.data));
+    isPerformingUndoRedo = false;
+    
+    // Save and refresh
+    saveItems();
+    applySearchAndFilter();
+    
+    // Update button states
+    updateUndoRedoButtons();
+    
+    // Save to sessionStorage
+    saveUndoRedoToStorage();
+    
+    // Add to action history
+    addToActionHistory('redo', {
+        description: lastAction.description,
+        originalAction: lastAction.description.replace('Redo: ', '')
+    });
+    
+    // Show notification
+    showNotification(lastAction.description, 'info');
+    
+    console.log(`Redo performed: ${lastAction.description}`);
+}
+
+// Update undo/redo button states
+function updateUndoRedoButtons() {
+    const undoBtn = document.getElementById('btnUndo');
+    const redoBtn = document.getElementById('btnRedo');
+    
+    if (undoBtn) {
+        undoBtn.disabled = undoHistory.length === 0;
+        undoBtn.title = undoHistory.length > 0 ? 
+            `Undo: ${undoHistory[undoHistory.length - 1].description}` : 
+            'Nothing to undo';
+    }
+    
+    if (redoBtn) {
+        redoBtn.disabled = redoHistory.length === 0;
+        redoBtn.title = redoHistory.length > 0 ? 
+            `Redo: ${redoHistory[redoHistory.length - 1].description.replace('Redo: ', '')}` : 
+            'Nothing to redo';
+    }
+}
+
+// Save undo/redo history to sessionStorage
+function saveUndoRedoToStorage() {
+    try {
+        sessionStorage.setItem('testModule_undoHistory', JSON.stringify(undoHistory));
+        sessionStorage.setItem('testModule_redoHistory', JSON.stringify(redoHistory));
+    } catch (error) {
+        console.warn('Could not save undo/redo history to sessionStorage:', error);
+    }
+}
+
+// Load undo/redo history from sessionStorage
+function loadUndoRedoFromStorage() {
+    try {
+        const savedUndo = sessionStorage.getItem('testModule_undoHistory');
+        const savedRedo = sessionStorage.getItem('testModule_redoHistory');
+        
+        if (savedUndo) {
+            undoHistory = JSON.parse(savedUndo);
+        }
+        if (savedRedo) {
+            redoHistory = JSON.parse(savedRedo);
+        }
+        
+        updateUndoRedoButtons();
+        console.log(`Loaded undo history: ${undoHistory.length} items, redo history: ${redoHistory.length} items`);
+    } catch (error) {
+        console.warn('Could not load undo/redo history from sessionStorage:', error);
+        undoHistory = [];
+        redoHistory = [];
+    }
+}
+
+// ===== EXPORT FUNCTIONS =====
+
+// Export state
+let currentExportScope = 'selected'; // 'single', 'selected', 'all'
+let currentExportItemId = null;
+
+// Show export menu modal
+function showExportMenu(scope, itemId = null) {
+    currentExportScope = scope;
+    currentExportItemId = itemId;
+    
+    const modal = document.getElementById('exportMenuModal');
+    const title = document.getElementById('exportMenuTitle');
+    const scopeText = document.getElementById('exportScopeText');
+    
+    // Update title and scope text based on export type
+    switch (scope) {
+        case 'single':
+            title.textContent = 'Export Single Item';
+            scopeText.textContent = `Exporting: ${getItemTitle(itemId)}`;
+            break;
+        case 'selected':
+            title.textContent = 'Export Selected Items';
+            scopeText.textContent = `Exporting ${selectedItemIds.size} selected items`;
+            break;
+        case 'all':
+            title.textContent = 'Export All Items';
+            scopeText.textContent = `Exporting all ${window.testItems.length} items`;
+            break;
+    }
+    
+    // Reset format selection
+    document.querySelectorAll('.export-format-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    // Show modal
+    modal.classList.add('show');
+}
+
+// Hide export menu modal
+function hideExportMenu() {
+    const modal = document.getElementById('exportMenuModal');
+    modal.classList.remove('show');
+}
+
+// Get item title for display
+function getItemTitle(itemId) {
+    const item = window.testItems.find(i => i.id === itemId);
+    return item ? item.title : 'Unknown Item';
+}
+
+// Handle format selection
+function selectExportFormat(format) {
+    // Handle bulk export separately
+    if (format === 'bulk') {
+        showBulkExportModal();
+        return;
+    }
+    
+    // Remove selection from all buttons
+    document.querySelectorAll('.export-format-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    // Add selection to clicked button
+    const selectedBtn = document.querySelector(`[data-format="${format}"]`);
+    if (selectedBtn) {
+        selectedBtn.classList.add('selected');
+        
+        // Add export button to footer
+        addExportButton(format);
+    }
+}
+
+// Add export button to footer
+function addExportButton(format) {
+    const footer = document.querySelector('.export-menu-footer');
+    
+    // Remove existing export button
+    const existingBtn = footer.querySelector('.export-btn.primary');
+    if (existingBtn) {
+        existingBtn.remove();
+    }
+    
+    // Add new export button
+    const exportBtn = document.createElement('button');
+    exportBtn.className = 'export-btn primary';
+    exportBtn.textContent = `Preview ${format.toUpperCase()} Export`;
+    exportBtn.onclick = () => showExportPreview(format);
+    
+    footer.insertBefore(exportBtn, footer.firstChild);
+}
+
+// Perform the actual export
+function performExport(format) {
+    let itemsToExport = [];
+    
+    // Get items based on scope
+    switch (currentExportScope) {
+        case 'single':
+            itemsToExport = window.testItems.filter(item => item.id === currentExportItemId);
+            break;
+        case 'selected':
+            const selectedIds = Array.from(selectedItemIds);
+            itemsToExport = window.testItems.filter(item => selectedIds.includes(item.id));
+            break;
+        case 'all':
+            itemsToExport = [...window.testItems];
+            break;
+    }
+    
+    if (itemsToExport.length === 0) {
+        alert('No items to export');
+        return;
+    }
+    
+    // Get export options
+    const includeHeaders = document.getElementById('includeHeaders').checked;
+    const includeTimestamps = document.getElementById('includeTimestamps').checked;
+    
+    // Perform export based on format
+    switch (format) {
+        case 'csv':
+            exportToCSV(itemsToExport, includeHeaders, includeTimestamps);
+            break;
+        case 'excel':
+            exportToExcel(itemsToExport, includeHeaders, includeTimestamps);
+            break;
+        case 'pdf':
+            exportToPDF(itemsToExport, includeHeaders, includeTimestamps);
+            break;
+        case 'json':
+            exportToJSON(itemsToExport, includeHeaders, includeTimestamps);
+            break;
+    }
+    
+    // Hide modal and show success message
+    hideExportMenu();
+    showNotification(`${itemsToExport.length} items exported as ${format.toUpperCase()}`, 'success');
+}
+
+// Show export preview modal
+function showExportPreview(format) {
+    let itemsToExport = [];
+    
+    // Get items based on scope
+    switch (currentExportScope) {
+        case 'single':
+            itemsToExport = window.testItems.filter(item => item.id === currentExportItemId);
+            break;
+        case 'selected':
+            const selectedIds = Array.from(selectedItemIds);
+            itemsToExport = window.testItems.filter(item => selectedIds.includes(item.id));
+            break;
+        case 'all':
+            itemsToExport = [...window.testItems];
+            break;
+    }
+    
+    if (itemsToExport.length === 0) {
+        alert('No items to export');
+        return;
+    }
+    
+    // Get export options
+    const includeHeaders = document.getElementById('includeHeaders').checked;
+    const includeTimestamps = document.getElementById('includeTimestamps').checked;
+    
+    // Generate preview content
+    const previewContent = generatePreviewContent(format, itemsToExport, includeHeaders, includeTimestamps);
+    
+    // Update preview modal
+    updatePreviewModal(format, itemsToExport, previewContent, includeHeaders, includeTimestamps);
+    
+    // Show preview modal
+    const modal = document.getElementById('exportPreviewModal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+    
+    // Hide export menu
+    hideExportMenu();
+}
+
+// Generate preview content for different formats
+function generatePreviewContent(format, items, includeHeaders, includeTimestamps) {
+    switch (format) {
+        case 'csv':
+            return getCSVContent(items, includeHeaders, includeTimestamps);
+        case 'excel':
+            return getCSVContent(items, includeHeaders, includeTimestamps); // Excel uses CSV content
+        case 'json':
+            return JSON.stringify(items, null, 2);
+        case 'pdf':
+            return generatePDFHTML(items, includeHeaders, includeTimestamps);
+        default:
+            return 'Preview not available for this format';
+    }
+}
+
+// Update preview modal with content
+function updatePreviewModal(format, items, content, includeHeaders, includeTimestamps) {
+    // Update title
+    document.getElementById('exportPreviewTitle').textContent = `Export Preview - ${format.toUpperCase()}`;
+    
+    // Update format
+    document.getElementById('previewFormat').textContent = format.toUpperCase();
+    
+    // Update item count
+    document.getElementById('previewItemCount').textContent = `${items.length} item${items.length !== 1 ? 's' : ''}`;
+    
+    // Update scope
+    let scopeText = '';
+    switch (currentExportScope) {
+        case 'single':
+            scopeText = 'Single item';
+            break;
+        case 'selected':
+            scopeText = 'Selected items';
+            break;
+        case 'all':
+            scopeText = 'All items';
+            break;
+    }
+    document.getElementById('previewScope').textContent = scopeText;
+    
+    // Update options
+    const options = [];
+    if (includeHeaders) options.push('Headers');
+    if (includeTimestamps) options.push('Timestamps');
+    document.getElementById('previewOptions').textContent = options.length > 0 ? options.join(', ') : 'None';
+    
+    // Update preview content
+    const previewElement = document.getElementById('previewContent');
+    if (previewElement) {
+        // Truncate content if too long
+        const maxLength = 2000;
+        let displayContent = content;
+        if (content.length > maxLength) {
+            displayContent = content.substring(0, maxLength) + '\n\n... (content truncated, full content will be exported)';
+        }
+        previewElement.textContent = displayContent;
+    }
+    
+    // Store export parameters for confirmation
+    window.pendingExport = {
+        format: format,
+        items: items,
+        includeHeaders: includeHeaders,
+        includeTimestamps: includeTimestamps
+    };
+}
+
+// Hide export preview modal
+function hideExportPreview() {
+    const modal = document.getElementById('exportPreviewModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    window.pendingExport = null;
+}
+
+// Confirm and perform export from preview
+function confirmExportFromPreview() {
+    if (!window.pendingExport) return;
+    
+    const { format, items, includeHeaders, includeTimestamps } = window.pendingExport;
+    
+    // Perform the actual export
+    switch (format) {
+        case 'csv':
+            exportToCSV(items, includeHeaders, includeTimestamps);
+            break;
+        case 'excel':
+            exportToExcel(items, includeHeaders, includeTimestamps);
+            break;
+        case 'pdf':
+            exportToPDF(items, includeHeaders, includeTimestamps);
+            break;
+        case 'json':
+            exportToJSON(items, includeHeaders, includeTimestamps);
+            break;
+    }
+    
+    // Add to action history
+    addToActionHistory('export', {
+        format: format.toUpperCase(),
+        count: items.length,
+        scope: currentExportScope,
+        options: getExportOptionsText(includeHeaders, includeTimestamps)
+    });
+    
+    // Hide preview modal
+    hideExportPreview();
+    
+    // Show success message
+    showNotification(`${items.length} items exported as ${format.toUpperCase()}`, 'success');
+}
+
+// ===== ACTION HISTORY FUNCTIONS =====
+
+// Add action to history
+function addToActionHistory(action, details) {
+    const historyEntry = {
+        id: Date.now(),
+        timestamp: new Date(),
+        action: action,
+        details: details
+    };
+    
+    // Add to beginning of array (most recent first)
+    actionHistory.unshift(historyEntry);
+    
+    // Limit history size
+    if (actionHistory.length > maxActionHistorySize) {
+        actionHistory = actionHistory.slice(0, maxActionHistorySize);
+    }
+    
+    // Save to localStorage
+    saveActionHistoryToStorage();
+    
+    console.log(`Added action to history: ${action} - ${details.description || 'No description'}`);
+}
+
+// Save action history to localStorage
+function saveActionHistoryToStorage() {
+    try {
+        localStorage.setItem('testModule_actionHistory', JSON.stringify(actionHistory));
+    } catch (error) {
+        console.warn('Could not save action history to localStorage:', error);
+    }
+}
+
+// Load action history from localStorage
+function loadActionHistoryFromStorage() {
+    try {
+        const savedHistory = localStorage.getItem('testModule_actionHistory');
+        if (savedHistory) {
+            actionHistory = JSON.parse(savedHistory);
+            console.log(`Loaded action history: ${actionHistory.length} entries`);
+        }
+    } catch (error) {
+        console.warn('Could not load action history from localStorage:', error);
+        actionHistory = [];
+    }
+}
+
+// Show action history modal
+function showActionHistory() {
+    const modal = document.getElementById('exportHistoryModal');
+    if (modal) {
+        updateActionHistoryDisplay();
+        modal.style.display = 'flex';
+    }
+}
+
+// Hide action history modal
+function hideActionHistory() {
+    const modal = document.getElementById('exportHistoryModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Update action history display
+function updateActionHistoryDisplay() {
+    const historyList = document.getElementById('historyList');
+    const historyCount = document.querySelector('.history-count');
+    
+    if (!historyList || !historyCount) return;
+    
+    // Update count
+    historyCount.textContent = `${actionHistory.length} action${actionHistory.length !== 1 ? 's' : ''}`;
+    
+    // Clear existing content
+    historyList.innerHTML = '';
+    
+    if (actionHistory.length === 0) {
+        historyList.innerHTML = '<div class="history-empty">No actions yet</div>';
+        return;
+    }
+    
+    // Add history items
+    actionHistory.forEach(entry => {
+        const historyItem = document.createElement('div');
+        historyItem.className = 'history-item';
+        
+        const timeAgo = getTimeAgo(entry.timestamp);
+        const actionIcon = getActionIcon(entry.action);
+        const actionText = getActionText(entry.action, entry.details);
+        
+        historyItem.innerHTML = `
+            <div class="history-item-header">
+                <div class="history-item-title">
+                    <span class="action-icon">${actionIcon}</span>
+                    ${actionText}
+                </div>
+                <div class="history-item-time">${timeAgo}</div>
+            </div>
+            <div class="history-item-details">
+                ${getActionDetails(entry.details)}
+            </div>
+        `;
+        
+        historyList.appendChild(historyItem);
+    });
+}
+
+// Get action icon
+function getActionIcon(action) {
+    switch (action) {
+        case 'add': return '➕';
+        case 'edit': return '✏️';
+        case 'delete': return '🗑️';
+        case 'duplicate': return '📋';
+        case 'bulk_edit': return '📝';
+        case 'bulk_delete': return '🗑️';
+        case 'bulk_duplicate': return '📋';
+        case 'export': return '📤';
+        case 'sort': return '🔄';
+        case 'filter': return '🔍';
+        case 'search': return '🔎';
+        case 'undo': return '↶';
+        case 'redo': return '↷';
+        default: return '⚡';
+    }
+}
+
+// Get action text
+function getActionText(action, details) {
+    switch (action) {
+        case 'add':
+            return `Added "${details.itemTitle || 'item'}"`;
+        case 'edit':
+            return `Edited "${details.itemTitle || 'item'}"`;
+        case 'delete':
+            return `Deleted "${details.itemTitle || 'item'}"`;
+        case 'duplicate':
+            return `Duplicated "${details.itemTitle || 'item'}"`;
+        case 'bulk_edit':
+            return `Bulk edited ${details.count} items`;
+        case 'bulk_delete':
+            return `Bulk deleted ${details.count} items`;
+        case 'bulk_duplicate':
+            return `Bulk duplicated ${details.count} items`;
+        case 'export':
+            return `Exported ${details.count} items as ${details.format}`;
+        case 'sort':
+            return `Sorted by ${details.column}`;
+        case 'filter':
+            return `Filtered by ${details.filterType}`;
+        case 'search':
+            return `Searched for "${details.query}"`;
+        case 'undo':
+            return `Undo: ${details.originalAction || details.description}`;
+        case 'redo':
+            return `Redo: ${details.originalAction || details.description}`;
+        default:
+            return details.description || 'Action performed';
+    }
+}
+
+// Get action details HTML
+function getActionDetails(details) {
+    const detailItems = [];
+    
+    if (details.count) {
+        detailItems.push(`<div class="history-detail"><span class="history-detail-label">Items:</span><span class="history-detail-value">${details.count}</span></div>`);
+    }
+    
+    if (details.format) {
+        detailItems.push(`<div class="history-detail"><span class="history-detail-label">Format:</span><span class="history-detail-value">${details.format}</span></div>`);
+    }
+    
+    if (details.column) {
+        detailItems.push(`<div class="history-detail"><span class="history-detail-label">Column:</span><span class="history-detail-value">${details.column}</span></div>`);
+    }
+    
+    if (details.filterType) {
+        detailItems.push(`<div class="history-detail"><span class="history-detail-label">Filter:</span><span class="history-detail-value">${details.filterType}</span></div>`);
+    }
+    
+    if (details.query) {
+        detailItems.push(`<div class="history-detail"><span class="history-detail-label">Query:</span><span class="history-detail-value">"${details.query}"</span></div>`);
+    }
+    
+    if (details.scope) {
+        detailItems.push(`<div class="history-detail"><span class="history-detail-label">Scope:</span><span class="history-detail-value">${details.scope}</span></div>`);
+    }
+    
+    if (details.options) {
+        detailItems.push(`<div class="history-detail"><span class="history-detail-label">Options:</span><span class="history-detail-value">${details.options}</span></div>`);
+    }
+    
+    return detailItems.length > 0 ? `<div class="history-item-details">${detailItems.join('')}</div>` : '';
+}
+
+// Clear action history
+function clearActionHistory() {
+    if (confirm('Are you sure you want to clear all action history?')) {
+        actionHistory = [];
+        saveActionHistoryToStorage();
+        updateActionHistoryDisplay();
+        showNotification('Action history cleared', 'success');
+    }
+}
+
+// Get time ago string
+function getTimeAgo(timestamp) {
+    const now = new Date();
+    const diff = now - new Date(timestamp);
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+    
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    
+    return new Date(timestamp).toLocaleDateString();
+}
+
+// Helper function to get export options text
+function getExportOptionsText(includeHeaders, includeTimestamps) {
+    const options = [];
+    if (includeHeaders) options.push('Headers');
+    if (includeTimestamps) options.push('Timestamps');
+    return options.length > 0 ? options.join(', ') : 'None';
+}
+
+// Generate export filename
+function generateExportFilename(format, scope, itemCount) {
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+    const scopeText = scope === 'single' ? 'item' : scope === 'selected' ? 'selected' : 'all';
+    return `${scopeText}_items_${timestamp}.${format}`;
+}
+
+// ===== BULK EXPORT FUNCTIONS =====
+
+// Show bulk export modal
+function showBulkExportModal() {
+    const modal = document.getElementById('bulkExportModal');
+    if (modal) {
+        updateBulkExportInfo();
+        modal.style.display = 'flex';
+    }
+    
+    // Hide export menu
+    hideExportMenu();
+}
+
+// Hide bulk export modal
+function hideBulkExportModal() {
+    const modal = document.getElementById('bulkExportModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Update bulk export info
+function updateBulkExportInfo() {
+    const scopeText = document.getElementById('bulkExportScopeText');
+    if (!scopeText) return;
+    
+    let text = '';
+    switch (currentExportScope) {
+        case 'single':
+            text = 'Exporting single item in multiple formats';
+            break;
+        case 'selected':
+            const selectedCount = selectedItemIds.size;
+            text = `Exporting ${selectedCount} selected item${selectedCount !== 1 ? 's' : ''} in multiple formats`;
+            break;
+        case 'all':
+            text = `Exporting all ${window.testItems.length} items in multiple formats`;
+            break;
+    }
+    scopeText.textContent = text;
+}
+
+// Start bulk export
+function startBulkExport() {
+    // Get selected formats
+    const selectedFormats = [];
+    const formatCheckboxes = document.querySelectorAll('.bulk-format-option input[type="checkbox"]:checked');
+    formatCheckboxes.forEach(checkbox => {
+        selectedFormats.push(checkbox.value);
+    });
+    
+    if (selectedFormats.length === 0) {
+        alert('Please select at least one export format');
+        return;
+    }
+    
+    // Get items to export
+    let itemsToExport = [];
+    switch (currentExportScope) {
+        case 'single':
+            itemsToExport = window.testItems.filter(item => item.id === currentExportItemId);
+            break;
+        case 'selected':
+            const selectedIds = Array.from(selectedItemIds);
+            itemsToExport = window.testItems.filter(item => selectedIds.includes(item.id));
+            break;
+        case 'all':
+            itemsToExport = [...window.testItems];
+            break;
+    }
+    
+    if (itemsToExport.length === 0) {
+        alert('No items to export');
+        return;
+    }
+    
+    // Get export options
+    const includeHeaders = document.getElementById('bulkIncludeHeaders').checked;
+    const includeTimestamps = document.getElementById('bulkIncludeTimestamps').checked;
+    const compress = document.getElementById('bulkCompress').checked;
+    
+    // Perform bulk export
+    performBulkExport(selectedFormats, itemsToExport, includeHeaders, includeTimestamps, compress);
+    
+    // Hide modal
+    hideBulkExportModal();
+}
+
+// Perform bulk export
+function performBulkExport(formats, items, includeHeaders, includeTimestamps, compress) {
+    const exports = [];
+    
+    // Generate all exports
+    formats.forEach(format => {
+        try {
+            const exportData = generateExportData(format, items, includeHeaders, includeTimestamps);
+            const filename = generateExportFilename(format, currentExportScope, items.length);
+            
+            exports.push({
+                format: format,
+                data: exportData,
+                filename: filename,
+                mimeType: getMimeType(format)
+            });
+            
+            // Add to action history
+            addToActionHistory('export', {
+                format: format.toUpperCase(),
+                count: items.length,
+                scope: currentExportScope,
+                options: getExportOptionsText(includeHeaders, includeTimestamps)
+            });
+            
+        } catch (error) {
+            console.error(`Error generating ${format} export:`, error);
+        }
+    });
+    
+    if (exports.length === 0) {
+        alert('No exports could be generated');
+        return;
+    }
+    
+    // Download exports
+    if (compress && exports.length > 1) {
+        downloadCompressedExports(exports, items.length);
+    } else {
+        downloadIndividualExports(exports);
+    }
+    
+    // Show success message
+    const formatText = formats.map(f => f.toUpperCase()).join(', ');
+    showNotification(`Bulk export completed: ${formatText} (${items.length} items)`, 'success');
+}
+
+// Generate export data for different formats
+function generateExportData(format, items, includeHeaders, includeTimestamps) {
+    switch (format) {
+        case 'csv':
+            return getCSVContent(items, includeHeaders, includeTimestamps);
+        case 'excel':
+            return getCSVContent(items, includeHeaders, includeTimestamps); // Excel uses CSV content
+        case 'json':
+            return JSON.stringify(items, null, 2);
+        case 'pdf':
+            return generatePDFHTML(items, includeHeaders, includeTimestamps);
+        default:
+            throw new Error(`Unsupported format: ${format}`);
+    }
+}
+
+// Get MIME type for format
+function getMimeType(format) {
+    switch (format) {
+        case 'csv':
+            return 'text/csv';
+        case 'excel':
+            return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        case 'json':
+            return 'application/json';
+        case 'pdf':
+            return 'application/pdf';
+        default:
+            return 'text/plain';
+    }
+}
+
+// Download individual exports
+function downloadIndividualExports(exports) {
+    exports.forEach(exportItem => {
+        downloadFile(exportItem.data, exportItem.filename, exportItem.mimeType);
+    });
+}
+
+// Download compressed exports (ZIP simulation)
+function downloadCompressedExports(exports, itemCount) {
+    // For now, we'll download individual files with a delay to simulate ZIP
+    // In a real implementation, you'd use a library like JSZip
+    
+    const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+    const zipFilename = `bulk_export_${itemCount}_items_${timestamp}.zip`;
+    
+    // Show notification about ZIP simulation
+    showNotification(`ZIP compression simulated - downloading ${exports.length} files`, 'info');
+    
+    // Download files with slight delay
+    exports.forEach((exportItem, index) => {
+        setTimeout(() => {
+            downloadFile(exportItem.data, exportItem.filename, exportItem.mimeType);
+        }, index * 500); // 500ms delay between downloads
+    });
+}
+
+// Export to CSV
+function exportToCSV(items, includeHeaders, includeTimestamps) {
+    const headers = ['Title', 'Description', 'Category', 'Status', 'Priority', 'Assignee'];
+    if (includeTimestamps) {
+        headers.push('Created Date', 'Updated Date');
+    }
+    
+    let csvContent = '';
+    
+    // Add headers if requested
+    if (includeHeaders) {
+        csvContent += headers.join(',') + '\n';
+    }
+    
+    // Add data rows
+    items.forEach(item => {
+        const row = [
+            `"${item.title || ''}"`,
+            `"${item.description || ''}"`,
+            `"${item.category || ''}"`,
+            `"${item.status || ''}"`,
+            `"${item.priority || ''}"`,
+            `"${item.assignee || ''}"`
+        ];
+        
+        if (includeTimestamps) {
+            row.push(`"${item.createdDate || ''}"`, `"${item.updatedDate || ''}"`);
+        }
+        
+        csvContent += row.join(',') + '\n';
+    });
+    
+    // Download file
+    downloadFile(csvContent, 'items.csv', 'text/csv');
+}
+
+// Export to Excel (using CSV format with .xlsx extension)
+function exportToExcel(items, includeHeaders, includeTimestamps) {
+    // For now, we'll use CSV format with .xlsx extension
+    // In a real implementation, you'd use a library like SheetJS
+    exportToCSV(items, includeHeaders, includeTimestamps);
+    
+    // Rename the downloaded file to .xlsx
+    setTimeout(() => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(new Blob([getCSVContent(items, includeHeaders, includeTimestamps)], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+        link.download = 'items.xlsx';
+        link.click();
+    }, 100);
+}
+
+// Export to PDF
+function exportToPDF(items, includeHeaders, includeTimestamps) {
+    // For now, we'll create a simple HTML table and use browser print
+    // In a real implementation, you'd use a library like jsPDF
+    const printWindow = window.open('', '_blank');
+    const htmlContent = generatePDFHTML(items, includeHeaders, includeTimestamps);
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+// Export to JSON
+function exportToJSON(items, includeHeaders, includeTimestamps) {
+    const jsonData = {
+        exportInfo: {
+            timestamp: new Date().toISOString(),
+            itemCount: items.length,
+            includeHeaders: includeHeaders,
+            includeTimestamps: includeTimestamps
+        },
+        items: items
+    };
+    
+    const jsonContent = JSON.stringify(jsonData, null, 2);
+    downloadFile(jsonContent, 'items.json', 'application/json');
+}
+
+// Helper function to get CSV content
+function getCSVContent(items, includeHeaders, includeTimestamps) {
+    const headers = ['Title', 'Description', 'Category', 'Status', 'Priority', 'Assignee'];
+    if (includeTimestamps) {
+        headers.push('Created Date', 'Updated Date');
+    }
+    
+    let csvContent = '';
+    
+    if (includeHeaders) {
+        csvContent += headers.join(',') + '\n';
+    }
+    
+    items.forEach(item => {
+        const row = [
+            `"${item.title || ''}"`,
+            `"${item.description || ''}"`,
+            `"${item.category || ''}"`,
+            `"${item.status || ''}"`,
+            `"${item.priority || ''}"`,
+            `"${item.assignee || ''}"`
+        ];
+        
+        if (includeTimestamps) {
+            row.push(`"${item.createdDate || ''}"`, `"${item.updatedDate || ''}"`);
+        }
+        
+        csvContent += row.join(',') + '\n';
+    });
+    
+    return csvContent;
+}
+
+// Helper function to generate PDF HTML
+function generatePDFHTML(items, includeHeaders, includeTimestamps) {
+    const headers = ['Title', 'Description', 'Category', 'Status', 'Priority', 'Assignee'];
+    if (includeTimestamps) {
+        headers.push('Created Date', 'Updated Date');
+    }
+    
+    let tableRows = '';
+    items.forEach(item => {
+        const row = [
+            item.title || '',
+            item.description || '',
+            item.category || '',
+            item.status || '',
+            item.priority || '',
+            item.assignee || ''
+        ];
+        
+        if (includeTimestamps) {
+            row.push(item.createdDate || '', item.updatedDate || '');
+        }
+        
+        tableRows += '<tr>' + row.map(cell => `<td>${cell}</td>`).join('') + '</tr>';
+    });
+    
+    return `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Items Export</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f2f2f2; font-weight: bold; }
+                h1 { color: #333; }
+            </style>
+        </head>
+        <body>
+            <h1>Items Export</h1>
+            <p>Exported on: ${new Date().toLocaleString()}</p>
+            <p>Total items: ${items.length}</p>
+            <table>
+                <thead>
+                    <tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>
+                </thead>
+                <tbody>
+                    ${tableRows}
+                </tbody>
+            </table>
+        </body>
+        </html>
+    `;
+}
+
+// Helper function to download file
+function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+// Export functions for different scopes
+function exportSingleItem(itemId) {
+    showExportMenu('single', itemId);
+}
+
+function exportSelectedItems() {
+    if (selectedItemIds.size === 0) {
+        alert('Please select items to export');
+        return;
+    }
+    showExportMenu('selected');
+}
+
+function exportAllItems() {
+    if (window.testItems.length === 0) {
+        alert('No items to export');
+        return;
+    }
+    showExportMenu('all');
+}
+
 // Clear search
 function clearSearch() {
     const searchInput = document.getElementById('itemSearch');
@@ -998,6 +2371,7 @@ function toggleActionMenu(itemId) {
     `<button type="button" onclick="insertItemAbove('${itemId}');">⬆️ Insert Above</button>`,
     `<button type="button" onclick="insertItemBelow('${itemId}');">⬇️ Insert Below</button>`,
     `<button type="button" onclick="duplicateItem('${itemId}');">📋 Duplicate</button>`,
+    `<button type="button" onclick="exportSingleItem('${itemId}');">📤 Export</button>`,
     `<button type="button" onclick="deleteItem('${itemId}');">🗑️ Delete</button>`
   ].join('');
   
@@ -1071,6 +2445,9 @@ function generateItemId() {
 function duplicateItem(itemId) {
     const item = window.testItems.find(i => i.id === itemId);
     if (item) {
+        // Save to undo history BEFORE making changes
+        saveToUndoHistory('duplicate', `Duplicated item '${item.title}'`);
+        
         const newItem = {
             ...item,
             id: generateItemId(),
@@ -1080,6 +2457,13 @@ function duplicateItem(itemId) {
         };
         
         window.testItems.push(newItem);
+        
+        // Add to action history
+        addToActionHistory('duplicate', {
+            itemTitle: item.title,
+            description: `Duplicated item: ${item.title}`
+        });
+        
         saveItems();
         applySearchAndFilter();
         showNotification('Item duplicated successfully', 'success');
@@ -1088,7 +2472,23 @@ function duplicateItem(itemId) {
 
 function deleteItem(itemId) {
     if (confirm('Are you sure you want to delete this item?')) {
+        const itemToDelete = window.testItems.find(i => i.id === itemId);
+        
+        // Save to undo history BEFORE making changes
+        if (itemToDelete) {
+            saveToUndoHistory('delete', `Deleted item '${itemToDelete.title}'`);
+        }
+        
         window.testItems = window.testItems.filter(i => i.id !== itemId);
+        
+        // Add to action history
+        if (itemToDelete) {
+            addToActionHistory('delete', {
+                itemTitle: itemToDelete.title,
+                description: `Deleted item: ${itemToDelete.title}`
+            });
+        }
+        
         saveItems();
         applySearchAndFilter();
         showNotification('Item deleted successfully', 'success');
@@ -1165,17 +2565,37 @@ function saveItemFromModal(itemId, mode, insertIndex) {
     };
     
     if (mode === 'add') {
+        // Save to undo history BEFORE making changes
+        saveToUndoHistory('add', `Added item '${formData.title}'`);
+        
         const newItem = {
             id: itemId,
             ...formData,
             createdDate: new Date().toISOString().split('T')[0]
         };
         window.testItems.push(newItem);
+        
+        // Add to action history
+        addToActionHistory('add', {
+            itemTitle: formData.title,
+            description: `Added new item: ${formData.title}`
+        });
+        
         showNotification('Item added successfully', 'success');
     } else if (mode === 'edit') {
         const itemIndex = window.testItems.findIndex(i => i.id === itemId);
         if (itemIndex !== -1) {
+            // Save to undo history BEFORE making changes
+            saveToUndoHistory('edit', `Edited item '${formData.title}'`);
+            
             window.testItems[itemIndex] = { ...window.testItems[itemIndex], ...formData };
+            
+            // Add to action history
+            addToActionHistory('edit', {
+                itemTitle: formData.title,
+                description: `Edited item: ${formData.title}`
+            });
+            
             showNotification('Item updated successfully', 'success');
         }
     } else if (mode.startsWith('insert-')) {
@@ -1249,6 +2669,10 @@ function updatePaginationDisplay() {
                 <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
                 <option value="25" ${itemsPerPage === 25 ? 'selected' : ''}>25</option>
                 <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+                <option value="75" ${itemsPerPage === 75 ? 'selected' : ''}>75</option>
+                <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                <option value="150" ${itemsPerPage === 150 ? 'selected' : ''}>150</option>
+                <option value="200" ${itemsPerPage === 200 ? 'selected' : ''}>200</option>
             </select>
         </div>
     `;
@@ -1416,10 +2840,6 @@ function updateSelectedCountOnly() {
 
 // Mass action functions
 function deleteSelectedItems() {
-    console.log('deleteSelectedItems called');
-    console.log('selectedItemIds.size:', selectedItemIds.size);
-    console.log('selectedItemIds contents:', Array.from(selectedItemIds));
-    
     if (selectedItemIds.size === 0) {
         alert('Please select items to delete');
         return;
@@ -1427,8 +2847,18 @@ function deleteSelectedItems() {
     
     if (confirm(`Are you sure you want to delete ${selectedItemIds.size} selected items?`)) {
         const selectedIds = Array.from(selectedItemIds);
-        console.log('Deleting items with IDs:', selectedIds);
+        const itemsToDelete = window.testItems.filter(item => selectedIds.includes(item.id));
+        
+        // Save to undo history BEFORE making changes
+        saveToUndoHistory('bulk_delete', `Bulk deleted ${itemsToDelete.length} items`);
+        
         window.testItems = window.testItems.filter(item => !selectedIds.includes(item.id));
+        
+        // Add to action history
+        addToActionHistory('bulk_delete', {
+            count: selectedIds.length,
+            description: `Bulk deleted ${selectedIds.length} items`
+        });
         
         saveItems();
         applySearchAndFilter();
@@ -1446,6 +2876,9 @@ function duplicateSelectedItems() {
     const selectedIds = Array.from(selectedItemIds);
     const itemsToDuplicate = window.testItems.filter(item => selectedIds.includes(item.id));
     
+    // Save to undo history BEFORE making changes
+    saveToUndoHistory('bulk_duplicate', `Bulk duplicated ${itemsToDuplicate.length} items`);
+    
     itemsToDuplicate.forEach(item => {
         const newItem = {
             ...item,
@@ -1457,25 +2890,19 @@ function duplicateSelectedItems() {
         window.testItems.push(newItem);
     });
     
+    // Add to action history
+    addToActionHistory('bulk_duplicate', {
+        count: itemsToDuplicate.length,
+        description: `Bulk duplicated ${itemsToDuplicate.length} items`
+    });
+    
     saveItems();
     applySearchAndFilter();
     clearAllSelections(); // Clear all checkboxes after duplication
     showNotification(`${itemsToDuplicate.length} items duplicated successfully`, 'success');
 }
 
-function exportSelectedItems() {
-    if (selectedItemIds.size === 0) {
-        alert('Please select items to export');
-        return;
-    }
-    
-    const selectedIds = Array.from(selectedItemIds);
-    const itemsToExport = window.testItems.filter(item => selectedIds.includes(item.id));
-    
-    exportToCSV(itemsToExport, 'selected_items.csv');
-    clearAllSelections(); // Clear all checkboxes after export
-    showNotification(`${itemsToExport.length} items exported successfully`, 'success');
-}
+// This function has been replaced by the new export system above
 
 // Export functions
 function exportItems() {
@@ -1582,6 +3009,26 @@ window.deleteItem = deleteItem;
 window.closeItemModal = closeItemModal;
 window.handleColumnClick = handleColumnClick;
 window.clearSorting = clearSorting;
+window.openBulkEdit = openBulkEdit;
+window.closeBulkEdit = closeBulkEdit;
+window.applyBulkEdit = applyBulkEdit;
+window.performUndo = performUndo;
+window.performRedo = performRedo;
+window.exportSingleItem = exportSingleItem;
+window.exportSelectedItems = exportSelectedItems;
+window.exportAllItems = exportAllItems;
+window.showExportMenu = showExportMenu;
+window.hideExportMenu = hideExportMenu;
+window.selectExportFormat = selectExportFormat;
+window.showExportPreview = showExportPreview;
+window.hideExportPreview = hideExportPreview;
+window.confirmExportFromPreview = confirmExportFromPreview;
+window.showActionHistory = showActionHistory;
+window.hideActionHistory = hideActionHistory;
+window.clearActionHistory = clearActionHistory;
+window.showBulkExportModal = showBulkExportModal;
+window.hideBulkExportModal = hideBulkExportModal;
+window.startBulkExport = startBulkExport;
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', initTestModule);

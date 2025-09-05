@@ -11,8 +11,8 @@
 <header class="module-header">
   <div class="module-toolbar">
     <button class="btn" id="btnSave" title="Save data">Save</button>
-    <button class="btn" id="btnExport" title="Export data">Export</button>
-    <button class="btn" id="btnAddFeature" title="Add experimental feature">+ Feature</button>
+    <button class="btn" id="btnExportAll" title="Export all items">📤 Export All</button>
+    <button class="btn" id="btnExportHistory" title="View action history">📋 History</button>
     <button class="btn" id="btnKeyboardHelp" title="Show keyboard shortcuts">⌨️ Help</button>
   </div>
 </header>
@@ -50,22 +50,274 @@
         </div>
         
         <div class="test-actions">
+          <button class="btn btn-secondary" id="btnUndo" disabled>Undo</button>
+          <button class="btn btn-secondary" id="btnRedo" disabled>Redo</button>
           <button class="btn btn-primary" id="btnAddItem">+ Add Item</button>
         </div>
       </div>
 
-      <!-- Mass Action Toolbar -->
-      <div id="massActionToolbar" class="mass-action-toolbar">
-        <div class="mass-action-left">
-          <button id="btnClearSelected" class="mass-action-btn clear-btn">Clear</button>
-          <span class="selected-count">0 selected</span>
+          <!-- Mass Action Toolbar -->
+    <div id="massActionToolbar" class="mass-action-toolbar">
+      <div class="mass-action-left">
+        <button id="btnClearSelected" class="mass-action-btn clear-btn">Clear</button>
+        <span class="selected-count">0 selected</span>
+      </div>
+      <div class="mass-action-buttons">
+        <button id="btnDeleteSelected" class="mass-action-btn danger">Delete Selected</button>
+        <button id="btnDuplicateSelected" class="mass-action-btn">Duplicate Selected</button>
+        <button id="btnExportSelected" class="mass-action-btn">Export Selected</button>
+        <button id="btnBulkEdit" class="mass-action-btn primary">Bulk Edit</button>
+      </div>
+    </div>
+
+    <!-- Bulk Edit Toolbar -->
+    <div id="bulkEditToolbar" class="bulk-edit-toolbar">
+      <div class="bulk-edit-header">
+        <h3>Bulk Edit Selected Items</h3>
+        <button id="btnCloseBulkEdit" class="close-btn">×</button>
+      </div>
+      <div class="bulk-edit-fields">
+        <div class="bulk-edit-field">
+          <label for="bulkStatus">Status:</label>
+          <select id="bulkStatus" class="bulk-edit-input">
+            <option value="">-- No Change --</option>
+            <option value="not-started">Not Started</option>
+            <option value="in-progress">In Progress</option>
+            <option value="completed">Completed</option>
+            <option value="on-hold">On Hold</option>
+          </select>
         </div>
-        <div class="mass-action-buttons">
-          <button id="btnDeleteSelected" class="mass-action-btn danger">Delete Selected</button>
-          <button id="btnDuplicateSelected" class="mass-action-btn">Duplicate Selected</button>
-          <button id="btnExportSelected" class="mass-action-btn">Export Selected</button>
+        <div class="bulk-edit-field">
+          <label for="bulkAssignee">Assignee:</label>
+          <input type="text" id="bulkAssignee" class="bulk-edit-input" placeholder="Enter assignee name">
+        </div>
+        <div class="bulk-edit-field">
+          <label for="bulkPriority">Priority:</label>
+          <select id="bulkPriority" class="bulk-edit-input">
+            <option value="">-- No Change --</option>
+            <option value="low">Low</option>
+            <option value="medium">Medium</option>
+            <option value="high">High</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </div>
+        <div class="bulk-edit-field">
+          <label for="bulkStartDate">Start Date:</label>
+          <input type="date" id="bulkStartDate" class="bulk-edit-input">
+        </div>
+        <div class="bulk-edit-field">
+          <label for="bulkEndDate">End Date:</label>
+          <input type="date" id="bulkEndDate" class="bulk-edit-input">
         </div>
       </div>
+      <div class="bulk-edit-actions">
+        <button id="btnApplyBulkEdit" class="bulk-edit-btn primary">Apply Changes</button>
+        <button id="btnCancelBulkEdit" class="bulk-edit-btn">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Export Menu Modal -->
+    <div id="exportMenuModal" class="export-menu-modal">
+      <div class="export-menu-content">
+        <div class="export-menu-header">
+          <h3 id="exportMenuTitle">Export Items</h3>
+          <button id="btnCloseExportMenu" class="close-btn">×</button>
+        </div>
+        <div class="export-menu-body">
+          <div class="export-scope-info">
+            <p id="exportScopeText">Exporting selected items</p>
+          </div>
+          <div class="export-format-options">
+            <h4>Choose Export Format:</h4>
+            <div class="export-format-grid">
+              <button class="export-format-btn" data-format="csv">
+                <div class="export-format-icon">📊</div>
+                <div class="export-format-name">CSV</div>
+                <div class="export-format-desc">Spreadsheet format</div>
+              </button>
+              <button class="export-format-btn" data-format="excel">
+                <div class="export-format-icon">📈</div>
+                <div class="export-format-name">Excel</div>
+                <div class="export-format-desc">Excel workbook</div>
+              </button>
+              <button class="export-format-btn" data-format="pdf">
+                <div class="export-format-icon">📄</div>
+                <div class="export-format-name">PDF</div>
+                <div class="export-format-desc">PDF document</div>
+              </button>
+              <button class="export-format-btn" data-format="json">
+                <div class="export-format-icon">🔧</div>
+                <div class="export-format-name">JSON</div>
+                <div class="export-format-desc">Data format</div>
+              </button>
+              <button class="export-format-btn bulk-export-btn" data-format="bulk">
+                <div class="export-format-icon">📦</div>
+                <div class="export-format-name">Bulk Export</div>
+                <div class="export-format-desc">Multiple formats</div>
+              </button>
+            </div>
+          </div>
+          <div class="export-options">
+            <h4>Export Options:</h4>
+            <div class="export-option">
+              <label>
+                <input type="checkbox" id="includeHeaders" checked>
+                Include column headers
+              </label>
+            </div>
+            <div class="export-option">
+              <label>
+                <input type="checkbox" id="includeTimestamps" checked>
+                Include timestamps
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="export-menu-footer">
+          <button id="btnCancelExport" class="export-btn secondary">Cancel</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Export Preview Modal -->
+    <div id="exportPreviewModal" class="export-preview-modal">
+      <div class="export-preview-content">
+        <div class="export-preview-header">
+          <h3 id="exportPreviewTitle">Export Preview</h3>
+          <button id="btnCloseExportPreview" class="close-btn">×</button>
+        </div>
+        <div class="export-preview-body">
+          <div class="export-preview-info">
+            <div class="preview-summary">
+              <h4>Export Summary</h4>
+              <div class="preview-details">
+                <div class="preview-detail">
+                  <span class="detail-label">Format:</span>
+                  <span id="previewFormat" class="detail-value">CSV</span>
+                </div>
+                <div class="preview-detail">
+                  <span class="detail-label">Items:</span>
+                  <span id="previewItemCount" class="detail-value">5 items</span>
+                </div>
+                <div class="preview-detail">
+                  <span class="detail-label">Scope:</span>
+                  <span id="previewScope" class="detail-value">Selected items</span>
+                </div>
+                <div class="preview-detail">
+                  <span class="detail-label">Options:</span>
+                  <span id="previewOptions" class="detail-value">Headers, Timestamps</span>
+                </div>
+              </div>
+            </div>
+            <div class="preview-content">
+              <h4>Preview Content</h4>
+              <div class="preview-text-container">
+                <pre id="previewContent" class="preview-text"></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="export-preview-footer">
+          <button id="btnCancelPreview" class="export-btn secondary">Cancel</button>
+          <button id="btnConfirmExport" class="export-btn primary">Download Export</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Export History Modal -->
+    <div id="exportHistoryModal" class="export-history-modal">
+      <div class="export-history-content">
+        <div class="export-history-header">
+          <h3>Action History</h3>
+          <button id="btnCloseExportHistory" class="close-btn">×</button>
+        </div>
+        <div class="export-history-body">
+          <div class="history-controls">
+            <button id="btnClearHistory" class="btn btn-secondary">Clear History</button>
+            <span class="history-count">0 actions</span>
+          </div>
+          <div class="history-list" id="historyList">
+            <!-- History items will be populated here -->
+          </div>
+        </div>
+        <div class="export-history-footer">
+          <button id="btnCloseHistory" class="export-btn secondary">Close</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bulk Export Selection Modal -->
+    <div id="bulkExportModal" class="bulk-export-modal">
+      <div class="bulk-export-content">
+        <div class="bulk-export-header">
+          <h3>Bulk Export Selection</h3>
+          <button id="btnCloseBulkExport" class="close-btn">×</button>
+        </div>
+        <div class="bulk-export-body">
+          <div class="bulk-export-info">
+            <p id="bulkExportScopeText">Exporting selected items in multiple formats</p>
+          </div>
+          <div class="bulk-format-selection">
+            <h4>Select Export Formats:</h4>
+            <div class="bulk-format-grid">
+              <label class="bulk-format-option">
+                <input type="checkbox" id="bulkCsv" value="csv" checked>
+                <div class="bulk-format-card">
+                  <div class="bulk-format-icon">📊</div>
+                  <div class="bulk-format-name">CSV</div>
+                </div>
+              </label>
+              <label class="bulk-format-option">
+                <input type="checkbox" id="bulkExcel" value="excel" checked>
+                <div class="bulk-format-card">
+                  <div class="bulk-format-icon">📈</div>
+                  <div class="bulk-format-name">Excel</div>
+                </div>
+              </label>
+              <label class="bulk-format-option">
+                <input type="checkbox" id="bulkPdf" value="pdf">
+                <div class="bulk-format-card">
+                  <div class="bulk-format-icon">📄</div>
+                  <div class="bulk-format-name">PDF</div>
+                </div>
+              </label>
+              <label class="bulk-format-option">
+                <input type="checkbox" id="bulkJson" value="json">
+                <div class="bulk-format-card">
+                  <div class="bulk-format-icon">🔧</div>
+                  <div class="bulk-format-name">JSON</div>
+                </div>
+              </label>
+            </div>
+          </div>
+          <div class="bulk-export-options">
+            <h4>Export Options:</h4>
+            <div class="bulk-export-option">
+              <label>
+                <input type="checkbox" id="bulkIncludeHeaders" checked>
+                Include column headers
+              </label>
+            </div>
+            <div class="bulk-export-option">
+              <label>
+                <input type="checkbox" id="bulkIncludeTimestamps" checked>
+                Include timestamps
+              </label>
+            </div>
+            <div class="bulk-export-option">
+              <label>
+                <input type="checkbox" id="bulkCompress" checked>
+                Compress into ZIP file
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="bulk-export-footer">
+          <button id="btnCancelBulkExport" class="export-btn secondary">Cancel</button>
+          <button id="btnStartBulkExport" class="export-btn primary">Start Bulk Export</button>
+        </div>
+      </div>
+    </div>
       
       <div class="test-content">
         <!-- List View -->
@@ -233,6 +485,14 @@
           <div class="shortcut-item">
             <kbd>Ctrl</kbd> + <kbd>E</kbd>
             <span>Export selected items</span>
+          </div>
+          <div class="shortcut-item">
+            <kbd>Ctrl</kbd> + <kbd>Z</kbd>
+            <span>Undo last action</span>
+          </div>
+          <div class="shortcut-item">
+            <kbd>Ctrl</kbd> + <kbd>Y</kbd> or <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd>
+            <span>Redo last undone action</span>
           </div>
         </div>
         

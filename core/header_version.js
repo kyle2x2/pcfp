@@ -16,7 +16,7 @@
       // Add to the sidebar header
       header.appendChild(span);
     }
-                const appBuild = window.APP_BUILD || 'v8.8.23';
+                const appBuild = window.APP_BUILD || 'v8.8.24';
     span.textContent = 'Build ' + appBuild;
   }
   if(document.readyState!=='loading') bindHeader();

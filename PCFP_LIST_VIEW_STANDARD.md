@@ -1,4 +1,4 @@
-# PCFP List View Standard v8.8.23
+# PCFP List View Standard v8.8.24
 
 ## 📋 **Standard Features for All List Views**
 
@@ -11,7 +11,7 @@ Every list view module must implement these standard features:
 - **Smart Display**: Shows ellipsis (...) for large page counts (e.g., "1 2 3 4 ... 10")
 - **Page Numbers**: Dynamic page number display with current page highlighting
 - **Performance**: Automatic pagination on initial load
-- **Items Per Page**: Dropdown selector (10, 25, 50) positioned on right side of pagination bar
+- **Items Per Page**: Dropdown selector (10, 25, 50, 75, 100, 150, 200) positioned on right side of pagination bar
 - **Always Visible**: Pagination container always visible, page navigation buttons conditional
 
 #### **2. Horizontal Scroll Behavior (STANDARDIZED)**
@@ -44,6 +44,25 @@ Every list view module must implement these standard features:
 - **Visual Indicators**: Single arrows (↑/↓) show current sort direction, subtle ↕ for sortable columns
 - **Sort State**: Tracks current column and direction, clears on third click
 - **Performance**: Sorting resets to page 1 and maintains pagination
+
+#### **6. Smart Export System (NEW STANDARD)**
+- **Export Preview**: Preview export content before downloading to prevent wasted downloads
+- **Multiple Formats**: Support for CSV, Excel, PDF, and JSON exports
+- **Export Scopes**: Single item, selected items, and all items export options
+- **Customization Options**: Include/exclude headers and timestamps
+- **Bulk Export**: Export multiple formats simultaneously with compression option
+- **Export History**: Track all export operations with timestamps and details
+- **File Management**: Proper MIME types and timestamped filenames
+- **Error Handling**: Graceful failure with user feedback
+
+#### **7. Comprehensive Action History (NEW STANDARD)**
+- **Complete Tracking**: All user actions tracked (add, edit, delete, duplicate, bulk operations, exports, undo/redo)
+- **Smart Descriptions**: Context-aware action descriptions with emoji icons
+- **Time Tracking**: "Just now", "5m ago", "2h ago" relative timestamps
+- **Persistent Storage**: History survives page refreshes using localStorage
+- **Configurable Limit**: 100 action limit with automatic cleanup
+- **Action Details**: Shows item counts, formats, scopes, and other relevant details
+- **Clear History**: Option to clear all action history
 
 #### **4. Enhanced Mass Actions Toolbar (CROSS-PAGE SELECTION)**
 - **Trigger**: Checkbox selection (individual + select all)
@@ -848,6 +867,10 @@ function updatePaginationDisplay() {
                 <option value="10" ${itemsPerPage === 10 ? 'selected' : ''}>10</option>
                 <option value="25" ${itemsPerPage === 25 ? 'selected' : ''}>25</option>
                 <option value="50" ${itemsPerPage === 50 ? 'selected' : ''}>50</option>
+                <option value="75" ${itemsPerPage === 75 ? 'selected' : ''}>75</option>
+                <option value="100" ${itemsPerPage === 100 ? 'selected' : ''}>100</option>
+                <option value="150" ${itemsPerPage === 150 ? 'selected' : ''}>150</option>
+                <option value="200" ${itemsPerPage === 200 ? 'selected' : ''}>200</option>
             </select>
         </div>
     `;
